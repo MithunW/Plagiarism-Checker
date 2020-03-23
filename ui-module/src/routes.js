@@ -18,7 +18,7 @@
 */
 import Dashboard from "views/Dashboard.jsx";
 import Notifications from "views/Notifications.jsx";
-import Icons from "views/Icons.jsx";
+import SignUp from "views/SignUp.jsx";
 import Typography from "views/Typography.jsx";
 import TableList from "views/Tables.jsx";
 import Maps from "views/Map.jsx";
@@ -34,11 +34,11 @@ var routes = [
     layout: "/admin"
   },
   {
-    path: "/icons",
-    name: "Icons",
+    path: "/signup",
+    name: "SignUp",
     icon: "nc-icon nc-diamond",
-    component: Icons,
-    layout: "/admin"
+    component: SignUp,
+    layout: "/access"
   },
   {
     path: "/maps",
