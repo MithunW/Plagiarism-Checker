@@ -30,7 +30,7 @@ class SignUp extends React.Component {
   // const classes = useStyles;
   const classes  ={
       paper: {
-        marginTop: '8rem',
+        marginTop: '5rem',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -63,7 +63,7 @@ class SignUp extends React.Component {
         </Typography>
 
         <form style={classes.form}  noValidate>
-          <Grid container spacing={4}>
+          <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
               <TextField
                 autoComplete="fname"
@@ -107,6 +107,18 @@ class SignUp extends React.Component {
                 label="Password"
                 type="password"
                 id="password"
+                autoComplete="current-password"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                name="confirmPassword"
+                label="Confirm Password"
+                type="password"
+                id="confirmPassword"
                 autoComplete="current-password"
               />
             </Grid>
