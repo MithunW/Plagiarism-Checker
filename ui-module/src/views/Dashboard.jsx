@@ -151,22 +151,22 @@ class Dashboard extends React.Component {
             <Col md="12">
               <Card>
                 <CardHeader>
-                  <CardTitle tag="h5">Users Behavior</CardTitle>
-                  <p className="card-category">24 Hours performance</p>
+                  <CardTitle tag="h5">Upload Files</CardTitle>
                 </CardHeader>
                 <CardBody>
-                  <Line
+                <input type="file" name="file" onChange={this.onChangeHandler}/>
+                  {/* <Line
                     data={dashboard24HoursPerformanceChart.data}
                     options={dashboard24HoursPerformanceChart.options}
                     width={400}
                     height={100}
-                  />
+                  /> */}
                 </CardBody>
                 <CardFooter>
-                  <hr />
+                  {/* <hr />
                   <div className="stats">
                     <i className="fa fa-history" /> Updated 3 minutes ago
-                  </div>
+                  </div> */}
                 </CardFooter>
               </Card>
             </Col>
