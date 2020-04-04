@@ -1,7 +1,7 @@
 import React from "react";
 import { Route, Switch } from "react-router-dom";
 // import Footer from "components/Footer/Footer.jsx";
-import routes from "routes.js";
+import {access_routes} from "routes.js";
 import PerfectScrollbar from "perfect-scrollbar";
 
 
@@ -47,7 +47,7 @@ class Dashboard extends React.Component {
          <div  ref={this.mainPanel}>
 
           <Switch>
-            {routes.map((prop, key) => {
+            {access_routes.map((prop, key) => {
               return (
                 <Route
                   path={prop.layout + prop.path}

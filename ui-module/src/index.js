@@ -19,7 +19,7 @@ ReactDOM.render(
     <Switch>
       <Route path="/admin" render={props => <AdminLayout {...props} />} />
       <Route path="/access" render={props => <AccessLayout {...props} />} />
-      <Redirect to="/admin/dashboard" />
+      <Redirect to="/access/login" />
     </Switch>
   </Router>,
   document.getElementById("root")
