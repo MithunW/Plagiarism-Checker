@@ -16,7 +16,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 
-class SignUp extends React.Component {
+class Login extends React.Component {
 
   constructor(props) {
     super(props);
@@ -37,20 +37,20 @@ class SignUp extends React.Component {
       },
 
       paper: {
-        padding:'0.1rem 0 5.3rem 0',
+        padding:'0.1rem 0 14.3rem 0',
         textAlign:'center',
         backgroundColor:'#F0F3F0'
       },
       
       form: {
-        margin:'2rem 0 0 0',
+        margin:'4rem 0 0 0',
         textAlign:'center',
         display:'block'
         // right:'0',
       },
       button: {
         textAlign:'center',
-        margin:'1rem 0 0 0'
+        margin:'2rem 0 0 0'
       },
 
       img:{
@@ -79,35 +79,13 @@ class SignUp extends React.Component {
             <Container maxWidth='xs' >
 
               <Typography component="h1" variant="h4" style={{marginTop: '5rem'}}>
-                Sign Up
+                Login
               </Typography>
 
               <form style={classes.form}  noValidate>
 
                 <Grid container alignItems='center' alignContent='center' spacing={4} style={{textAlign:'center'}}>
-                  <Grid item xs={12} sm={6} >
-                    <TextField
-                      autoComplete="fname"
-                      name="firstName"
-                      variant="outlined"
-                      required
-                      fullWidth
-                      id="firstName"
-                      label="First Name"
-                      autoFocus
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      variant="outlined"
-                      required
-                      fullWidth
-                      id="lastName"
-                      label="Last Name"
-                      name="lastName"
-                      // autoComplete="lname"
-                    />
-                  </Grid>
+
                   <Grid item xs={12}>
                     <TextField
                       variant="outlined"
@@ -116,7 +94,8 @@ class SignUp extends React.Component {
                       id="email"
                       label="Email Address"
                       name="email"
-                      // autoComplete="email"
+                      autoFocus
+                      autoComplete="email"
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -128,27 +107,9 @@ class SignUp extends React.Component {
                       label="Password"
                       type="password"
                       id="password"
-                      // autoComplete="current-password"
+                      autoComplete="current-password"
                     />
                   </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      variant="outlined"
-                      required
-                      fullWidth
-                      name="confirmPassword"
-                      label="Confirm Password"
-                      type="password"
-                      id="confirmPassword"
-                      // autoComplete="current-password"
-                    />
-                  </Grid>
-                  {/* <Grid item xs={12}>
-                    <FormControlLabel
-                      control={<Checkbox value="allowExtraEmails" color="primary" />}
-                      label="I want to receive inspiration, marketing promotions and updates via email."
-                    />
-                  </Grid> */}
                   <Grid item xs={6} sm={6} style={{textAlign:'right'}}>
                     <Button
                       type="submit"
@@ -166,7 +127,7 @@ class SignUp extends React.Component {
                       color="primary"        
                       style={{margin:'2rem 0 0 0', padding:'0.3rem 1.5rem', fontSize:'20px'}}
                     >
-                      Sign Up
+                      Login
                     </Button>
                   </Grid>
                 </Grid>
@@ -176,8 +137,8 @@ class SignUp extends React.Component {
 
                 <Grid container justify='center'>
                   <Grid item style={{margin:'2rem 0 0 0'}}>
-                    <Link href="login" variant="body2">
-                      Already have an account? Login
+                    <Link href="signup" variant="body2">
+                      Don't have an account? Sign Up
                     </Link>
                   </Grid>
                 </Grid>
@@ -196,4 +157,4 @@ class SignUp extends React.Component {
   }
 }
 
-export default SignUp;
+export default Login;
