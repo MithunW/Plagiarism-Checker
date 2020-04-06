@@ -35,13 +35,31 @@ import {
   dashboardEmailStatisticsChart,
   dashboardNASDAQChart
 } from "variables/charts.jsx";
+import fire from '../fire.js';
+
 
 class Dashboard extends React.Component {
+
+  signout(){
+      fire.auth().signOut().then((u)=>{
+        }).then((u)=>{
+          console.log(u);
+          this.props.history.push({
+            pathname: '/access/login'        
+          });
+        })
+        .catch((error) => {
+            console.log("Error");
+        })        
+  }
+
   render() {
     return (
       <>
         <div className="content">
-          <Row>
+        <button onClick={()=>{this.signout()}} >Sign out</button>
+
+          {/* <Row>
             <Col lg="3" md="6" sm="6">
               <Card className="card-stats">
                 <CardBody>
@@ -224,7 +242,7 @@ class Dashboard extends React.Component {
                 </CardFooter>
               </Card>
             </Col>
-          </Row>
+          </Row> */}
         </div>
       </>
     );

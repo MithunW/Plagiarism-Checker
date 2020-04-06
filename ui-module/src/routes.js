@@ -1,5 +1,6 @@
 import Login from "views/Login.jsx";
 import SignUp from "views/SignUp.jsx";
+import ForgotPassword from "views/ForgotPassword.jsx";
 
 
 import Dashboard from "views/Dashboard.jsx";
@@ -76,6 +77,13 @@ var access_routes = [
     name: "SignUp",
     icon: "nc-icon nc-diamond",
     component: SignUp,
+    layout: "/access"
+  },
+  {
+    path: "/reset",
+    name: "ForgotPassword",
+    icon: "nc-icon nc-diamond",
+    component: ForgotPassword,
     layout: "/access"
   }
 ];

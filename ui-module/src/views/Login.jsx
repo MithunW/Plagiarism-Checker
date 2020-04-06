@@ -16,12 +16,104 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 
+import fire from '../fire.js';
+
+var firebase = require('firebase');
+
 class Login extends React.Component {
 
   constructor(props) {
     super(props);
 
+    this.state = { 
+      email: null,
+      password: null,
+      status:0,    
+    };
     
+  }
+
+  handleInputChange = e => {
+    this.setState({[e.target.name]:e.target.value});
+    this.setState({status:0});
+  }
+
+  login(){
+    fire.auth().signInWithEmailAndPassword(this.state.email, this.state.password).then((u)=>{
+      }).then((u)=>{
+        console.log(u);
+        console.log("login");
+        this.props.history.push({
+          pathname: '/admin/dashboard'        
+        });
+      })
+      .catch((error) => {
+          this.setState({status:1});
+          console.log("Invalid email or password");
+      })        
+  };
+
+  signupWithGoogle(props){
+    // e.preventDefault();
+    var provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('profile');        
+    provider.addScope('email');    
+
+    fire.auth().signInWithPopup(provider).then(function(result) {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      var token = result.credential.accessToken;
+      // The signed-in user info.
+      var user = result.user;
+      props.history.push({
+        pathname: '/admin/dashboard'         
+      });
+
+  
+      console.log("google sign succefully");
+
+    }).catch(function(error) {
+      console.log("google sign error");
+      console.log(error);
+
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // The email of the user's account used.
+      var email = error.email;
+      // The firebase.auth.AuthCredential type that was used.
+      var credential = error.credential;
+      // ...
+    });
+
+  };
+
+  authListener() {
+    fire.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // this.setState({ user });
+        localStorage.setItem('user', user.uid);
+        var displayName = user.displayName;
+        var email = user.email;
+        var emailVerified = user.emailVerified;
+        var photoURL = user.photoURL;
+        var uid = user.uid;
+        var phoneNumber = user.phoneNumber;
+        var providerData = user.providerData;
+        user.getIdToken().then(function(accessToken) {
+          console.log(displayName,emailVerified,email,uid,phoneNumber,providerData); 
+          console.log(accessToken);
+        });
+
+      } else {
+        // this.setState({ user: null });
+        localStorage.removeItem('user','');
+        console.log('not logged');
+      }
+    });
+  }
+
+  componentDidMount() {
+    this.authListener();
   }
 
   
@@ -37,13 +129,13 @@ class Login extends React.Component {
       },
 
       paper: {
-        padding:'0.1rem 0 14.3rem 0',
+        padding:'0.1rem 0 10.2rem 0',
         textAlign:'center',
         backgroundColor:'#F0F3F0'
       },
       
       form: {
-        margin:'4rem 0 0 0',
+        margin:'3rem 0 0 0',
         textAlign:'center',
         display:'block'
         // right:'0',
@@ -52,9 +144,18 @@ class Login extends React.Component {
         textAlign:'center',
         margin:'2rem 0 0 0'
       },
-
-      img:{
-        
+      divider:{
+        width: '100%',
+        textAlign: 'center',
+        borderBottom: '1.2px solid #BEBEBE ',
+        lineHeight: '0.1em'
+      },
+      text:{
+        backgroundColor:'#F0F3F0',
+        color:'#8C8E8F ',
+        fontSize:'14px',
+        fontFamily: 'Arial',
+        padding:' 0 10px'
       }
     };
     
@@ -73,7 +174,7 @@ class Login extends React.Component {
 
           </Grid>
 
-          <Grid alignItems='center' alignContent='center' item xs={12} sm={6}>
+          <Grid item xs={12} sm={6}>
 
           <div style={classes.paper}>
             <Container maxWidth='xs' >
@@ -84,7 +185,7 @@ class Login extends React.Component {
 
               <form style={classes.form}  noValidate>
 
-                <Grid container alignItems='center' alignContent='center' spacing={4} style={{textAlign:'center'}}>
+                <Grid container spacing={2} style={{textAlign:'center'}}>
 
                   <Grid item xs={12}>
                     <TextField
@@ -96,6 +197,7 @@ class Login extends React.Component {
                       name="email"
                       autoFocus
                       autoComplete="email"
+                      onChange={e => {this.handleInputChange(e)}}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -108,28 +210,54 @@ class Login extends React.Component {
                       type="password"
                       id="password"
                       autoComplete="current-password"
+                      onChange={e => {this.handleInputChange(e)}}
                     />
                   </Grid>
-                  <Grid item xs={6} sm={6} style={{textAlign:'right'}}>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      color="secondary"
-                      style={{margin:'2rem 0 0 0', padding:'0.3rem 1.5rem', fontSize:'20px',}}
-                    >
-                      Cancle
-                    </Button>
+
+                  <Grid item xs={12} sm={12} md={12} lg={12} style={{textAlign:'right',marginTop:'-0.5rem'}}>                                   
+                      <Link   href="reset" variant="body2">
+                        Forgot Password?
+                      </Link>
                   </Grid>
-                  <Grid item xs={6} sm={6} style={{textAlign:'left'}}>
+
+                  <Grid item xs={12} style={{display:this.state.status!=0?'':'none'}}>
+                    <span style={{color:'red'}}>
+
+                      <b>{this.state.status==1?'Invalid email or password!':''}</b>
+                    </span>
+                  </Grid>
+
+                  <Grid item xs={12} sm={12} style={{textAlign:'center'}}>
                     <Button
-                      type="submit"
+
                       variant="contained"
                       color="primary"        
-                      style={{margin:'2rem 0 0 0', padding:'0.3rem 1.5rem', fontSize:'20px'}}
+                      style={{margin:'1rem 0 0.5rem 0',width:'80%' , fontSize:'20px',backgroundColor:'#066294 '}}
+                      onClick={() => {this.login();}}
                     >
                       Login
                     </Button>
                   </Grid>
+
+                  <Grid item xs={12}>
+                  
+                  <div style={classes.divider}><span style={classes.text}>OR</span></div>
+
+                    <Button
+
+                      variant="contained"       
+                      style={{marginTop:'1.5rem',width:'80%', fontSize:'20px',textTransform: 'none', backgroundColor:'white'}}
+                      onClick={() => {this.signupWithGoogle(this.props);}}
+                    >
+                    <div>
+                        <img width="25px" style={{marginBottom:'4px', marginRight:'30px'}} alt="Google sign-in" 
+                            src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+                            Sign In With Google
+                    </div>
+                      
+                    </Button>
+                  </Grid>
+
                 </Grid>
 
                   

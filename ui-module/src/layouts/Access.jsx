@@ -3,6 +3,7 @@ import { Route, Switch } from "react-router-dom";
 // import Footer from "components/Footer/Footer.jsx";
 import {access_routes} from "routes.js";
 import PerfectScrollbar from "perfect-scrollbar";
+import fire from '../fire.js';
 
 
 var ps;
@@ -10,36 +11,43 @@ var ps;
 class Dashboard extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      backgroundColor: "black",
-      activeColor: "info"
-    };
     this.mainPanel = React.createRef();
+
+    // this.state = ({
+    //   user: null,
+    // });
+    this.authListener = this.authListener.bind(this);
   }
+
   componentDidMount() {
-    if (navigator.platform.indexOf("Win") > -1) {
-      ps = new PerfectScrollbar(this.mainPanel.current);
-      document.body.classList.toggle("perfect-scrollbar-on");
-    }
+    this.authListener();
   }
-  componentWillUnmount() {
-    if (navigator.platform.indexOf("Win") > -1) {
-      ps.destroy();
-      document.body.classList.toggle("perfect-scrollbar-on");
-    }
+ 
+  authListener() {
+    fire.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // this.setState({ user });
+        localStorage.setItem('user', user.uid);
+        var displayName = user.displayName;
+        var email = user.email;
+        var emailVerified = user.emailVerified;
+        var photoURL = user.photoURL;
+        var uid = user.uid;
+        var phoneNumber = user.phoneNumber;
+        var providerData = user.providerData;
+        user.getIdToken().then(function(accessToken) {
+          // console.log(displayName,emailVerified,email,uid,phoneNumber,providerData); 
+          // console.log(accessToken);
+        });
+
+      } else {
+        // this.setState({ user: null });
+        localStorage.removeItem('user','');
+        console.log('not logged');
+      }
+    });
   }
-  componentDidUpdate(e) {
-    if (e.history.action === "PUSH") {
-      this.mainPanel.current.scrollTop = 0;
-      document.scrollingElement.scrollTop = 0;
-    }
-  }
-  handleActiveClick = color => {
-    this.setState({ activeColor: color });
-  };
-  handleBgClick = color => {
-    this.setState({ backgroundColor: color });
-  };
+
   render() {
     return (
       <div className="wrapper">
