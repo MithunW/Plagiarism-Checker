@@ -19,6 +19,7 @@
 import React from "react";
 // react plugin used to create charts
 import { Line, Pie } from "react-chartjs-2";
+import axios from "axios";
 // reactstrap components
 import {
   Card,
@@ -37,6 +38,32 @@ import {
 } from "variables/charts.jsx";
 
 class Dashboard extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.onChangeFile = this.onChangeFile.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+
+    this.state = {
+      file : ''
+    }
+  }
+  onSubmit(e) {
+
+    const file = this.state.file;
+    const data = new FormData()
+   data.append('file', file)
+
+    axios.post('http://localhost:5000/upload', data)
+      .this(res => console.log(res.data));
+  }
+
+  onChangeFile(e) {
+    this.setState({
+      file: e.target.files[0]
+    })
+    console.log(e.target.value);
+  }
   render() {
     return (
       <>
@@ -154,7 +181,13 @@ class Dashboard extends React.Component {
                   <CardTitle tag="h5">Upload Files</CardTitle>
                 </CardHeader>
                 <CardBody>
-                <input type="file" name="file" onChange={this.onChangeHandler}/>
+                <form onSubmit={this.onSubmit} >
+                  <div className="custom-file mb-3">
+                    <input type="file" name="file" id="file" className="custom-file-input" onChange={this.onChangeFile}/>
+                    <label type="file" className="custom-file-label">Choose File</label>
+                  </div>
+                  <input type="submit" value="Submit" className="btn btn-primary btn-block"/>
+                </form>
                   {/* <Line
                     data={dashboard24HoursPerformanceChart.data}
                     options={dashboard24HoursPerformanceChart.options}
