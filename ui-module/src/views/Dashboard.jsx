@@ -145,6 +145,89 @@ class Dashboard extends React.Component {
     return (
       <>
         <div className="content">
+
+          <Row>
+            <Col lg="3" md="6" sm="6">
+              <Card className="card-stats">
+                <CardBody>
+                  <Row>
+                    <Col md="4" xs="5">
+                      <div className="icon-big text-center icon-warning">
+                        <i className="nc-icon nc-globe text-warning" />
+                      </div>
+                    </Col>
+                    <Col md="8" xs="7">
+                      <div className="numbers">
+                        <p className="card-category">Capacity</p>
+                        <CardTitle tag="p">150GB</CardTitle>
+                        <p />
+                      </div>
+                    </Col>
+                  </Row>
+                </CardBody>
+                <CardFooter>
+                  <hr />
+                  <div className="stats">
+                    <i className="fas fa-sync-alt" /> Update Now
+                  </div>
+                </CardFooter>
+              </Card>
+            </Col>
+            <Col lg="3" md="6" sm="6">
+              <Card className="card-stats">
+                <CardBody>
+                  <Row>
+                    <Col md="4" xs="5">
+                      <div className="icon-big text-center icon-warning">
+                        <i className="nc-icon nc-money-coins text-success" />
+                      </div>
+                    </Col>
+                    <Col md="8" xs="7">
+                      <div className="numbers">
+                        <p className="card-category">Revenue</p>
+                        <CardTitle tag="p">$ 1,345</CardTitle>
+                        <p />
+                      </div>
+                    </Col>
+                  </Row>
+                </CardBody>
+                <CardFooter>
+                  <hr />
+                  <div className="stats">
+                    <i className="far fa-calendar" /> Last day
+                  </div>
+                </CardFooter>
+              </Card>
+            </Col>
+            <Col lg="3" md="6" sm="6">
+              <Card className="card-stats">
+                <CardBody>
+                  <Row>
+                    <Col md="4" xs="5">
+                      <div className="icon-big text-center icon-warning">
+                        <i className="nc-icon nc-vector text-danger" />
+                      </div>
+                    </Col>
+                    <Col md="8" xs="7">
+                      <div className="numbers">
+                        <p className="card-category">Errors</p>
+                        <CardTitle tag="p">23</CardTitle>
+                        <p />
+                      </div>
+                    </Col>
+                  </Row>
+                </CardBody>
+                <CardFooter>
+                  <hr />
+                  <div className="stats">
+                    <i className="far fa-clock" /> In the last hour
+                  </div>
+                </CardFooter>
+              </Card>
+            </Col>
+            <Col lg="3" md="6" sm="6">
+              <Card className="card-stats">
+
         <button onClick={()=>{this.signout()}} >Sign out</button>
 
         <Row>
@@ -154,6 +237,7 @@ class Dashboard extends React.Component {
                 <CardHeader>
                     <CardTitle tag="h5">Compare Text</CardTitle>
                 </CardHeader>
+
                 <CardBody>
                   <FormGroup>
                       <label>First Text</label>
@@ -185,6 +269,21 @@ class Dashboard extends React.Component {
                   <CardTitle tag="h5">Upload Files</CardTitle>
                 </CardHeader>
                 <CardBody>
+
+                <form onSubmit={this.onSubmit} >
+                  <div className="custom-file mb-3">
+                    <input type="file" name="file" id="file" className="custom-file-input" onChange={this.onChangeFile}/>
+                    <label type="file" className="custom-file-label">Choose File</label>
+                  </div>
+                  <input type="submit" value="Submit" className="btn btn-primary btn-block"/>
+                </form>
+                  <Line
+                    data={dashboard24HoursPerformanceChart.data}
+                    options={dashboard24HoursPerformanceChart.options}
+                    width={400}
+                    height={100}
+                  />
+
                   <form onSubmit={this.onSubmit} >
                     <div className="custom-file mb-3">
                       <input type="file" name="file" id="file" className="custom-file-input" onChange={this.onChangeFile}/>
@@ -192,13 +291,14 @@ class Dashboard extends React.Component {
                     </div>
                     <input type="submit" value="Submit" className="btn btn-primary btn-block"/>
                   </form>
+
                   
                 </CardBody>
                 <CardFooter>
-                  {/* <hr />
+                  <hr />
                   <div className="stats">
                     <i className="fa fa-history" /> Updated 3 minutes ago
-                  </div> */}
+                  </div> 
                 </CardFooter>
               </Card>
             </Col>
@@ -256,7 +356,7 @@ class Dashboard extends React.Component {
                 </CardFooter>
               </Card>
             </Col>
-          </Row> */}
+          </Row> 
         </div>
       </>
     );

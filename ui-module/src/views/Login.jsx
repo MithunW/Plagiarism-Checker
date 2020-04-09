@@ -28,14 +28,14 @@ class Login extends React.Component {
     this.state = { 
       email: null,
       password: null,
-      status:0,    
+      status:'success',    
     };
     
   }
 
   handleInputChange = e => {
     this.setState({[e.target.name]:e.target.value});
-    this.setState({status:0});
+    this.setState({status:'success'});
   }
 
   login(){
@@ -48,7 +48,7 @@ class Login extends React.Component {
         });
       })
       .catch((error) => {
-          this.setState({status:1});
+          this.setState({status:error.message});
           console.log("Invalid email or password");
       })        
   };
@@ -74,7 +74,7 @@ class Login extends React.Component {
     }).catch(function(error) {
       console.log("google sign error");
       console.log(error);
-
+      this.setState({status:error.message});
       // Handle Errors here.
       var errorCode = error.code;
       var errorMessage = error.message;
@@ -220,10 +220,10 @@ class Login extends React.Component {
                       </Link>
                   </Grid>
 
-                  <Grid item xs={12} style={{display:this.state.status!=0?'':'none'}}>
+                  <Grid item xs={12} style={{display:this.state.status!='success'?'':'none'}}>
                     <span style={{color:'red'}}>
 
-                      <b>{this.state.status==1?'Invalid email or password!':''}</b>
+                      <b>{this.state.status}</b>
                     </span>
                   </Grid>
 

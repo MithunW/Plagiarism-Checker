@@ -1,27 +1,9 @@
-/*!
-
-=========================================================
-* Paper Dashboard React - v1.1.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/paper-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-
-* Licensed under MIT (https://github.com/creativetimofficial/paper-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { Nav } from "reactstrap";
 // javascript plugin used to create scrollbars on windows
 import PerfectScrollbar from "perfect-scrollbar";
-
+import Typography from '@material-ui/core/Typography';
 import logo from "logo.svg";
 
 var ps;
@@ -53,26 +35,14 @@ class Sidebar extends React.Component {
     return (
       <div
         className="sidebar"
-        data-color={this.props.bgColor}
+        data-color='#E0DFDF'
         data-active-color={this.props.activeColor}
+        style={{marginTop:'7rem'}}
+
+        // style={{}}
       >
-        <div className="logo">
-          <a
-            href="https://www.creative-tim.com"
-            className="simple-text logo-mini"
-          >
-            <div className="logo-img">
-              <img src={logo} alt="react-logo" />
-            </div>
-          </a>
-          <a
-            href="https://www.creative-tim.com"
-            className="simple-text logo-normal"
-          >
-            Creative Tim
-          </a>
-        </div>
-        <div className="sidebar-wrapper" ref={this.sidebar}>
+
+        <div className="sidebar-wrapper" style={{paddingTop:'1.5rem', backgroundColor: '#E0DFDF'}}  ref={this.sidebar}>
           <Nav>
             {this.props.routes.map((prop, key) => {
               return (
@@ -81,15 +51,19 @@ class Sidebar extends React.Component {
                     this.activeRoute(prop.path) +
                     (prop.pro ? " active-pro" : "")
                   }
+                  style={{color:'black'}}
                   key={key}
                 >
                   <NavLink
                     to={prop.layout + prop.path}
                     className="nav-link"
                     activeClassName="active"
+                  
+
                   >
-                    <i className={prop.icon} />
-                    <p>{prop.name}</p>
+                  
+                    <i className={prop.icon} style={{color:'black', fontWeight:'bold'}}/>
+                    <Typography style={{color:'black', fontWeight:'bold'}}>{prop.name}</Typography>
                   </NavLink>
                 </li>
               );
