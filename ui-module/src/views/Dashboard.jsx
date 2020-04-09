@@ -19,6 +19,7 @@
 import React from "react";
 // react plugin used to create charts
 import { Line, Pie } from "react-chartjs-2";
+import axios from "axios";
 // reactstrap components
 import {
   Card,
@@ -40,6 +41,7 @@ import fire from '../fire.js';
 
 class Dashboard extends React.Component {
 
+
   signout(){
       fire.auth().signOut().then((u)=>{
         }).then((u)=>{
@@ -51,6 +53,34 @@ class Dashboard extends React.Component {
         .catch((error) => {
             console.log("Error");
         })        
+  }
+
+
+  constructor(props) {
+    super(props);
+
+    this.onChangeFile = this.onChangeFile.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+
+    this.state = {
+      file : ''
+    }
+  }
+  onSubmit(e) {
+
+    const file = this.state.file;
+    const data = new FormData()
+   data.append('file', file)
+
+    axios.post('http://localhost:5000/upload', data)
+      .this(res => console.log(res.data));
+  }
+
+  onChangeFile(e) {
+    this.setState({
+      file: e.target.files[0]
+    })
+    console.log(e.target.value);
   }
 
   render() {
@@ -169,22 +199,28 @@ class Dashboard extends React.Component {
             <Col md="12">
               <Card>
                 <CardHeader>
-                  <CardTitle tag="h5">Users Behavior</CardTitle>
-                  <p className="card-category">24 Hours performance</p>
+                  <CardTitle tag="h5">Upload Files</CardTitle>
                 </CardHeader>
                 <CardBody>
-                  <Line
+                <form onSubmit={this.onSubmit} >
+                  <div className="custom-file mb-3">
+                    <input type="file" name="file" id="file" className="custom-file-input" onChange={this.onChangeFile}/>
+                    <label type="file" className="custom-file-label">Choose File</label>
+                  </div>
+                  <input type="submit" value="Submit" className="btn btn-primary btn-block"/>
+                </form>
+                  {/* <Line
                     data={dashboard24HoursPerformanceChart.data}
                     options={dashboard24HoursPerformanceChart.options}
                     width={400}
                     height={100}
-                  />
+                  /> */}
                 </CardBody>
                 <CardFooter>
-                  <hr />
+                  {/* <hr />
                   <div className="stats">
                     <i className="fa fa-history" /> Updated 3 minutes ago
-                  </div>
+                  </div> */}
                 </CardFooter>
               </Card>
             </Col>
