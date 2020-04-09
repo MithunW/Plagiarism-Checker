@@ -57,7 +57,7 @@ class Dashboard extends React.Component {
     return (
       <>
         <div className="content">
-        <button onClick={()=>{this.signout()}} >Sign out</button>
+        {/* <button onClick={()=>{this.signout()}} >Sign out</button> */}
 
           {/* <Row>
             <Col lg="3" md="6" sm="6">
