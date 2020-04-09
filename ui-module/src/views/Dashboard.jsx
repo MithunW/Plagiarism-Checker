@@ -87,9 +87,7 @@ class Dashboard extends React.Component {
     return (
       <>
         <div className="content">
-        {/* <button onClick={()=>{this.signout()}} >Sign out</button> */}
-
-          {/* <Row>
+          <Row>
             <Col lg="3" md="6" sm="6">
               <Card className="card-stats">
                 <CardBody>
@@ -209,18 +207,18 @@ class Dashboard extends React.Component {
                   </div>
                   <input type="submit" value="Submit" className="btn btn-primary btn-block"/>
                 </form>
-                  {/* <Line
+                  <Line
                     data={dashboard24HoursPerformanceChart.data}
                     options={dashboard24HoursPerformanceChart.options}
                     width={400}
                     height={100}
-                  /> */}
+                  />
                 </CardBody>
                 <CardFooter>
-                  {/* <hr />
+                  <hr />
                   <div className="stats">
                     <i className="fa fa-history" /> Updated 3 minutes ago
-                  </div> */}
+                  </div> 
                 </CardFooter>
               </Card>
             </Col>
@@ -278,7 +276,7 @@ class Dashboard extends React.Component {
                 </CardFooter>
               </Card>
             </Col>
-          </Row> */}
+          </Row> 
         </div>
       </>
     );
