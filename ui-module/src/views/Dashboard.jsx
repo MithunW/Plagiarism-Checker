@@ -153,8 +153,13 @@ class Dashboard extends React.Component {
     console.log(this.state.fileUploadState);
 
     return (
+<<<<<<< HEAD
       <>
         <div className="content" style={{margin:'10rem 0 1rem 0'}}>
+=======
+        <div className="content">
+
+>>>>>>> bug fix
           <Row>
             <Col lg="4" md="7" sm="7">
               <Card className="card-stats">
@@ -259,6 +264,7 @@ class Dashboard extends React.Component {
                     </Col>                 
                   </Row>
 
+<<<<<<< HEAD
                   <MIButton
                     variant="contained"
                     color="primary"
@@ -282,6 +288,14 @@ class Dashboard extends React.Component {
             </Col>
 
               {/* --------------------Compare Text---------------------- */}
+=======
+        <button onClick={()=>{this.signout()}} >Sign out</button>
+        </Card>
+        </Col>
+        </Row>
+        <Row>
+            {/* --------------------Compare Text---------------------- */}
+>>>>>>> bug fix
             <Col md="12">
               <Card>
                 <CardHeader>
@@ -371,7 +385,6 @@ class Dashboard extends React.Component {
             </Col>
           </Row> 
         </div>
-      </>
     );
   }
 }
