@@ -17,35 +17,35 @@ var routes = [
     name: "Dashboard",
     icon: "nc-icon nc-bank",
     component: Dashboard,
-    layout: "/admin"
+    layout: "/user"
   },
   {
     path: "/notifications",
     name: "Notifications",
     icon: "nc-icon nc-bell-55",
     component: Notifications,
-    layout: "/admin"
+    layout: "/user"
   },
   {
     path: "/user-page",
     name: "User Profile",
     icon: "nc-icon nc-single-02",
     component: UserPage,
-    layout: "/admin"
+    layout: "/user"
   },
   {
     path: "/tables",
     name: "Table List",
     icon: "nc-icon nc-tile-56",
     component: TableList,
-    layout: "/admin"
+    layout: "/user"
   },
   {
     path: "/typography",
     name: "Typography",
     icon: "nc-icon nc-caps-small",
     component: Typography,
-    layout: "/admin"
+    layout: "/user"
   },
   {
     pro: true,
@@ -53,7 +53,7 @@ var routes = [
     name: "Upgrade to PRO",
     icon: "nc-icon nc-spaceship",
     component: UpgradeToPro,
-    layout: "/admin"
+    layout: "/user"
   }
 ];
 

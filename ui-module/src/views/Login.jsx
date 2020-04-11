@@ -44,7 +44,7 @@ class Login extends React.Component {
         console.log(u);
         console.log("login");
         this.props.history.push({
-          pathname: '/admin/dashboard'        
+          pathname: '/user/dashboard'        
         });
       })
       .catch((error) => {
@@ -65,7 +65,7 @@ class Login extends React.Component {
       // The signed-in user info.
       var user = result.user;
       props.history.push({
-        pathname: '/admin/dashboard'         
+        pathname: '/user/dashboard'         
       });
 
   
@@ -74,7 +74,7 @@ class Login extends React.Component {
     }).catch(function(error) {
       console.log("google sign error");
       console.log(error);
-      this.setState({status:error.message});
+      // this.setState({status:error.message});
       // Handle Errors here.
       var errorCode = error.code;
       var errorMessage = error.message;
