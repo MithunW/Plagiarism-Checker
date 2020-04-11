@@ -8,9 +8,13 @@ import {
   CardHeader,
   CardBody,
   CardFooter,
-  CardTitle,
   Row,
-  Col
+  Col,
+  Button,
+  CardTitle,
+  FormGroup,
+  Form,
+  Input,
 } from "reactstrap";
 // core components
 import {
@@ -24,11 +28,15 @@ import '../assets/css/custom.css';
 import { makeStyles, createStyles } from "@material-ui/core/styles";
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
+import MIButton from '@material-ui/core/Button';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import SearchIcon from '@material-ui/icons/Search';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import fire from '../fire.js';
+
+
+require('colors');
+var Diff = require('diff');
 
 
 class Dashboard extends React.Component {
@@ -55,9 +63,16 @@ class Dashboard extends React.Component {
 
     this.onChangeFile = this.onChangeFile.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+    this.onChangeText1 = this.onChangeText1.bind(this);
+    this.onChangeText2 = this.onChangeText2.bind(this);
+    this.checkResult = this.checkResult.bind(this);
 
     this.state = {
-      file : '',
+      file : null,
+      txt1 : '',
+      txt2 : '',
+      op:'not yet',
+      opMap :[],
     }
   }
   onSubmit(e) {
@@ -68,6 +83,46 @@ class Dashboard extends React.Component {
 
     axios.post('http://localhost:5000/upload', data)
       .this(res => console.log(res.data));
+  }
+
+  checkResult(e) {
+    const txt1 = this.state.txt1;
+    const txt2 = this.state.txt2;
+    console.log(txt1);
+    console.log(txt2);
+    var diff = Diff.diffWords(txt1, txt2);
+    var op = '';
+    var colorText = []
+    diff.forEach(function(part){
+      // green for additions, red for deletions
+      // grey for common parts
+      var color = part.added ? 'green' :
+        part.removed ? 'red' : 'grey';
+      console.log(part.value[color]);
+      op = op + part.value[color];
+  
+      colorText.push(
+          <span style={{ color: color ,fontSize:25,fontWeight:700}}>
+              {part.value[color]}
+          </span>
+      );
+    });
+    this.setState({
+      op: op,
+      opMap: colorText
+    })
+  }
+
+  onChangeText1(e) {
+    this.setState({
+      txt1:e.target.value
+    })
+  }
+
+  onChangeText2(e) {
+    this.setState({
+      txt2:e.target.value
+    })
   }
 
   onChangeFile(e) {
@@ -81,6 +136,9 @@ class Dashboard extends React.Component {
     document.getElementById('file').click();
   }
 
+  view() {
+    return this.state.opMap.map(el => el)
+  }
   render() {
 
     const classes  ={
@@ -148,7 +206,7 @@ class Dashboard extends React.Component {
 
             <Col lg="4" md="7" sm="7">
               <Card className="card-stats">
-                <CardBody>
+              <CardBody>
                   <Row>
                     <Col md="3" xs="4">
                       <div className="icon-big text-center icon-warning">
@@ -169,9 +227,10 @@ class Dashboard extends React.Component {
                 </CardFooter>
               </Card>
             </Col>
-            
           </Row>
           <Row>
+          
+            {/* --------------------Upload Files---------------------- */}
             <Col md="12">
               <Card>
                 <CardHeader>
@@ -188,26 +247,19 @@ class Dashboard extends React.Component {
 
                   <Row >
                     <Col>
-                    {/* <form onSubmit={this.onSubmit} >
-                  <div className="custom-file mb-3">
-                    <input type="file" name="file" id="file" className="custom-file-input" onChange={this.onChangeFile}/>
-                    <label type="file" className="custom-file-label">Choose File</label>
-                  </div>
-                  <input type="submit" value="Submit" className="btn btn-primary btn-block"/>
-                </form> */}
                       <input id="file" name="file" type="file" onChange={this.onChangeFile} hidden />
                       <TextareaAutosize style={classes.textArea} aria-label="empty textarea" placeholder={"\n"+"\n"+" Enter Your Text Here"}/>
                     </Col>
                   </Row>
                   <Row>
                     <Col md="4" xs="8">
-                      <Button onClick={() => {this.loadFile();}} startIcon={<CloudUploadIcon />} style={{margin:'1rem 0 1r em 1rem', outline: 'none', color:'#45A5EE'}} size="large">
+                      <MIButton onClick={() => {this.loadFile();}} startIcon={<CloudUploadIcon />} style={{margin:'1rem 0 1r em 1rem', outline: 'none', color:'#45A5EE'}} size="large">
                         Upload File
-                      </Button>
+                      </MIButton>
                     </Col>                 
                   </Row>
 
-                  <Button
+                  <MIButton
                     variant="contained"
                     color="primary"
                     size="large"
@@ -216,7 +268,7 @@ class Dashboard extends React.Component {
                     onClick={this.onSubmit}
                   >
                     Check Plagiarism
-                  </Button>
+                  </MIButton>
                 
                     
                 </CardBody>
@@ -228,6 +280,41 @@ class Dashboard extends React.Component {
                 </CardFooter>
               </Card>
             </Col>
+
+              {/* --------------------Compare Text---------------------- */}
+            <Col md="12">
+              <Card>
+                <CardHeader>
+                    <CardTitle tag="h5">Compare Text</CardTitle>
+                </CardHeader>
+
+          
+          
+                <CardBody>
+                  <FormGroup>
+                      <label>First Text</label>
+                      <Input
+                        type="textarea"
+                        value={this.state.txt1}
+                        onChange={this.onChangeText1}
+                      />
+                    </FormGroup>
+                    <FormGroup>
+                      <label>Second Text</label>
+                      <Input
+                        type="textarea"
+                        value={this.state.txt2} 
+                        onChange={this.onChangeText2}
+                      />
+                    </FormGroup>
+                    <Button id="btnCompare" onClick={this.checkResult} color="primary">Compare</Button>
+                    <div>
+                      <p>{this.state.opMap.map(el => el)}</p>
+                    </div>
+                </CardBody>
+              </Card>
+            </Col>
+            
           </Row>
           <Row>
             <Col md="4">
