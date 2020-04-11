@@ -153,8 +153,8 @@ class Dashboard extends React.Component {
     console.log(this.state.fileUploadState);
 
     return (
-      <>
-        <div className="content" style={{margin:'10rem 0 1rem 0'}}>
+        <div className="content">
+
           <Row>
             <Col lg="4" md="7" sm="7">
               <Card className="card-stats">
@@ -259,29 +259,13 @@ class Dashboard extends React.Component {
                     </Col>                 
                   </Row>
 
-                  <MIButton
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    startIcon={<SearchIcon />}
-                    style={{backgroundColor:'#066294'}}
-                    onClick={this.onSubmit}
-                  >
-                    Check Plagiarism
-                  </MIButton>
-                
-                    
-                </CardBody>
-                <CardFooter>
-                  <hr />
-                  <div className="stats"style={{textAlign:'right'}} >
-                    <i className="fas fa-pen-nib" /> Word Count : 
-                  </div> 
-                </CardFooter>
-              </Card>
-            </Col>
-
-              {/* --------------------Compare Text---------------------- */}
+        <button onClick={()=>{this.signout()}} >Sign out</button>
+        </CardBody>
+        </Card>
+        </Col>
+        </Row>
+        <Row>
+            {/* --------------------Compare Text---------------------- */}
             <Col md="12">
               <Card>
                 <CardHeader>
@@ -371,7 +355,6 @@ class Dashboard extends React.Component {
             </Col>
           </Row> 
         </div>
-      </>
     );
   }
 }
