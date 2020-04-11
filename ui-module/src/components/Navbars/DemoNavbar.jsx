@@ -138,7 +138,6 @@ class Header extends React.Component {
         color: 'white',
         padding: '1rem 0 1rem 0',
         width:'100%',
-        marginLeft:'15rem !important',
       }
     };
     return (

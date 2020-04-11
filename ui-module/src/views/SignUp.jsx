@@ -48,7 +48,7 @@ class SignUp extends React.Component {
           console.log(u);
           console.log("signup");
           this.props.history.push({
-          pathname: '/admin/dashboard'        
+          pathname: '/user/dashboard'        
           });
 
         })
@@ -74,7 +74,7 @@ class SignUp extends React.Component {
       // The signed-in user info.
       var user = result.user;
       props.history.push({
-        pathname: '/admin/dashboard'         
+        pathname: '/user/dashboard'         
       });
 
   
