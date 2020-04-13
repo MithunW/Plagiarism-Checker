@@ -125,11 +125,34 @@ class Dashboard extends React.Component {
     })
   }
 
+  getFileExtension(filename) {
+    return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename)[0] : undefined;
+  }
+
   onChangeFile(e) {
     this.setState({
       file: e.target.files[0]
     })
     console.log(e.target.value);
+
+
+    var fileType=this.getFileExtension(e.target.files[0].name);
+    console.log(fileType);
+
+    switch (fileType) {
+      case 'docx':
+        // this.readDocx(e.target.files[0]);     
+        break;
+
+      case 'txt':
+        // this.readText(e.target.files[0]);     
+        break;
+
+      case 'pdf':
+        // this.readPDF(e.target);     
+        break;
+
+    }
   }
 
   loadFile(){
