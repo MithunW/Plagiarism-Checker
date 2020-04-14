@@ -251,10 +251,8 @@ class Dashboard extends React.Component {
       
     };
 
-    console.log(document.getElementById("result"));
-
     return (
-        <div className="content">
+        <div className="content" style={{marginTop:'9rem'}}>
 
           <Row>
             <Col lg="4" md="7" sm="7">
