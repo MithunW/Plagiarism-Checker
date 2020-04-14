@@ -29,10 +29,13 @@ import { makeStyles, createStyles } from "@material-ui/core/styles";
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import MIButton from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import DeleteIcon from '@material-ui/icons/Delete';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import SearchIcon from '@material-ui/icons/Search';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import fire from '../fire.js';
+
 
 
 require('colors');
@@ -66,6 +69,10 @@ class Dashboard extends React.Component {
     this.onChangeText1 = this.onChangeText1.bind(this);
     this.onChangeText2 = this.onChangeText2.bind(this);
     this.checkResult = this.checkResult.bind(this);
+    this.readFile = this.readFile.bind(this);
+    this.remove = this.remove.bind(this);
+    this.handleTextArea = this.handleTextArea.bind(this);
+    this.checkLimit = this.checkLimit.bind(this);
 
     this.state = {
       file : null,
@@ -73,16 +80,49 @@ class Dashboard extends React.Component {
       txt2 : '',
       op:'not yet',
       opMap :[],
+      text:'',
+      validType:'valid',
+      count:0
     }
   }
+
   onSubmit(e) {
 
     const file = this.state.file;
     const data = new FormData()
    data.append('file', file)
 
-    axios.post('http://localhost:5000/upload', data)
-      .this(res => console.log(res.data));
+   axios.post("http://localhost:5000/upload", data)
+            .then((res) => {console.log(res.data);
+    })
+
+
+  }
+
+  readFile(file,fileType) {
+
+    const data = new FormData();
+    data.append('file', file);
+    data.append('filetype', fileType);
+
+    axios.post("http://localhost:5000/readfile", data)
+      .then((res) => {
+        if ((res.status) == 200) {
+  
+          const Count = res.data.text === "" ? 0 :res.data.text.split(" ").length;
+          this.setState({
+            count: Count,
+            text:res.data.text
+          });
+          this.checkLimit();
+
+        } else {
+        
+        }
+        console.log(res.data.text);
+
+    })
+
   }
 
   checkResult(e) {
@@ -131,28 +171,46 @@ class Dashboard extends React.Component {
 
   onChangeFile(e) {
     this.setState({
-      file: e.target.files[0]
+      file: e.target.files[0],
+      validType:'valid'
     })
+
     console.log(e.target.value);
 
-
     var fileType=this.getFileExtension(e.target.files[0].name);
-    console.log(fileType);
-
-    switch (fileType) {
-      case 'docx':
-        // this.readDocx(e.target.files[0]);     
-        break;
-
-      case 'txt':
-        // this.readText(e.target.files[0]);     
-        break;
-
-      case 'pdf':
-        // this.readPDF(e.target);     
-        break;
-
+    if(fileType=='doc' || fileType=='docx'|| fileType=='pdf' || fileType=='txt'){
+      this.readFile(e.target.files[0],fileType);
+    }else{
+      this.setState({ validType:'Invalid Input!'})
     }
+
+    console.log(fileType);
+  }
+
+  remove(){
+    this.setState({
+      file: null,
+      validType:'valid',
+      text:''
+    })
+    const Count = 0;
+    this.setState({count: 0});
+  }
+
+  handleTextArea(e){
+      const Count = e.target.value === "" ? 0 : e.target.value.split(" ").length;
+      this.checkLimit();
+      this.setState({
+        count: Count,
+        text:e.target.value
+      });
+
+  }
+
+  checkLimit(){
+    this.setState({
+        validType:this.state.count<1000?'valid':'Exceed Word Limit!',
+      });
   }
 
   loadFile(){
@@ -166,14 +224,34 @@ class Dashboard extends React.Component {
 
     const classes  ={
       textArea: {
-        width:'80%',
+        width:'85%',
         height:'20rem',
         fontFamily: "Arial",
         fontSize:'16px'
+      },
+      upload:{
+        margin:'-0.5rem 0 1rem 7%', 
+        outline: 'none', 
+        color:'#45A5EE', 
+        textTransform: 'none',
+        fontSize:'20px'
+      },
+      warning:{
+        fontSize:'18px', 
+        // margin:'0rem 0 0.5rem 0', 
+        color:'red', 
+        fontWeight:'600',
+        display:this.state.validType!='valid'?'':'none'
+      },
+      deleteBtn:{
+        marginTop:'-5rem',
+        color:this.state.count!=0?'red':'#D9DCDE'
       }
+
+      
     };
 
-    console.log(this.state.fileUploadState);
+    console.log(document.getElementById("result"));
 
     return (
         <div className="content">
@@ -263,32 +341,70 @@ class Dashboard extends React.Component {
                     </Typography>
                   </CardTitle>
                 </CardHeader>
-                <CardBody style={{textAlign:'center'}}>
+                <CardBody >
                   <Typography style={{fontSize:'16px', margin:'-1rem 1rem 1.5rem 1rem'}}>
                         To use this Plagiarism Checker, please copy and paste text in the input box below or select a file to upload, and then click on the Check Plagiarism button.
                   </Typography>
 
-                  <Row >
+                  <Row style={{textAlign:'center'}} >
                     <Col>
-                      <input id="file" name="file" type="file" onChange={this.onChangeFile} hidden />
-                      <TextareaAutosize style={classes.textArea} aria-label="empty textarea" placeholder={"\n"+"\n"+" Enter Your Text Here"}/>
+                      <input id="file" name="file" type="file" onChange={this.onChangeFile} accept=".pdf,.docx,.doc,.txt" hidden />
+                      <TextareaAutosize id="result" onChange={this.handleTextArea} style={classes.textArea} rowsMax={1} rowsMin={1} value={this.state.text} aria-label="empty textarea" placeholder={"\n"+"\n"+" Enter Your Text Here"}/>
                     </Col>
                   </Row>
-                  <Row>
-                    <Col md="4" xs="8">
-                      <MIButton onClick={() => {this.loadFile();}} startIcon={<CloudUploadIcon />} style={{margin:'1rem 0 1r em 1rem', outline: 'none', color:'#45A5EE'}} size="large">
-                        Upload File
+                  <Row style={{textAlign:'right',width:'93.5%'}} >
+                    <Col>
+                      <IconButton aria-label="delete" style={classes.deleteBtn} disabled={this.state.count!=0?false:true}  onClick={() => {this.remove();}}>
+                        <DeleteIcon />
+                      </IconButton>
+                      <div className="stats"style={{textAlign:'right', marginRight:'-1rem'}} >
+                        <i className="fas fa-pen-nib" /> Word Count : {this.state.count}
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row style={{textAlign:'center'}} >
+                    <Col>
+                      <Typography style={classes.warning}>
+                          {this.state.validType}
+                      </Typography>
+                    </Col>
+                  </Row>
+                  <Row style={{textAlign:'left'}}>
+                    <Col>
+                      <MIButton onClick={() => {this.loadFile();}} startIcon={<CloudUploadIcon />} style={classes.upload} size="large">
+                        Upload File&nbsp; <div style={{fontSize:'16px', marginTop:'2px'}}>(doc, docx, txt, pdf) </div> 
                       </MIButton>
                     </Col>                 
                   </Row>
+                  <Row style={{textAlign:'center'}} >
+                    <Col>
+                      <MIButton
+                      variant="contained"
+                      color="primary"
+                      size="large"
+                      startIcon={<SearchIcon />}
+                      style={{backgroundColor:'#066294'}}
+                      onClick={this.onSubmit}
+                      >
+                        Check Plagiarism
+                    </MIButton>
+                    </Col>
+                  </Row>                  
+                
+                
+                
+                
+                </CardBody>
+                <CardFooter style={{marginTop:'-1.2rem'}}>
+  
+                   
+                  <br/>
+                </CardFooter>
+              </Card>
+            </Col>
 
-        <button onClick={()=>{this.signout()}} >Sign out</button>
-        </CardBody>
-        </Card>
-        </Col>
-        </Row>
-        <Row>
-            {/* --------------------Compare Text---------------------- */}
+              {/* --------------------Compare Text---------------------- */}
+
             <Col md="12">
               <Card>
                 <CardHeader>

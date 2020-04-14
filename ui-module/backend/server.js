@@ -8,7 +8,9 @@ const path = require('path');
 const GridFsStorage = require('multer-gridfs-storage');
 const Grid = require('gridfs-stream');
 const methodOverride = require('method-override');
-
+const fs = require('fs');
+const pdf = require('pdf-parse');
+var mammoth = require("mammoth");
 
 require('dotenv').config();
 
@@ -70,3 +72,57 @@ app.use('/users', usersRouter);
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
 });
+
+// var uploadTemp = multer({ dest: './temp' })
+const storageTemp = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './temp')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname)
+  }
+})
+
+const uploadTemp = multer({storage: storageTemp})
+app.post('/readfile', uploadTemp.single('file'), (req, res) => {
+
+  let location='./temp/'+req.file.originalname;
+  let dataBuffer="empty"; 
+  switch (req.body.filetype) {
+      case 'docx':
+        mammoth.extractRawText({path:location})
+        .then(function(result){
+            dataBuffer = result.value;
+            var messages = result.messages;
+            res.json({ text: dataBuffer });
+
+        })
+        .done();    
+        break;
+
+      case 'doc':
+        mammoth.extractRawText({path:location})
+        .then(function(result){
+            dataBuffer = result.value; 
+            var messages = result.messages;
+            res.json({ text: dataBuffer });
+        })
+        .done();    
+        break;
+
+      case 'txt':
+        dataBuffer = fs.readFileSync(location,'utf8');
+        res.json({ text: dataBuffer });   
+        break;
+
+      case 'pdf':
+        buffer = fs.readFileSync(location);
+        pdf(buffer).then(function(data) {
+          res.json({ text: data.text });             
+        });    
+        break;
+
+    }
+
+});
+
