@@ -254,8 +254,8 @@ class Dashboard extends React.Component {
     console.log(document.getElementById("result"));
 
     return (
-      <>
-        <div className="content" style={{margin:'10rem 0 1rem 0'}}>
+        <div className="content">
+
           <Row>
             <Col lg="4" md="7" sm="7">
               <Card className="card-stats">
@@ -389,11 +389,11 @@ class Dashboard extends React.Component {
                         Check Plagiarism
                     </MIButton>
                     </Col>
-                  </Row>
-
-                  
+                  </Row>                  
                 
-                    
+                
+                
+                
                 </CardBody>
                 <CardFooter style={{marginTop:'-1.2rem'}}>
   
@@ -404,6 +404,7 @@ class Dashboard extends React.Component {
             </Col>
 
               {/* --------------------Compare Text---------------------- */}
+
             <Col md="12">
               <Card>
                 <CardHeader>
@@ -493,7 +494,6 @@ class Dashboard extends React.Component {
             </Col>
           </Row> 
         </div>
-      </>
     );
   }
 }
