@@ -3,7 +3,9 @@ var stringSimilarity = require('string-similarity');
 WordNet = require('../node_modules/node-wordnet/lib/wordnet.js');
 var wordnet = new WordNet();
 const {google} = require('googleapis');
-
+const puppeteer = require('puppeteer');
+const $ = require('cheerio');
+extractor = require('unfluff');
 
 
 router.route('/text').post((req, res) => {
@@ -59,6 +61,29 @@ router.route('/text').post((req, res) => {
     }
   }
   runSample().catch(console.error);
+
+  // extract page content
+  const url = 'https://en.wikipedia.org/wiki/IP_address';
+
+  puppeteer
+    .launch()
+    .then(function(browser) {    
+      return browser.newPage();
+    })
+    .then(function(page) {
+      return page.goto(url).then(function() {
+        return page.content();
+      });
+    })
+    .then(function(html) {
+      // console.log(html);
+      data = extractor(html);
+      console.log(data.text);
+    })
+    .catch(function(err) {
+      //handle error
+    });
+
 
   
 
