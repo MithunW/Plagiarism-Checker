@@ -94,7 +94,6 @@ class Header extends React.Component {
   }
 
   handleMenu = e => {   
-    console.log(e.currentTarget);
     this.setState({anchorEl:e.currentTarget});
 
   }

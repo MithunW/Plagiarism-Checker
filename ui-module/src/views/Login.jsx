@@ -15,7 +15,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-
+import axios from "axios";
 import fire from '../fire.js';
 
 var firebase = require('firebase');
@@ -24,6 +24,8 @@ class Login extends React.Component {
 
   constructor(props) {
     super(props);
+    this.addUser = this.addUser.bind(this);
+    this.authListener = this.authListener.bind(this);
 
     this.state = { 
       email: null,
@@ -87,10 +89,12 @@ class Login extends React.Component {
 
   };
 
-  authListener() {
+  authListener(next) {
     fire.auth().onAuthStateChanged((user) => {
       if (user) {
         // this.setState({ user });
+        // console.log(user);
+
         localStorage.setItem('user', user.uid);
         var displayName = user.displayName;
         var email = user.email;
@@ -99,9 +103,18 @@ class Login extends React.Component {
         var uid = user.uid;
         var phoneNumber = user.phoneNumber;
         var providerData = user.providerData;
+        var lastSignInTime = user.metadata.lastSignInTime;
+        var creationTime = user.metadata.creationTime;
         user.getIdToken().then(function(accessToken) {
-          console.log(displayName,emailVerified,email,uid,phoneNumber,providerData); 
-          console.log(accessToken);
+          if(lastSignInTime==creationTime){
+            next.addUser(uid,displayName,email);
+            console.log("New User Added From Google Signup");    
+          }else{
+            console.log("User Already Exits From Google Signup");
+            next.props.history.push({
+              pathname: '/user/dashboard'        
+            });    
+          }
         });
 
       } else {
@@ -112,8 +125,32 @@ class Login extends React.Component {
     });
   }
 
+  addUser(uid,displayName,email){
+
+    const data = {
+      "userId":uid,
+      "username":displayName,
+      "email":email
+    };
+
+    axios.post("http://localhost:5000/users/add", data)
+      .then((res) => {
+      if ((res.status) == 200) {
+            
+        this.props.history.push({
+          pathname: '/user/dashboard'        
+        });
+
+      } else {
+        this.setState({status:1});      
+      }
+      console.log(res);
+
+    })
+  }
+
   componentDidMount() {
-    this.authListener();
+    this.authListener(this);
   }
 
   

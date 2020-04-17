@@ -14,7 +14,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-
+import axios from "axios";
 import fire from '../fire.js';
 
 var firebase = require('firebase');
@@ -23,6 +23,8 @@ class SignUp extends React.Component {
 
   constructor(props) {
     super(props);
+    this.addUser = this.addUser.bind(this);
+    this.authListener = this.authListener.bind(this);
 
     this.state = { 
       firstName: null,
@@ -47,9 +49,9 @@ class SignUp extends React.Component {
         }).then((u)=>{
           console.log(u);
           console.log("signup");
-          this.props.history.push({
-          pathname: '/user/dashboard'        
-          });
+          // this.props.history.push({
+          // pathname: '/user/dashboard'        
+          // });
 
         })
         .catch((error) => {
@@ -73,9 +75,9 @@ class SignUp extends React.Component {
       var token = result.credential.accessToken;
       // The signed-in user info.
       var user = result.user;
-      props.history.push({
-        pathname: '/user/dashboard'         
-      });
+      // props.history.push({
+      //   pathname: '/user/dashboard'         
+      // });
 
   
       console.log("google sign succefully");
@@ -96,7 +98,7 @@ class SignUp extends React.Component {
 
   };
  
-  authListener() {
+  authListener(next) {
     fire.auth().onAuthStateChanged((user) => {
       if (user) {
         // this.setState({ user });
@@ -108,9 +110,9 @@ class SignUp extends React.Component {
         var uid = user.uid;
         var phoneNumber = user.phoneNumber;
         var providerData = user.providerData;
+
         user.getIdToken().then(function(accessToken) {
-          // console.log(displayName,emailVerified,email,uid,phoneNumber,providerData); 
-          // console.log(accessToken);
+          next.addUser(uid,displayName,email);
         });
 
       } else {
@@ -121,8 +123,33 @@ class SignUp extends React.Component {
     });
   }
 
+  addUser(uid,displayName,email){
+
+    const data = {
+      "userId":uid,
+      "username":displayName!=null?displayName:(this.state.firstName+" "+this.state.lastName),
+      "email":email
+    };
+
+    axios.post("http://localhost:5000/users/add", data)
+      .then((res) => {
+      if ((res.status) == 200) {
+            
+        this.props.history.push({
+          pathname: '/user/dashboard'        
+        });
+
+      } else {
+        this.setState({status:1});      
+      }
+      console.log(res);
+
+    })
+  }
+
   componentDidMount() {
-    this.authListener();
+    this.authListener(this);
+
   }
 
   render() {
