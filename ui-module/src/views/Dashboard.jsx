@@ -89,11 +89,33 @@ class Dashboard extends React.Component {
   onSubmit(e) {
 
     const file = this.state.file;
-    const data = new FormData()
-   data.append('file', file)
+    const data1 = new FormData();
+    data1.append('file', file);
 
-   axios.post("http://localhost:5000/upload", data)
-            .then((res) => {console.log(res.data);
+    const data2 = {
+      "userId":'0001',
+      "text":this.state.text
+    }; 
+
+    axios.post("http://localhost:5000/upload", data1)
+      .then((res) => {
+        console.log(res.data);
+        if ((res.status) == 200) {
+          console.log("File Uploaded");
+        } else {
+          console.log("File not Uploaded");
+        }
+    })
+
+    axios.post("http://localhost:5000/checkplagiarism/text", data2)
+      .then((res) => {
+        if ((res.status) == 200) {
+          // console.log(res);
+        } else {
+        
+        }
+        console.log(res);
+
     })
 
 
