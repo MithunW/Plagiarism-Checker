@@ -65,9 +65,11 @@ app.post('/upload', upload.single('file'), (req, res) => {
 });
 // const exercisesRouter = require('./routes/exercises');
 const usersRouter = require('./routes/users');
+const webPlagiarismRouter = require('./routes/web.plagiarism');
 
 // app.use('/exercises', exercisesRouter);
 app.use('/users', usersRouter);
+app.use('/checkplagiarism', webPlagiarismRouter);
 
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
