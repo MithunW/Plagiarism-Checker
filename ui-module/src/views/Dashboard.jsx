@@ -35,15 +35,13 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import SearchIcon from '@material-ui/icons/Search';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import fire from '../fire.js';
-
-
+import Pdf from "react-to-pdf";
 
 require('colors');
 var Diff = require('diff');
-
+const ref = React.createRef();
 
 class Dashboard extends React.Component {
-
 
   signout(){
       fire.auth().signOut().then((u)=>{
@@ -82,8 +80,20 @@ class Dashboard extends React.Component {
       opMap :[],
       text:'',
       validType:'valid',
-      count:0
+      count:0,
+      data : '',
     }
+  }
+
+  componentDidMount() {
+    fetch('https://en.wikipedia.org/wiki/Apple_Inc.')
+      .then(response => response.json())
+      .then(findresponse => fetch(findresponse.url, { mode: 'no-cors' })) // re-fetch
+      .then(textResp => textResp.text()) // assuming this is a text
+      .then(data => {
+        this.setState({ data });
+      });
+      console.log(this.state.data);
   }
 
   onSubmit(e) {
@@ -146,25 +156,33 @@ class Dashboard extends React.Component {
     })
 
   }
-
+  // compare two paragraphs
   checkResult(e) {
     const txt1 = this.state.txt1;
     const txt2 = this.state.txt2;
-    console.log(txt1);
-    console.log(txt2);
+    
+    var sentencesArray= txt1.split(/(\S.+?[.!?])(?=\s+|$)/);
+    console.log(sentencesArray);
+    sentencesArray.forEach((sentence) => 
+    {if(sentence.trim() !== '') {
+      console.log(sentence)
+    }}
+    );
+
     var diff = Diff.diffWords(txt1, txt2);
     var op = '';
     var colorText = []
     diff.forEach(function(part){
-      // green for additions, red for deletions
-      // grey for common parts
+      // green for additions, gray for deletions
+      // red for common parts
+
       var color = part.added ? 'green' :
-        part.removed ? 'red' : 'grey';
+        part.removed ? 'grey' : 'red';
       console.log(part.value[color]);
       op = op + part.value[color];
-  
+      
       colorText.push(
-          <span style={{ color: color ,fontSize:25,fontWeight:700}}>
+          <span style={{ color: color ,fontSize:16,fontWeight:500}}>
               {part.value[color]}
           </span>
       );
@@ -451,8 +469,13 @@ class Dashboard extends React.Component {
                       />
                     </FormGroup>
                     <Button id="btnCompare" onClick={this.checkResult} color="primary">Compare</Button>
-                    <div>
-                      <p>{this.state.opMap.map(el => el)}</p>
+                    <Pdf targetRef={ref} filename="result.pdf">
+                      {({ toPdf }) => <Button onClick={toPdf} color="primary">Download Result PDF</Button>}
+                    </Pdf>
+                    <div ref={ref}>
+                      <div style={{padding:20,}}>
+                        <p>{this.state.opMap.map(el => el)}</p>
+                      </div>
                     </div>
                 </CardBody>
               </Card>
