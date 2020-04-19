@@ -29,7 +29,7 @@ class Footer extends React.Component {
         className={"footer" + (this.props.default ? " footer-default" : "")}
       >
         <Container fluid={this.props.fluid ? true : false}>
-          <Row>
+          {/* <Row>
             <nav className="footer-nav">
               <ul>
                 <li>
@@ -58,7 +58,7 @@ class Footer extends React.Component {
                 <i className="fa fa-heart heart" /> by Creative Tim
               </div>
             </div>
-          </Row>
+          </Row> */}
         </Container>
       </footer>
     );
