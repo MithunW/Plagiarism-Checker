@@ -71,6 +71,7 @@ class Dashboard extends React.Component {
     this.remove = this.remove.bind(this);
     this.handleTextArea = this.handleTextArea.bind(this);
     this.checkLimit = this.checkLimit.bind(this);
+    this.getContent = this.getContent.bind(this);
 
     this.state = {
       file : null,
@@ -85,7 +86,7 @@ class Dashboard extends React.Component {
     }
   }
 
-  componentDidMount() {
+  getContent() {
     fetch('https://en.wikipedia.org/wiki/Apple_Inc.')
       .then(response => response.json())
       .then(findresponse => fetch(findresponse.url, { mode: 'no-cors' })) // re-fetch
@@ -367,8 +368,8 @@ class Dashboard extends React.Component {
               </Card>
             </Col>
           </Row>
+
           <Row>
-          
             {/* --------------------Upload Files---------------------- */}
             <Col md="12">
               <Card>
@@ -421,21 +422,15 @@ class Dashboard extends React.Component {
                       color="primary"
                       size="large"
                       startIcon={<SearchIcon />}
-                      style={{backgroundColor:'#066294'}}
+                      // style={{backgroundColor:'#066294'}}
                       onClick={this.onSubmit}
                       >
                         Check Plagiarism
                     </MIButton>
                     </Col>
                   </Row>                  
-                
-                
-                
-                
                 </CardBody>
                 <CardFooter style={{marginTop:'-1.2rem'}}>
-  
-                   
                   <br/>
                 </CardFooter>
               </Card>
@@ -448,9 +443,6 @@ class Dashboard extends React.Component {
                 <CardHeader>
                     <CardTitle tag="h5">Compare Text</CardTitle>
                 </CardHeader>
-
-          
-          
                 <CardBody>
                   <FormGroup>
                       <label>First Text</label>
@@ -479,8 +471,26 @@ class Dashboard extends React.Component {
                     </div>
                 </CardBody>
               </Card>
+            </Col> 
+          </Row>
+
+          {/* --------------------Using document reference---------------------- */}
+
+          <Row>
+            <Col md="12">
+              <Card>
+                <CardHeader>
+                <CardTitle tag="h5">Check Plagiarism Using Document url</CardTitle>
+                </CardHeader>
+                <CardBody>
+                  <label>
+                    Enter url here :
+                  </label>
+                  <Input type="text"></Input>
+                  <Button color="primary" onClick={this.getContent}>Check</Button>
+                </CardBody>
+              </Card>
             </Col>
-            
           </Row>
         </div>
     );
