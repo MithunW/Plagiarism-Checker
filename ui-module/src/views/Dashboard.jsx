@@ -36,9 +36,9 @@ import SearchIcon from '@material-ui/icons/Search';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import fire from '../fire.js';
 import Pdf from "react-to-pdf";
-
 require('colors');
 var Diff = require('diff');
+var stringSimilarity = require('string-similarity');
 const ref = React.createRef();
 
 class Dashboard extends React.Component {
@@ -169,25 +169,39 @@ class Dashboard extends React.Component {
       console.log(sentence)
     }}
     );
+    console.log(stringSimilarity.compareTwoStrings(txt1, txt2));
 
-    var diff = Diff.diffWords(txt1, txt2);
+    var diff = Diff.diffWords(txt1, txt2,{ignoreCase : true});
     var op = '';
     var colorText = []
+    var totalSentences = 0;
+    var redSenetences = 0;
     diff.forEach(function(part){
       // green for additions, gray for deletions
       // red for common parts
-
+      totalSentences = totalSentences + 1; 
       var color = part.added ? 'green' :
         part.removed ? 'grey' : 'red';
+
+      if(!part.removed && !part.added) {
+        redSenetences = redSenetences + 1;
+      }
+
       console.log(part.value[color]);
       op = op + part.value[color];
       
       colorText.push(
-          <span style={{ color: color ,fontSize:16,fontWeight:500}}>
+          <span key={colorText.length} style={{ color: color ,fontSize:16,fontWeight:500}}>
               {part.value[color]}
           </span>
       );
     });
+    var similarity = ((redSenetences / totalSentences)*100).toFixed(2);
+
+    colorText.push(
+        <div key={colorText.length} style={{fontSize:16}}>Similarity percentage {similarity} %</div>
+    );
+
     this.setState({
       op: op,
       opMap: colorText
@@ -466,7 +480,7 @@ class Dashboard extends React.Component {
                     </Pdf>
                     <div ref={ref}>
                       <div style={{padding:20,}}>
-                        <p>{this.state.opMap.map(el => el)}</p>
+                        <span>{this.state.opMap.map(el => el)}</span>
                       </div>
                     </div>
                 </CardBody>
