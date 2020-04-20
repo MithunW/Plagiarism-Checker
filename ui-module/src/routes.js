@@ -4,6 +4,7 @@ import ForgotPassword from "views/ForgotPassword.jsx";
 
 
 import Dashboard from "views/Dashboard.jsx";
+import Result from "views/Result.jsx";
 import Notifications from "views/Notifications.jsx";
 import Typography from "views/Typography.jsx";
 import TableList from "views/Tables.jsx";
@@ -80,5 +81,15 @@ var access_routes = [
     layout: "/access"
   }
 ];
+
+var inner_routes = [
+  {
+    path: "/result",
+    name: "Result",
+    // icon: "nc-icon nc-diamond",
+    component: Result,
+    layout: "/user"
+  }
+];
 export default routes;
-export {access_routes};
+export {access_routes,inner_routes};

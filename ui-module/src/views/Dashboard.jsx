@@ -110,7 +110,14 @@ class Dashboard extends React.Component {
     axios.post("http://localhost:5000/checkplagiarism/text", data2)
       .then((res) => {
         if ((res.status) == 200) {
-          // console.log(res);
+          this.props.history.push({
+            pathname: '/user/result',
+            state: {
+              text:this.state.text,
+              result:res.data.result,
+              plagiarism:res.data.plagiarism
+            }        
+          });
         } else {
         
         }
