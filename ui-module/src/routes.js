@@ -11,6 +11,7 @@ import TableList from "views/Tables.jsx";
 import Maps from "views/Map.jsx";
 import UserPage from "views/User.jsx";
 import UpgradeToPro from "views/Upgrade.jsx";
+import History from "views/History.jsx"
 
 var routes = [
   {
@@ -35,10 +36,10 @@ var routes = [
     layout: "/user"
   },
   {
-    path: "/tables",
-    name: "Table List",
+    path: "/history",
+    name: "History",
     icon: "nc-icon nc-tile-56",
-    component: TableList,
+    component: History,
     layout: "/user"
   },
   {
