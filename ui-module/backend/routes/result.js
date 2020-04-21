@@ -1,13 +1,13 @@
 const router = require('express').Router();
 let Result = require('../models/result.model');
 
-router.route('/getResults').get((req, res) => {
+router.route('/').get((req, res) => {
   Result.find()
     .then(results => res.json(results))
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-router.route('/addResult').post((req, res) => {
+router.route('/add').post((req, res) => {
   const userID = req.body.userID;
   const file = req.body.file;
   const checkType = req.body.checktype;
