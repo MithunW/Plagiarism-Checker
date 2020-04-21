@@ -21,13 +21,13 @@ var routes = [
     component: Dashboard,
     layout: "/user"
   },
-  {
-    path: "/notifications",
-    name: "Notifications",
-    icon: "nc-icon nc-bell-55",
-    component: Notifications,
-    layout: "/user"
-  },
+  // {
+  //   path: "/notifications",
+  //   name: "Notifications",
+  //   icon: "nc-icon nc-bell-55",
+  //   component: Notifications,
+  //   layout: "/user"
+  // },
   {
     path: "/user-page",
     name: "User Profile",
@@ -42,13 +42,13 @@ var routes = [
     component: History,
     layout: "/user"
   },
-  {
-    path: "/typography",
-    name: "Typography",
-    icon: "nc-icon nc-caps-small",
-    component: Typography,
-    layout: "/user"
-  },
+  // {
+  //   path: "/typography",
+  //   name: "Typography",
+  //   icon: "nc-icon nc-caps-small",
+  //   component: Typography,
+  //   layout: "/user"
+  // },
   {
     pro: true,
     path: "/upgrade",
