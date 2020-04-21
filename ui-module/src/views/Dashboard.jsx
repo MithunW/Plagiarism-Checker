@@ -204,10 +204,18 @@ class Dashboard extends React.Component {
       );
     });
     var similarity = ((redSenetences / totalSentences)*100).toFixed(2);
-
-    colorText.push(
+    console.log(colorText.length);
+    if(txt1 !== '' && txt2 !== '') {
+      colorText.push(
         <div key={colorText.length} style={{fontSize:16}}>Similarity percentage {similarity} %</div>
     );
+    } else {
+      colorText.push(
+        <div style={{fontSize:16}}> Enter your texts to compare</div>
+      );
+    }
+
+    
 
     this.setState({
       op: op,
