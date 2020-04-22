@@ -168,58 +168,102 @@ class Dashboard extends React.Component {
   checkResult(e) {
     const txt1 = this.state.txt1;
     const txt2 = this.state.txt2;
-    
-    var sentencesArray= txt1.split(/(\S.+?[.!?])(?=\s+|$)/);
-    console.log(sentencesArray);
-    sentencesArray.forEach((sentence) => 
-    {if(sentence.trim() !== '') {
-      console.log(sentence)
-    }}
-    );
-    console.log(stringSimilarity.compareTwoStrings(txt1, txt2));
+    var sentencesArray1 = txt1.split(/(\S.+?[.!?])(?=\s+|$)/);
+    var sentencesArray2 = txt2.split(/(\S.+?[.!?])(?=\s+|$)/); 
+    var totalSimilarityPercentage = 0.00;
+    var resultArray = [];
+    sentencesArray2.forEach((sentence2) => {
+      console.log(sentence2);
+      var sentenceSimilarityPercentage = 0.0;
+      var resultSentence = [];
+      if(sentence2.trim() !== '') {
+        sentencesArray1.forEach((sentence1) => {
+          console.log(sentence1);
+          var totalWords = 0;
+          var redWords = 0;
+          var sentenceArray = [];
+          if(sentence1.trim() !== '') {
+            var diff = Diff.diffSentences(sentence1.trim(), sentence2,{ignoreCase : true});
+            diff.forEach(function(part){
+              // green for additions, gray for deletions
+              // red for common parts
+              console.log(part);
+              totalWords = totalWords + 1; 
+              var color = part.added ? 'green' :
+                part.removed ? 'grey' : 'red';
 
-    var diff = Diff.diffWords(txt1, txt2,{ignoreCase : true});
-    var op = '';
-    var colorText = []
-    var totalSentences = 0;
-    var redSenetences = 0;
-    diff.forEach(function(part){
-      // green for additions, gray for deletions
-      // red for common parts
-      totalSentences = totalSentences + 1; 
-      var color = part.added ? 'green' :
-        part.removed ? 'grey' : 'red';
-
-      if(!part.removed && !part.added) {
-        redSenetences = redSenetences + 1;
+              if(!part.removed && !part.added) {
+                redWords = redWords + 1;
+              }
+              
+              sentenceArray.push(
+                  <span style={{ color: color ,fontSize:16,fontWeight:500}}>
+                      {part.value[color]}
+                  </span>
+              );
+            });
+            if(sentenceSimilarityPercentage < ((redWords/totalWords)*100).toFixed(2)) {
+              sentenceSimilarityPercentage = ((redWords/totalWords)*100).toFixed(2);
+              resultSentence = sentenceArray;
+              console.log(resultSentence);
+            } else if(((redWords/totalWords)*100).toFixed(2) == 0.0 && sentenceSimilarityPercentage == 0.0) {
+              console.log('in');
+              resultSentence = [<span>{sentence2}</span>]
+            }
+            console.log(sentenceArray);
+            console.log(sentenceSimilarityPercentage);
+            console.log(((redWords/totalWords)));
+            console.log(((redWords/totalWords)*100).toFixed(2));
+          }
+        });
       }
-
-      console.log(part.value[color]);
-      op = op + part.value[color];
-      
-      colorText.push(
-          <span key={colorText.length} style={{ color: color ,fontSize:16,fontWeight:500}}>
-              {part.value[color]}
-          </span>
-      );
+      resultArray = resultArray.concat(resultSentence);
+      console.log(resultSentence);
     });
-    var similarity = ((redSenetences / totalSentences)*100).toFixed(2);
-    console.log(colorText.length);
-    if(txt1 !== '' && txt2 !== '') {
-      colorText.push(
-        <div key={colorText.length} style={{fontSize:16}}>Similarity percentage {similarity} %</div>
-    );
-    } else {
-      colorText.push(
-        <div style={{fontSize:16}}> Enter your texts to compare</div>
-      );
-    }
+    // console.log(stringSimilarity.compareTwoStrings(txt1, txt2));
+
+    // var diff = Diff.diffWords(txt1, txt2,{ignoreCase : true});
+    // var op = '';
+    // var colorText = []
+    // var totalSentences = 0;
+    // var redSenetences = 0;
+    // diff.forEach(function(part){
+    //   // green for additions, gray for deletions
+    //   // red for common parts
+    //   totalSentences = totalSentences + 1; 
+    //   var color = part.added ? 'green' :
+    //     part.removed ? 'grey' : 'red';
+
+    //   if(!part.removed && !part.added) {
+    //     redSenetences = redSenetences + 1;
+    //   }
+
+    //   console.log(part.value[color]);
+    //   op = op + part.value[color];
+      
+    //   colorText.push(
+    //       <span key={colorText.length} style={{ color: color ,fontSize:16,fontWeight:500}}>
+    //           {part.value[color]}
+    //       </span>
+    //   );
+    // });
+    // var similarity = ((redSenetences / totalSentences)*100).toFixed(2);
+    // console.log(colorText.length);
+    // if(txt1 !== '' && txt2 !== '') {
+    //   colorText.push(
+    //     <div key={colorText.length} style={{fontSize:16}}>Similarity percentage {similarity} %</div>
+    // );
+    // } else {
+    //   colorText.push(
+    //     <div style={{fontSize:16}}> Enter your texts to compare</div>
+    //   );
+    // }
 
     
 
     this.setState({
-      op: op,
-      opMap: colorText
+      // op: op,
+      opMap: resultArray
     })
   }
 
