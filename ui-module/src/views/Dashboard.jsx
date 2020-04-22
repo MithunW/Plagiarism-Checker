@@ -173,17 +173,17 @@ class Dashboard extends React.Component {
     var totalSimilarityPercentage = 0.00;
     var resultArray = [];
     sentencesArray2.forEach((sentence2) => {
-      console.log(sentence2);
       var sentenceSimilarityPercentage = 0.0;
       var resultSentence = [];
       if(sentence2.trim() !== '') {
         sentencesArray1.forEach((sentence1) => {
-          console.log(sentence1);
           var totalWords = 0;
           var redWords = 0;
           var sentenceArray = [];
           if(sentence1.trim() !== '') {
-            var diff = Diff.diffSentences(sentence1.trim(), sentence2,{ignoreCase : true});
+            var diff = Diff.diffSentences(sentence1.trim(), sentence2.trim(),{ignoreCase : true});
+            console.log(sentence2);
+            console.log(sentence1);
             diff.forEach(function(part){
               // green for additions, gray for deletions
               // red for common parts
@@ -220,7 +220,7 @@ class Dashboard extends React.Component {
       resultArray = resultArray.concat(resultSentence);
       console.log(resultSentence);
     });
-    // console.log(stringSimilarity.compareTwoStrings(txt1, txt2));
+    console.log(stringSimilarity.compareTwoStrings(txt1, txt2));
 
     // var diff = Diff.diffWords(txt1, txt2,{ignoreCase : true});
     // var op = '';
