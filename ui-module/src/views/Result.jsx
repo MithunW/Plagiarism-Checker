@@ -46,6 +46,8 @@ import ForwardIcon from '@material-ui/icons/Forward';
 import IconButton from '@material-ui/core/IconButton';
 import CreateIcon from '@material-ui/icons/Create';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import Pdf from "react-to-pdf";
+const ref = React.createRef();
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -255,6 +257,7 @@ class Dashboard extends React.Component {
 
                           </Tabs>
                         </AppBar>
+                        <div ref={ref}>
                         <TabPanel value={this.state.value} index={0}>
                           {this.state.result.map((data, key) => (
                             <div key={key}>
@@ -324,7 +327,7 @@ class Dashboard extends React.Component {
                           ))}
                         </TabPanel>
 
- 
+                        </div>
 
                     </Col>
                   </Row>
@@ -360,7 +363,23 @@ class Dashboard extends React.Component {
                         </Grid>
 
                         <Grid item xs={4}>
-                          <Button
+                        <Pdf targetRef={ref} filename="result.pdf">
+                      {({ toPdf }) => 
+                      <Button
+                      onClick={toPdf}
+                      variant="contained"
+                      color="primary"
+                      size="large"
+                      startIcon={<GetAppIcon />}
+                      style={{backgroundColor:'#922B21'}}
+                      // onClick={this.onSubmit}
+                      >
+                        Download Report
+                    </Button> 
+                      }
+                    </Pdf>
+                          {/* <Button
+                            onClick={toPdf}
                             variant="contained"
                             color="primary"
                             size="large"
@@ -369,7 +388,7 @@ class Dashboard extends React.Component {
                             // onClick={this.onSubmit}
                             >
                               Download Report
-                          </Button> 
+                          </Button>  */}
                         </Grid>
                       </Grid> 
                     </Container>          
