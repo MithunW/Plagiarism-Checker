@@ -249,10 +249,11 @@ class Dashboard extends React.Component {
     // });
     // var similarity = ((redSenetences / totalSentences)*100).toFixed(2);
     // console.log(colorText.length);
-    // if(txt1 !== '' && txt2 !== '') {
-    //   colorText.push(
-    //     <div key={colorText.length} style={{fontSize:16}}>Similarity percentage {similarity} %</div>
-    // );
+    if(txt1 !== '' && txt2 !== '') {
+      resultArray.push(
+        <div style={{fontSize:16}}>Similarity percentage {(stringSimilarity.compareTwoStrings(txt1, txt2)*100).toFixed(2)} %</div>
+    );
+    }
     // } else {
     //   colorText.push(
     //     <div style={{fontSize:16}}> Enter your texts to compare</div>
