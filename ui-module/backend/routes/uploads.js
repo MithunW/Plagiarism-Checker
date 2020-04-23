@@ -1,17 +1,17 @@
 const router = require('express').Router();
 let Upload = require('../models/upload.model');
 
-router.route('/').get((req, res) => {
+router.route('/getUploads').get((req, res) => {
   Upload.find()
     .then(uploads => res.json(uploads))
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-router.route('/add').post((req, res) => {
-  const username = req.body.username;
+router.route('/addUpload').post((req, res) => {
+  const userID = req.body.userID;
   const file = req.body.file;
 
-  const newUpload = new Upload({username,file});
+  const newUpload = new Upload({userID,file});
 
   newUpload.save()
     .then(() => res.json('Upload added!'))

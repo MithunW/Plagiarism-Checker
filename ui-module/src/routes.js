@@ -4,12 +4,14 @@ import ForgotPassword from "views/ForgotPassword.jsx";
 
 
 import Dashboard from "views/Dashboard.jsx";
+import Result from "views/Result.jsx";
 import Notifications from "views/Notifications.jsx";
 import Typography from "views/Typography.jsx";
 import TableList from "views/Tables.jsx";
 import Maps from "views/Map.jsx";
 import UserPage from "views/User.jsx";
 import UpgradeToPro from "views/Upgrade.jsx";
+import History from "views/History.jsx"
 
 var routes = [
   {
@@ -19,13 +21,13 @@ var routes = [
     component: Dashboard,
     layout: "/user"
   },
-  {
-    path: "/notifications",
-    name: "Notifications",
-    icon: "nc-icon nc-bell-55",
-    component: Notifications,
-    layout: "/user"
-  },
+  // {
+  //   path: "/notifications",
+  //   name: "Notifications",
+  //   icon: "nc-icon nc-bell-55",
+  //   component: Notifications,
+  //   layout: "/user"
+  // },
   {
     path: "/user-page",
     name: "User Profile",
@@ -34,19 +36,19 @@ var routes = [
     layout: "/user"
   },
   {
-    path: "/tables",
-    name: "Table List",
+    path: "/history",
+    name: "History",
     icon: "nc-icon nc-tile-56",
-    component: TableList,
+    component: History,
     layout: "/user"
   },
-  {
-    path: "/typography",
-    name: "Typography",
-    icon: "nc-icon nc-caps-small",
-    component: Typography,
-    layout: "/user"
-  },
+  // {
+  //   path: "/typography",
+  //   name: "Typography",
+  //   icon: "nc-icon nc-caps-small",
+  //   component: Typography,
+  //   layout: "/user"
+  // },
   {
     pro: true,
     path: "/upgrade",
@@ -80,5 +82,15 @@ var access_routes = [
     layout: "/access"
   }
 ];
+
+var inner_routes = [
+  {
+    path: "/result",
+    name: "Result",
+    // icon: "nc-icon nc-diamond",
+    component: Result,
+    layout: "/user"
+  }
+];
 export default routes;
-export {access_routes};
+export {access_routes,inner_routes};
