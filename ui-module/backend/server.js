@@ -75,6 +75,11 @@ app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
 });
 
+
+//check source code plagiarism
+const srcplg= require('./routes/srcPlagiarism');
+app.use('/srcPlagiarism', srcplg);
+
 // var uploadTemp = multer({ dest: './temp' })
 const storageTemp = multer.diskStorage({
   destination: function (req, file, cb) {
