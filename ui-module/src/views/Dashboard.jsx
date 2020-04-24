@@ -68,7 +68,10 @@ class Dashboard extends React.Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.onChangeText1 = this.onChangeText1.bind(this);
     this.onChangeText2 = this.onChangeText2.bind(this);
+    this.onChangeSource1 = this.onChangeSource1.bind(this);
+    this.onChangeSource2 = this.onChangeSource2.bind(this);
     this.checkResult = this.checkResult.bind(this);
+    this.checkSRC = this.checkSRC.bind(this);
     this.readFile = this.readFile.bind(this);
     this.remove = this.remove.bind(this);
     this.handleTextArea = this.handleTextArea.bind(this);
@@ -84,7 +87,8 @@ class Dashboard extends React.Component {
       opMap: [],
       text: '',
       validType: 'valid',
-      count: 0
+      count: 0,
+      outpt: ''
     }
   }
 
@@ -177,17 +181,19 @@ class Dashboard extends React.Component {
     })
   }
 
-  checkSRC(){
-    const src1=this.state.src1;
-    const src2=this.state.src2;
-
-    const srcs={
-      "src1":src1,
-      "src2":src2
+  checkSRC() {
+    const src1 = this.state.src1;
+    const src2 = this.state.src2;
+    const srcs = {
+      "src1": src1,
+      "src2": src2
     };
 
     axios.post("http://localhost:5000/srcPlagiarism", srcs)
-    .then()
+      .then((res) => {
+        this.setState({ outpt: res.data.outpt });
+        console.log("Done");
+      } )
   }
 
   onChangeText1(e) {
@@ -199,6 +205,19 @@ class Dashboard extends React.Component {
   onChangeText2(e) {
     this.setState({
       txt2: e.target.value
+    })
+  }
+
+  onChangeSource1(e) {
+    this.setState({
+      src1: e.target.value
+    })
+
+  }
+
+  onChangeSource2(e) {
+    this.setState({
+      src2: e.target.value
     })
   }
 
@@ -489,7 +508,7 @@ class Dashboard extends React.Component {
                   <Input
                     type="textarea"
                     value={this.state.src1}
-                    onChange={this.onChangeText1}
+                    onChange={this.onChangeSource1}
                   />
                 </FormGroup>
                 <FormGroup>
@@ -497,12 +516,12 @@ class Dashboard extends React.Component {
                   <Input
                     type="textarea"
                     value={this.state.src2}
-                    onChange={this.onChangeText2}
+                    onChange={this.onChangeSource2}
                   />
                 </FormGroup>
-                <Button id="btnCompare" onClick={this.checkResult} color="primary">Compare</Button>
+                <Button id="btnCompare" onClick={this.checkSRC} color="primary">Compare</Button>
                 <div>
-                  <p>{this.state.opMap.map(el => el)}</p>
+                  <p id="inpsrc">{this.state.outpt}</p>
                 </div>
               </CardBody>
             </Card>

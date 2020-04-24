@@ -22,3 +22,7 @@
     font-weight: bolder;
     text-align:center;
   }
+
+  #inpsrc{
+    white-space: pre-line;
+  }
