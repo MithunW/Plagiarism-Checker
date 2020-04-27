@@ -26,26 +26,30 @@ import "../assets/css/custom.css";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { makeStyles, createStyles } from "@material-ui/core/styles";
-import { withStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
-import Grid from "@material-ui/core/Grid";
-import SearchIcon from "@material-ui/icons/Search";
-import Button from "@material-ui/core/Button";
-import PropTypes from "prop-types";
-import AppBar from "@material-ui/core/AppBar";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
-import DescriptionIcon from "@material-ui/icons/Description";
-import FindInPageIcon from "@material-ui/icons/FindInPage";
-import FileCopyIcon from "@material-ui/icons/FileCopy";
-import ThumbDown from "@material-ui/icons/ThumbDown";
-import ThumbUp from "@material-ui/icons/ThumbUp";
-import Box from "@material-ui/core/Box";
-import Container from "@material-ui/core/Container";
-import ForwardIcon from "@material-ui/icons/Forward";
-import IconButton from "@material-ui/core/IconButton";
-import CreateIcon from "@material-ui/icons/Create";
-import GetAppIcon from "@material-ui/icons/GetApp";
+
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
+import SearchIcon from '@material-ui/icons/Search';
+import Button from '@material-ui/core/Button';
+import PropTypes from 'prop-types';
+import AppBar from '@material-ui/core/AppBar';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import DescriptionIcon from '@material-ui/icons/Description';
+import FindInPageIcon from '@material-ui/icons/FindInPage';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
+import ThumbDown from '@material-ui/icons/ThumbDown';
+import ThumbUp from '@material-ui/icons/ThumbUp';
+import Box from '@material-ui/core/Box';
+import Container from '@material-ui/core/Container';
+import ForwardIcon from '@material-ui/icons/Forward';
+import IconButton from '@material-ui/core/IconButton';
+import CreateIcon from '@material-ui/icons/Create';
+import GetAppIcon from '@material-ui/icons/GetApp';
+import Pdf from "react-to-pdf";
+const ref = React.createRef();
+
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -586,16 +590,21 @@ class Dashboard extends React.Component {
                       </Grid>
 
                       <Grid item xs={4}>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          size="large"
-                          startIcon={<GetAppIcon />}
-                          style={{ backgroundColor: "#922B21" }}
-                          // onClick={this.onSubmit}
-                        >
-                          Download Report
-                        </Button>
+                        <Pdf targetRef={ref} filename="result.pdf">
+                      {({ toPdf }) => 
+                      <Button
+                      onClick={toPdf}
+                      variant="contained"
+                      color="primary"
+                      size="large"
+                      startIcon={<GetAppIcon />}
+                      style={{backgroundColor:'#922B21'}}
+                      // onClick={this.onSubmit}
+                      >
+                        Download Report
+                    </Button> 
+                      }
+                    </Pdf>
                       </Grid>
                     </Grid>
                   </Container>

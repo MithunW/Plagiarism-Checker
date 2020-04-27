@@ -35,15 +35,13 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import SearchIcon from '@material-ui/icons/Search';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import fire from '../fire.js';
-
-
-
+import Pdf from "react-to-pdf";
 require('colors');
 var Diff = require('diff');
-
+var stringSimilarity = require('string-similarity');
+const ref = React.createRef();
 
 class Dashboard extends React.Component {
-
 
   signout(){
       fire.auth().signOut().then((u)=>{
@@ -73,6 +71,7 @@ class Dashboard extends React.Component {
     this.remove = this.remove.bind(this);
     this.handleTextArea = this.handleTextArea.bind(this);
     this.checkLimit = this.checkLimit.bind(this);
+    this.getContent = this.getContent.bind(this);
 
     this.state = {
       file : null,
@@ -82,8 +81,20 @@ class Dashboard extends React.Component {
       opMap :[],
       text:'',
       validType:'valid',
-      count:0
+      count:0,
+      data : '',
     }
+  }
+
+  getContent() {
+    fetch('https://en.wikipedia.org/wiki/Apple_Inc.')
+      .then(response => response.json())
+      .then(findresponse => fetch(findresponse.url, { mode: 'no-cors' })) // re-fetch
+      .then(textResp => textResp.text()) // assuming this is a text
+      .then(data => {
+        this.setState({ data });
+      });
+      console.log(this.state.data);
   }
 
   onSubmit(e) {
@@ -151,32 +162,107 @@ class Dashboard extends React.Component {
     })
 
   }
-
+  // compare two paragraphs
   checkResult(e) {
     const txt1 = this.state.txt1;
     const txt2 = this.state.txt2;
-    console.log(txt1);
-    console.log(txt2);
-    var diff = Diff.diffWords(txt1, txt2);
-    var op = '';
-    var colorText = []
-    diff.forEach(function(part){
-      // green for additions, red for deletions
-      // grey for common parts
-      var color = part.added ? 'green' :
-        part.removed ? 'red' : 'grey';
-      console.log(part.value[color]);
-      op = op + part.value[color];
-  
-      colorText.push(
-          <span style={{ color: color ,fontSize:25,fontWeight:700}}>
-              {part.value[color]}
-          </span>
-      );
+    var sentencesArray1 = txt1.split(/(\S.+?[.!?])(?=\s+|$)/);
+    var sentencesArray2 = txt2.split(/(\S.+?[.!?])(?=\s+|$)/); 
+    var totalSimilarityPercentage = 0.00;
+    var resultArray = [];
+    sentencesArray2.forEach((sentence2) => {
+      var sentenceSimilarityPercentage = 0.0;
+      var resultSentence = [];
+      if(sentence2.trim() !== '') {
+        sentencesArray1.forEach((sentence1) => {
+          var totalWords = 0;
+          var redWords = 0;
+          var sentenceArray = [];
+          if(sentence1.trim() !== '') {
+            var diff = Diff.diffSentences(sentence1.trim(), sentence2.trim(),{ignoreCase : true});
+            console.log(sentence2);
+            console.log(sentence1);
+            diff.forEach(function(part){
+              // green for additions, gray for deletions
+              // red for common parts
+              console.log(part);
+              totalWords = totalWords + 1; 
+              var color = part.added ? 'green' :
+                part.removed ? 'grey' : 'red';
+
+              if(!part.removed && !part.added) {
+                redWords = redWords + 1;
+              }
+              
+              sentenceArray.push(
+                  <span style={{ color: color ,fontSize:16,fontWeight:500}}>
+                      {part.value[color]}
+                  </span>
+              );
+            });
+            if(sentenceSimilarityPercentage < ((redWords/totalWords)*100).toFixed(2)) {
+              sentenceSimilarityPercentage = ((redWords/totalWords)*100).toFixed(2);
+              resultSentence = sentenceArray;
+              console.log(resultSentence);
+            } else if(((redWords/totalWords)*100).toFixed(2) == 0.0 && sentenceSimilarityPercentage == 0.0) {
+              console.log('in');
+              resultSentence = [<span>{sentence2}</span>]
+            }
+            console.log(sentenceArray);
+            console.log(sentenceSimilarityPercentage);
+            console.log(((redWords/totalWords)));
+            console.log(((redWords/totalWords)*100).toFixed(2));
+          }
+        });
+      }
+      resultArray = resultArray.concat(resultSentence);
+      console.log(resultSentence);
     });
+    console.log(stringSimilarity.compareTwoStrings(txt1, txt2));
+
+    // var diff = Diff.diffWords(txt1, txt2,{ignoreCase : true});
+    // var op = '';
+    // var colorText = []
+    // var totalSentences = 0;
+    // var redSenetences = 0;
+    // diff.forEach(function(part){
+    //   // green for additions, gray for deletions
+    //   // red for common parts
+    //   totalSentences = totalSentences + 1; 
+    //   var color = part.added ? 'green' :
+    //     part.removed ? 'grey' : 'red';
+
+    //   if(!part.removed && !part.added) {
+    //     redSenetences = redSenetences + 1;
+    //   }
+
+    //   console.log(part.value[color]);
+    //   op = op + part.value[color];
+      
+    //   colorText.push(
+    //       <span key={colorText.length} style={{ color: color ,fontSize:16,fontWeight:500}}>
+    //           {part.value[color]}
+    //       </span>
+    //   );
+    // });
+    // var similarity = ((redSenetences / totalSentences)*100).toFixed(2);
+    // console.log(colorText.length);
+    if(txt1 !== '' && txt2 !== '') {
+      resultArray.push(
+        <div style={{fontSize:16}}>Similarity percentage {(stringSimilarity.compareTwoStrings(txt1, txt2)*100).toFixed(2)} %</div>
+    );
+    }
+    // } else {
+    //   colorText.push(
+    //     <div style={{fontSize:16}}> Enter your texts to compare</div>
+    //   );
+    // }
+
+    
+
     this.setState({
-      op: op,
-      opMap: colorText
+      // op: op,
+      opMap: resultArray
     })
   }
 
@@ -354,8 +440,8 @@ class Dashboard extends React.Component {
               </Card>
             </Col>
           </Row>
+
           <Row>
-          
             {/* --------------------Upload Files---------------------- */}
             <Col md="12">
               <Card>
@@ -408,21 +494,15 @@ class Dashboard extends React.Component {
                       color="primary"
                       size="large"
                       startIcon={<SearchIcon />}
-                      style={{backgroundColor:'#066294'}}
+                      // style={{backgroundColor:'#066294'}}
                       onClick={this.onSubmit}
                       >
                         Check Plagiarism
                     </MIButton>
                     </Col>
                   </Row>                  
-                
-                
-                
-                
                 </CardBody>
                 <CardFooter style={{marginTop:'-1.2rem'}}>
-  
-                   
                   <br/>
                 </CardFooter>
               </Card>
@@ -435,9 +515,6 @@ class Dashboard extends React.Component {
                 <CardHeader>
                     <CardTitle tag="h5">Compare Text</CardTitle>
                 </CardHeader>
-
-          
-          
                 <CardBody>
                   <FormGroup>
                       <label>First Text</label>
@@ -456,13 +533,36 @@ class Dashboard extends React.Component {
                       />
                     </FormGroup>
                     <Button id="btnCompare" onClick={this.checkResult} color="primary">Compare</Button>
-                    <div>
-                      <p>{this.state.opMap.map(el => el)}</p>
+                    <Pdf targetRef={ref} filename="result.pdf">
+                      {({ toPdf }) => <Button onClick={toPdf} color="primary">Download Result PDF</Button>}
+                    </Pdf>
+                    <div ref={ref}>
+                      <div style={{padding:20,}}>
+                        <span>{this.state.opMap.map(el => el)}</span>
+                      </div>
                     </div>
                 </CardBody>
               </Card>
+            </Col> 
+          </Row>
+
+          {/* --------------------Using document reference---------------------- */}
+
+          <Row>
+            <Col md="12">
+              <Card>
+                <CardHeader>
+                <CardTitle tag="h5">Check Plagiarism Using Document url</CardTitle>
+                </CardHeader>
+                <CardBody>
+                  <label>
+                    Enter url here :
+                  </label>
+                  <Input type="text"></Input>
+                  <Button color="primary" onClick={this.getContent}>Check</Button>
+                </CardBody>
+              </Card>
             </Col>
-            
           </Row>
         </div>
     );
