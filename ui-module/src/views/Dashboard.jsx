@@ -471,7 +471,7 @@ class Dashboard extends React.Component {
                         <DeleteIcon />
                       </IconButton>
                       <div className="stats"style={{textAlign:'right', marginRight:'-1rem'}} >
-                        <i className="fas fa-pen-nib" /> Word Count : {this.state.count}
+                        <i className="fas fa-pen-nib" /> Word Count : {this.state.count}/1000
                       </div>
                     </Col>
                   </Row>
