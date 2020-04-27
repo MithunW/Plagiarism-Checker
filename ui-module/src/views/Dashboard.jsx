@@ -124,9 +124,7 @@ class Dashboard extends React.Component {
           this.props.history.push({
             pathname: '/user/result',
             state: {
-              text:this.state.text,
-              result:res.data.result,
-              plagiarism:res.data.plagiarism
+              length:res.data.length,
             }        
           });
         } else {
