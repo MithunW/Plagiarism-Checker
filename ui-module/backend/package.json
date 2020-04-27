@@ -17,6 +17,7 @@
     "express": "^4.17.1",
     "googleapis": "^48.0.0",
     "gridfs-stream": "^1.1.1",
+    "https": "^1.0.0",
     "mammoth": "^1.4.9",
     "method-override": "^3.0.0",
     "mongoose": "^5.9.7",
@@ -26,6 +27,7 @@
     "node-wordnet": "^0.1.12",
     "pdf-parse": "^1.1.1",
     "puppeteer": "^3.0.0",
+    "stopword": "^1.0.0",
     "string-similarity": "^4.0.1",
     "unfluff": "^3.2.0",
     "wndb-with-exceptions": "^3.0.2"
