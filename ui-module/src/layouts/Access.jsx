@@ -26,8 +26,7 @@ class Dashboard extends React.Component {
   authListener() {
     fire.auth().onAuthStateChanged((user) => {
       if (user) {
-        // this.setState({ user });
-        localStorage.setItem('user', user.uid);
+
         var displayName = user.displayName;
         var email = user.email;
         var emailVerified = user.emailVerified;
@@ -38,11 +37,15 @@ class Dashboard extends React.Component {
         user.getIdToken().then(function(accessToken) {
           // console.log(displayName,emailVerified,email,uid,phoneNumber,providerData); 
           // console.log(accessToken);
+          localStorage.setItem('token', accessToken);
         });
 
       } else {
         // this.setState({ user: null });
-        localStorage.removeItem('user','');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('photoURL');
+        localStorage.removeItem('token');
         console.log('not logged');
       }
     });
