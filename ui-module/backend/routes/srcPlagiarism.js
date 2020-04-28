@@ -6,7 +6,6 @@ router.route('/').post((req, res)=>{
 
     res.json({outpt:src1});
 
-    
     var lines=src1.split("\n");
     lines.forEach((line)=>{
         if(line.startsWith("#") || line.startsWith("import")){
