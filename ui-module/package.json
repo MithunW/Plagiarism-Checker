@@ -26,12 +26,8 @@
     "react-router-dom": "5.0.0",
     "react-scripts": "^3.0.1",
     "react-to-pdf": "0.0.11",
-<<<<<<< HEAD
-    "reactstrap": "8.0.0"
-=======
     "reactstrap": "8.0.0",
     "string-similarity": "^4.0.1"
->>>>>>> 1301a0e7941acc0ee209d3b5f556d08577e98185
   },
   "scripts": {
     "start": "react-scripts start",
