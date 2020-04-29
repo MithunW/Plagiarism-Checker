@@ -6,6 +6,7 @@
   "dependencies": {
     "@material-ui/core": "^4.9.7",
     "@material-ui/icons": "^4.9.1",
+    "@react-pdf/renderer": "^1.6.8",
     "axios": "^0.19.2",
     "bootstrap": "4.3.1",
     "chart.js": "2.8.0",
@@ -17,13 +18,16 @@
     "perfect-scrollbar": "1.4.0",
     "react": "16.8.6",
     "react-chartjs-2": "2.7.6",
+    "react-circular-progressbar": "^2.0.3",
     "react-dom": "16.8.6",
     "react-google-maps": "9.4.5",
     "react-notification-alert": "0.0.12",
     "react-router": "5.0.0",
     "react-router-dom": "5.0.0",
     "react-scripts": "^3.0.1",
-    "reactstrap": "8.0.0"
+    "react-to-pdf": "0.0.11",
+    "reactstrap": "8.0.0",
+    "string-similarity": "^4.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -8,6 +8,7 @@ import Footer from "components/Footer/Footer.jsx";
 import Sidebar from "components/Sidebar/Sidebar.jsx";
 import FixedPlugin from "components/FixedPlugin/FixedPlugin.jsx";
 
+import {inner_routes} from "routes.js";
 import routes from "routes.js";
 
 var ps;
@@ -58,6 +59,17 @@ class Dashboard extends React.Component {
           <DemoNavbar {...this.props} />
           <Switch>
             {routes.map((prop, key) => {
+              return (
+                <Route
+                  path={prop.layout + prop.path}
+                  component={prop.component}
+                  key={key}
+                />
+              );
+            })}
+          </Switch>
+          <Switch>
+            {inner_routes.map((prop, key) => {
               return (
                 <Route
                   path={prop.layout + prop.path}

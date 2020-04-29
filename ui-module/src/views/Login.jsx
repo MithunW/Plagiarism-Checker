@@ -92,10 +92,11 @@ class Login extends React.Component {
   authListener(next) {
     fire.auth().onAuthStateChanged((user) => {
       if (user) {
-        // this.setState({ user });
-        // console.log(user);
 
-        localStorage.setItem('user', user.uid);
+        localStorage.setItem('userId', user.uid);
+        localStorage.setItem('userName', user.displayName);
+        localStorage.setItem('photoURL', user.photoURL);
+
         var displayName = user.displayName;
         var email = user.email;
         var emailVerified = user.emailVerified;
@@ -118,8 +119,7 @@ class Login extends React.Component {
         });
 
       } else {
-        // this.setState({ user: null });
-        localStorage.removeItem('user','');
+
         console.log('not logged');
       }
     });

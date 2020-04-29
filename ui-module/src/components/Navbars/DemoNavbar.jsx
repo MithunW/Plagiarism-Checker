@@ -28,6 +28,7 @@ import routes from "routes.js";
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
+import Avatar from '@material-ui/core/Avatar';
 
 var firebase = require('firebase');
 
@@ -35,62 +36,50 @@ class Header extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isOpen: false,
+      isLoad: true,
       dropdownOpen: false,
       color: "transparent",
       auth:true,
       anchorEl:null,
-      open :false
+      open :false,
+      userName:'User',
+      photoURL:'https://www.kindpng.com/picc/m/105-1055656_account-user-profile-avatar-avatar-user-profile-icon.png'
     };
-    this.toggle = this.toggle.bind(this);
+
     this.dropdownToggle = this.dropdownToggle.bind(this);
+    this.getUserDetail = this.getUserDetail.bind(this);
     this.sidebarToggle = React.createRef();
+
   }
 
-  toggle() {
-    if (this.state.isOpen) {
+
+  getUserDetail(){
+    var userName = localStorage.getItem('userName');
+    var photoURL = localStorage.getItem('photoURL');
+    if (userName != 'null' && userName != undefined) {
       this.setState({
-        color: "transparent"
-      });
-    } else {
-      this.setState({
-        color: "dark"
+        userName: localStorage.getItem('userName')
       });
     }
-    this.setState({
-      isOpen: !this.state.isOpen
-    });
+
+    if (photoURL != 'null' && photoURL != undefined) {
+      this.setState({
+        photoURL: localStorage.getItem('photoURL')
+      });
+    }
+
+    this.setState({isLoad:false});
   }
+
   dropdownToggle(e) {
     this.setState({
       dropdownOpen: !this.state.dropdownOpen
     });
   }
-  getBrand() {
-    let brandName = "Default Brand";
-    routes.map((prop, key) => {
-      if (window.location.href.indexOf(prop.layout + prop.path) !== -1) {
-        brandName = prop.name;
-      }
-      return null;
-    });
-    return brandName;
-  }
+
   openSidebar() {
     document.documentElement.classList.toggle("nav-open");
     this.sidebarToggle.current.classList.toggle("toggled");
-  }
-  // function that adds color dark/transparent to the navbar on resize (this is for the collapse)
-  updateColor() {
-    if (window.innerWidth < 993 && this.state.isOpen) {
-      this.setState({
-        color: "dark"
-      });
-    } else {
-      this.setState({
-        color: "transparent"
-      });
-    }
   }
 
   handleMenu = e => {   
@@ -106,7 +95,7 @@ class Header extends React.Component {
     this.handleClose();
       firebase.auth().signOut().then((u)=>{
         }).then((u)=>{
-          console.log(u);
+
           this.props.history.push({
             pathname: '/access/login'        
           });
@@ -115,20 +104,21 @@ class Header extends React.Component {
             console.log("Error");
         })        
   }
+  
 
-  componentDidMount() {
-    window.addEventListener("resize", this.updateColor.bind(this));
+  componentDidMount() {   
+    this.timerID = setInterval(() =>{     
+      if(this.state.isLoad){
+        this.getUserDetail();
+      }   
+    }, 10);
+
   }
-  componentDidUpdate(e) {
-    if (
-      window.innerWidth < 993 &&
-      e.history.location.pathname !== e.location.pathname &&
-      document.documentElement.className.indexOf("nav-open") !== -1
-    ) {
-      document.documentElement.classList.toggle("nav-open");
-      this.sidebarToggle.current.classList.toggle("toggled");
-    }
+
+  componentWillUnmount() {
+    clearInterval(this.timerID);
   }
+
   render() {
 
     const Styles = {
@@ -146,8 +136,8 @@ class Header extends React.Component {
         <Toolbar disableGutters={false} style={{justifyContent: 'space-between'}}>
 
 
-          <div style={{ width: '100%' }}>
-            <a href={"/admin/dashboard"}>
+          <div >
+            <a href={"/user/dashboard"}>
               <Typography variant="h3" style={{color: '#0F0E0E', fontSize: '3rem', fontWeight: '800', display: 'inline-block' }}>UNIQUE</Typography>
 
             </a>
@@ -156,14 +146,19 @@ class Header extends React.Component {
               Plagiarism Checker
             </Typography>
               
-
           </div>
+
           <div style={{textAlign:'center'}}>
-          <IconButton aria-haspopup="true" onClick={(e) => {this.handleMenu(e);}} aria-label="account of current user" aria-controls="menu-appbar" style={{textAlign:'right',outline: 'none'}}>
-                <AccountCircle fontSize='large'/>
-          </IconButton> 
-          <Typography style={{marginTop:'-0.5rem', color:'black'}}>User</Typography>
-          <Menu
+
+              <IconButton aria-haspopup="true" onClick={(e) => {this.handleMenu(e);}} aria-label="account of current user" aria-controls="menu-appbar" style={{textAlign:'right',outline: 'none'}}>
+                    <Avatar alt="profile" src={this.state.photoURL}/>
+              </IconButton> 
+
+
+
+              <Typography style={{marginTop:'-0.3rem', color:'black', fontSize:'14px'}}>{this.state.userName}</Typography>
+
+              <Menu
                 id="menu-appbar"
                 anchorEl={this.state.anchorEl}
                 anchorOrigin={{

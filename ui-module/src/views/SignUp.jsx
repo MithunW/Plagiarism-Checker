@@ -43,15 +43,27 @@ class SignUp extends React.Component {
     this.setState({status:0});
   }
 
-  signup(){
+  signup(next){
     if(this.state.password==this.state.confirmPassword){
       fire.auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then((u)=>{
         }).then((u)=>{
-          console.log(u);
           console.log("signup");
-          // this.props.history.push({
-          // pathname: '/user/dashboard'        
-          // });
+          fire.auth().onAuthStateChanged((user) => {
+            if (user) {
+              user.updateProfile({
+                displayName: this.state.firstName+" "+this.state.lastName,
+              }).then(
+                  function() {
+                    next.authListener(next);
+                  },
+                  function(error) {
+                    console.log(error);
+                  }
+                );
+
+            }
+        });
+
 
         })
         .catch((error) => {
@@ -64,22 +76,18 @@ class SignUp extends React.Component {
            
   };
 
-  signupWithGoogle(props){
+  signupWithGoogle(next){
     // e.preventDefault();
     var provider = new firebase.auth.GoogleAuthProvider();
     provider.addScope('profile');        
     provider.addScope('email');    
 
     fire.auth().signInWithPopup(provider).then(function(result) {
-      // This gives you a Google Access Token. You can use it to access the Google API.
+ 
       var token = result.credential.accessToken;
-      // The signed-in user info.
       var user = result.user;
-      // props.history.push({
-      //   pathname: '/user/dashboard'         
-      // });
+      next.authListener(next);
 
-  
       console.log("google sign succefully");
 
     }).catch(function(error) {
@@ -101,8 +109,11 @@ class SignUp extends React.Component {
   authListener(next) {
     fire.auth().onAuthStateChanged((user) => {
       if (user) {
-        // this.setState({ user });
-        localStorage.setItem('user', user.uid);
+
+        localStorage.setItem('userId', user.uid);
+        localStorage.setItem('userName', user.displayName);
+        localStorage.setItem('photoURL', user.photoURL);
+
         var displayName = user.displayName;
         var email = user.email;
         var emailVerified = user.emailVerified;
@@ -116,8 +127,6 @@ class SignUp extends React.Component {
         });
 
       } else {
-        // this.setState({ user: null });
-        localStorage.removeItem('user','');
         console.log('not logged');
       }
     });
@@ -147,10 +156,6 @@ class SignUp extends React.Component {
     })
   }
 
-  componentDidMount() {
-    this.authListener(this);
-
-  }
 
   render() {
     // console.log(this.state);
@@ -300,7 +305,7 @@ class SignUp extends React.Component {
                       variant="contained"
                       color="primary"        
                       style={{margin:'1.5rem 0 0.5rem 0',width:'80%' , fontSize:'20px',backgroundColor:'#066294 '}}
-                      onClick={() => {this.signup();}}
+                      onClick={() => {this.signup(this);}}
                     >
                       Sign Up
                     </Button>
@@ -313,7 +318,7 @@ class SignUp extends React.Component {
 
                       variant="contained"       
                       style={{marginTop:'1.5rem',width:'80%', fontSize:'20px',textTransform: 'none', backgroundColor:'white'}}
-                      onClick={() => {this.signupWithGoogle(this.props);}}
+                      onClick={() => {this.signupWithGoogle(this);}}
                     >
                     <div>
                         <img width="25px" style={{marginBottom:'4px', marginRight:'30px'}} alt="Google sign-in" 
