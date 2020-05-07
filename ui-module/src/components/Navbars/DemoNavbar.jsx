@@ -104,13 +104,20 @@ class Header extends React.Component {
             console.log("Error");
         })        
   }
+
+  profile(){
+    this.handleClose();
+    this.props.history.push({
+      pathname: '/user/profile'        
+    });
+  }
   
 
   componentDidMount() {   
     this.timerID = setInterval(() =>{     
-      if(this.state.isLoad){
+      // if(this.state.isLoad){
         this.getUserDetail();
-      }   
+      // }   
     }, 10);
 
   }
@@ -174,7 +181,7 @@ class Header extends React.Component {
                 onClose={() => {this.handleClose();} }
                 style={{margin:'3rem 1rem'}}
               >
-                <MenuItem style={{ padding:'0.5rem 2rem 0.5rem 1rem'}} onClick={() => {this.handleClose();} }>Profile</MenuItem>
+                <MenuItem style={{ padding:'0.5rem 2rem 0.5rem 1rem'}} onClick={() => {this.profile();} }>Profile</MenuItem>
                 <MenuItem style={{ padding:'0.5rem 2rem 0.5rem 1rem'}} onClick={() => {this.signout();} }>Log out</MenuItem>
               </Menu>
 

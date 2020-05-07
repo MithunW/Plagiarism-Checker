@@ -104,7 +104,7 @@ class Dashboard extends React.Component {
     data1.append('file', file);
 
     const data2 = {
-      "userId":'0001',
+      "userId":localStorage.getItem('userId'),
       "text":this.state.text
     }; 
 

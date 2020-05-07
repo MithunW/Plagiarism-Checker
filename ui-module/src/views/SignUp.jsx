@@ -113,6 +113,7 @@ class SignUp extends React.Component {
         localStorage.setItem('userId', user.uid);
         localStorage.setItem('userName', user.displayName);
         localStorage.setItem('photoURL', user.photoURL);
+        localStorage.setItem('email', user.email);
 
         var displayName = user.displayName;
         var email = user.email;

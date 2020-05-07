@@ -1,4 +1,6 @@
 const router = require("express").Router();
+let Result_model = require('../models/result.model');
+
 var stringSimilarity = require("string-similarity");
 WordNet = require("../node_modules/node-wordnet/lib/wordnet.js");
 var wordnet = new WordNet();
@@ -14,11 +16,20 @@ const newString = sw.removeStopwords(oldString);
 
 var results_list = [];
 var tokenize_document=[];
+var process=0;
+var total_process=0;
+var count=0;
+var userId='';
+
 router.route("/text").post((req, res) => {
-  const userId = req.body.userId;
+  userId = req.body.userId;
   const document = req.body.text;
+
+  process=0;
+  total_process=0;
   results_list = [];
   tokenize_document=[];
+  count=0;
   // console.log(userId, document);
 
   // 01. tokenize the document
@@ -137,9 +148,11 @@ router.route("/text").post((req, res) => {
   // console.log("***********************************************************");
 
   //06. extract page content - web scraping
-  const url = "https://en.wikipedia.org/wiki/Java_(programming_language)";
+  const url_list = ["https://en.wikipedia.org/wiki/Java_(programming_language)","https://en.wikipedia.org/wiki/Science","https://www.space.com/56-our-solar-system-facts-formation-and-discovery.html"];
+  const target_list = [];
 
-  puppeteer
+  url_list.forEach(function (url, index) {
+    puppeteer
     .launch()
     .then(function (browser) {
       return browser.newPage();
@@ -153,27 +166,61 @@ router.route("/text").post((req, res) => {
       // console.log(html);
       data = extractor(html);
       console.log("web scraping");
-      // console.log(data);
+      // console.log(data.text);
       // target_text=data;
-      compareText(data.text);
+      // compareText(data.text);
+      target_list.push(data.text);
+
+      if(url_list.length==target_list.length){
+        getTargetText();
+      }
+
     })
     .catch(function (err) {
-      //handle error
+      // console.log("Scraping error - ", err);
     });
+  });
 
-  function compareText(target_text) {
-    console.log("compare text");
-    var tokenize_target_document = tokenizer.tokenize(target_text);
-    console.log("start");
+  
+
+  
+
+  function getTargetText() {
+    target_list.forEach(function (target_text, index) {
+      console.log("compare text - ", index, " start");
+      var tokenize_target_document = tokenizer.tokenize(target_text);
+      compareText(tokenize_target_document, index);
+    });
+  }
+
+  function compareText(tokenize_target_document, target_index) {
     tokenize_document.forEach(function (sentence, index) {
       var matches = stringSimilarity.findBestMatch(
         sentence,
         tokenize_target_document
       );
-      results_list.push([sentence, matches.bestMatch.rating, url]);
-      console.log("matches - ", index, " - ", matches.bestMatch.rating);
+
+      if(target_index>0){
+        if(matches.bestMatch.rating>results_list[index][1]){
+          // console.log(index,results_list[index][1],' ',matches.bestMatch.rating,);
+          results_list[index][1]=matches.bestMatch.rating;
+          results_list[index][2]=url_list[target_index];
+        }
+      }else{
+        results_list.push([sentence, matches.bestMatch.rating, url_list[target_index]]);
+      }
+
+      if(matches.bestMatch.rating>=0.8){
+        count+=1
+      }
+
+      console.log("matches - ", index, " - ", results_list[index][1], " - ", results_list[index][2]);
+      // process+=1;
+      
     });
   }
+
+
 
   // tokenize_document.forEach(function (sentence, index) {
   //   var similarity = stringSimilarity.compareTwoStrings(sentence, traget_text);
@@ -198,14 +245,44 @@ router.route("/text").post((req, res) => {
   });
 });
 
+// router.route("/result-progress").get((req, res) => {
+//   var progress=0;
+//   if (total_process!=0) {
+//     progress=process/total_process*100;
+//   }
+//   res.json({
+//     progress: progress
+//   });
+
+//   console.log("Progress - ", progress);
+
+// });
+
 router.route("/result").get((req, res) => {
-  console.log("called result ",results_list.length, tokenize_document.length);
+
+  console.log("count-  ",count/tokenize_document.length*100);
   if (results_list.length <=tokenize_document.length) {
     res.json({
       result: results_list,
-      plagiarism: 25,
+      plagiarism: count/tokenize_document.length*100,
     });
   }
+});
+
+router.route("/result-save").post((req, res) => {
+  
+  const files = results_list;
+  const checkType = 'web-plagiarism';
+  
+  const newResult = new Result_model({userId, files, checkType});
+
+  newResult.save()
+    .then(() => res.json({
+        status: 'Result added!'
+      }))
+    .catch(function(error) {
+      res.status(400).json('Error: ' + error)       
+    });
 });
 
 module.exports = router;
