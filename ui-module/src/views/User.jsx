@@ -13,6 +13,7 @@ import {
 } from "reactstrap";
 import { Formik, Form } from "formik";
 import * as yup from "yup";
+import axios from "axios";
 import fire from '../fire.js';
 import Container from '@material-ui/core/Container';
 import Grid from "@material-ui/core/Grid";
@@ -55,6 +56,7 @@ class User extends React.Component {
         this.updateProfile = this.updateProfile.bind(this);
         this.reauthenticate = this.reauthenticate.bind(this);
         this.changepassword = this.changepassword.bind(this);
+        this.updateUser = this.updateUser.bind(this);
     }
 
     getUserDetail(){
@@ -87,13 +89,7 @@ class User extends React.Component {
                 displayName: displayName,
             })
             .then(
-                console.log("update profile"),
-                this.setState({
-                    profileSubmit: true,
-                    loading: false
-                }),
-                localStorage.setItem("userName", displayName)
-
+                this.updateUser(displayName),
             )
             .catch((error) => {
                 this.setState({
@@ -114,6 +110,30 @@ class User extends React.Component {
         }
         });
     }
+
+    updateUser(displayName){
+
+        const data = {
+            "userId":localStorage.getItem('userId'),
+            "username":displayName,
+        };
+
+        axios.post("http://localhost:5000/users/update", data)
+        .then((res) => {
+            if ((res.status) == 200) {
+                console.log("update profile");
+                this.setState({
+                    profileSubmit: true,
+                    loading: false
+                });
+                localStorage.setItem("userName", displayName);
+                    
+            } else {
+                
+            }
+            console.log(res);
+        })
+  }
 
     reauthenticate(email, currentPassword, newPassword){
         var that = this;
