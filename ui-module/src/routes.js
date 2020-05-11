@@ -29,7 +29,7 @@ var routes = [
   //   layout: "/user"
   // },
   {
-    path: "/user-page",
+    path: "/profile",
     name: "User Profile",
     icon: "nc-icon nc-single-02",
     component: UserPage,

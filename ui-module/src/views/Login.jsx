@@ -96,6 +96,7 @@ class Login extends React.Component {
         localStorage.setItem('userId', user.uid);
         localStorage.setItem('userName', user.displayName);
         localStorage.setItem('photoURL', user.photoURL);
+        localStorage.setItem('email', user.email);
 
         var displayName = user.displayName;
         var email = user.email;
@@ -296,9 +297,6 @@ class Login extends React.Component {
                   </Grid>
 
                 </Grid>
-
-                  
-
 
                 <Grid container justify='center'>
                   <Grid item style={{margin:'2rem 0 0 0'}}>
