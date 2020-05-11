@@ -109,9 +109,11 @@ class Dashboard extends React.Component {
     data1.append('file', file);
 
     const data2 = {
-      "userId": '0001',
-      "text": this.state.text
-    };
+
+      "userId":localStorage.getItem('userId'),
+      "text":this.state.text
+    }; 
+
 
     axios.post("http://localhost:5000/upload", data1)
       .then((res) => {

@@ -7,7 +7,7 @@ router.route('/getUsers').get((req, res) => {
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-router.route('/addUser').post((req, res) => {
+router.route('/add').post((req, res) => {
 
   const userId = req.body.userId;
   const username = req.body.username;
@@ -25,6 +25,21 @@ router.route('/addUser').post((req, res) => {
       }
 
     });
+
+});
+
+router.route('/update').post((req, res) => {
+
+  const userId = req.body.userId;
+  const username = req.body.username;
+
+  var query = {'userId': req.body.userId};
+
+  User.findOneAndUpdate(query,  { username: req.body.username }, {upsert: true}, function(err, doc) {
+    if (err) return res.send(500, {error: err});
+    return res.send('Succesfully updated');
+  });
+
 
 });
 

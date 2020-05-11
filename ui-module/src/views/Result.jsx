@@ -85,7 +85,9 @@ class Dashboard extends React.Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
-    this.gerResult = this.gerResult.bind(this);
+    this.getResult = this.getResult.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+    // this.getProgress = this.getProgress.bind(this);
     // this.getHighlightedText = this.getHighlightedText.bind(this);
 
     this.state = {
@@ -94,17 +96,18 @@ class Dashboard extends React.Component {
       plagiarism: 0,
       unique: 0,
       value: 0,
+      submit:true,
       length: this.props.location.state.length,
     };
   }
 
   // componentDidMount() {
-  //   this.gerResult();
+  //   this.getResult();
   // }
 
   componentDidMount() {
     this.timerID = setInterval(() => this.tick(), 1000);
-    this.timerProcessID = setInterval(() => this.process(), 1000);
+    this.timerProcessID = setInterval(() => this.process(), 10);
   }
 
   componentWillUnmount() {
@@ -113,6 +116,9 @@ class Dashboard extends React.Component {
   }
 
   process() {
+    // if (this.state.result.length < this.state.length) {
+    //   this.getProgress();
+    // }
     this.setState({
       progress: (this.state.result.length / this.state.length) * 100,
     });
@@ -120,11 +126,14 @@ class Dashboard extends React.Component {
 
   tick() {
     if (this.state.result.length < this.state.length) {
-      this.gerResult();
+      this.getResult();
+    }
+    if (this.state.result.length == this.state.length && this.state.submit) {
+      this.onSubmit();
     }
   }
 
-  gerResult() {
+  getResult() {
     axios
       .get("http://localhost:5000/checkplagiarism/result", "")
       .then((res) => {
@@ -132,13 +141,44 @@ class Dashboard extends React.Component {
         if (res.status == 200) {
           this.setState({
             result: res.data.result,
-            plagiarism: res.data.plagiarism,
-            unique: 100 - res.data.plagiarism,
+            plagiarism: res.data.plagiarism.toFixed(0),
+            unique: 100 - res.data.plagiarism.toFixed(0),
           });
         }
       })
       .catch((err) => console.log("Error: " + err));
     console.log(this.state.result.length, " ", this.state.length);
+  }
+
+  // getProgress() {
+  //   axios
+  //     .get("http://localhost:5000/checkplagiarism/result-progress", "")
+  //     .then((res) => {
+  //       console.log(res);
+  //       // if (res.status == 200) {
+  //       //   this.setState({
+  //       //     result: res.data.result,
+  //       //     plagiarism: res.data.plagiarism,
+  //       //     unique: 100 - res.data.plagiarism,
+  //       //   });
+  //       // }
+  //     })
+  //     .catch((err) => console.log("Error: " + err));
+  // }
+
+  onSubmit() {
+    axios.post("http://localhost:5000/checkplagiarism/result-save", '')
+      .then((res) => {
+        console.log(res);
+        if ((res.status) == 200) {
+          console.log("Result Saved");
+          this.setState({
+            submit: false
+          });
+        } else {
+          console.log("Result not saved");
+        }
+    })
   }
 
   handleChange(event, newValue) {

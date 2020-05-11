@@ -46,6 +46,7 @@ class Dashboard extends React.Component {
         localStorage.removeItem('userName');
         localStorage.removeItem('photoURL');
         localStorage.removeItem('token');
+        localStorage.removeItem('email');
         console.log('not logged');
       }
     });
