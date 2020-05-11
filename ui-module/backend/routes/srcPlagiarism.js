@@ -4,13 +4,7 @@ router.route('/').post((req, res) => {
     var src1 = req.body.src1;
     var src2 = req.body.src2;
 
-    res.json({ outpt: src1 });
-
-
-
-    console.log(linesaftersplit);
-
-
+    res.json({ outpt: preProcessing(src1) });
 
     function preProcessing(src) {
 
@@ -61,7 +55,7 @@ router.route('/').post((req, res) => {
         }
 
         //split combined variable declarations and remove empty lines
-        var lines = src1.split("\n");
+        var lines = src.split("\n");
         var linesaftersplit = [];
 
         lines.forEach((line) => {
@@ -73,47 +67,41 @@ router.route('/').post((req, res) => {
             var vars = false;
             var i;
 
-            if (line.startsWith("int")) {
-                split("int");
+            
+            if(line.includes("(")){
+                
+            }else if (line.startsWith("int")) {
+                seperate("int");
             } else if (line.startsWith("char")) {
-                split("char");
+                seperate("char");
             } else if (line.startsWith("float")) {
-                split("float");
+                seperate("float");
             } else if (line.startsWith("double")) {
-                split("double");
+                seperate("double");
             } else if (line.startsWith("short int")) {
-                split("short int");
+                seperate("short int");
             } else if (line.startsWith("unsigned int")) {
-                split("unsigned int");
+                seperate("unsigned int");
             } else if (line.startsWith("long int")) {
-                split("long int");
+                seperate("long int");
             } else if (line.startsWith("long long int")) {
-                split("long long int");
+                seperate("long long int");
             } else if (line.startsWith("unsigned long int")) {
-                split("unsigned long int");
+                seperate("unsigned long int");
             } else if (line.startsWith("unsigned long long int")) {
-                split("unsigned long long int");
+                seperate("unsigned long long int");
             } else if (line.startsWith("signed char")) {
-                split("signed char");
+                seperate("signed char");
             } else if (line.startsWith("unsigned char")) {
-                split("unsigned char");
+                seperate("unsigned char");
             } else if (line.startsWith("long double")) {
-                split("long double");
+                seperate("long double");
             }
 
-            function split(type) {
+            function seperate(type) {
                 vars = true;
                 line = line.replace(type, '');
-                if (line.includes("=")) {
-                    var na = line.split("=");
-                    name = na[0].split(",");
-                    vals = na[1].split(",");
-
-                    for (i = 0; i < name.length; i++) {
-                        newline.push(name[i] + "=" + vals[i]);
-                    }
-                }
-                else if (line.includes(",")) {
+                if (line.includes(",")) {
                     name = line.split(",");
                     for (i = 0; i < name.length; i++) {
                         newline.push(name[i]);
@@ -139,13 +127,37 @@ router.route('/').post((req, res) => {
             }
 
         });
+        console.log(linesaftersplit);
+
+        return linesaftersplit;
     }
 
-    function tokenization(src) {
-        var keywords = ["auto", "break", "case", "char", "continue", "do", "default", "const", "double", "else", "enum", "extern",
-            "for", "if", "goto", "float", "int", "long", "register", "return", "signed", "static", "sizeof", "short",
-            "struct", "switch", "typedef", "union", "void", "while", "volatile", "unsigned"];
+    function tokenization(lns) {
+        var keywords = ["auto", "break", "case", "char", "continue", "do", "default", "const", "double",
+            "else", "enum", "extern", "for", "if", "goto", "float", "int", "long", "register",
+            "return", "signed", "static", "sizeof", "short", "struct", "switch", "typedef",
+            "union", "void", "while", "volatile", "unsigned"];
 
+        lns.forEach((line) => {
+            if (line.startsWith("int") || line.startsWith("float") || line.startsWith("double") ||
+                line.startsWith("short int") || line.startsWith("unsigned int") || line.startsWith("long int") ||
+                line.startsWith("long long int") || line.startsWith("unsigned long int") ||
+                line.startsWith("unsigned long long int") || line.startsWith("long double")) {
+                if(line.includes("(")){
+                    
+                }else if (line.includes("=")) {
+                    line = "<numeric_type><identifier>=<numeric_value>";
+                } else {
+                    line = "<numeric_type><identifier>";
+                }
+            } else if (line.startsWith("char") || line.startsWith("signed char") || line.startsWith("unsigned char")) {
+                if (line.includes("=")) {
+                    line = "<char_type><identifier>=<char_value>";
+                } else {
+                    line = "<char_type><identifier>";
+                }
+            }
+        });
     }
 
 });
