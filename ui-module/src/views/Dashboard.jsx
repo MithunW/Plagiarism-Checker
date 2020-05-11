@@ -47,6 +47,8 @@ require('colors');
 var Diff = require('diff');
 var stringSimilarity = require('string-similarity');
 const ref = React.createRef();
+// var WordNet = require("../../backend/node_modules/node-wordnet/lib/wordnet.js");
+// var wordnet = new WordNet();
 
 class Dashboard extends React.Component {
 
@@ -199,6 +201,24 @@ class Dashboard extends React.Component {
   }
   // compare two paragraphs
   checkResult(e) {
+
+    const data = new FormData();
+    data.append('text', 'test text');
+
+    axios.post("http://localhost:5000/compare", {'text':'test text'})
+      .then((res) => {
+        if ((res.status) == 200) {
+          console.log('200');
+        } else {
+        
+        }
+        console.log(res.data.text);
+
+    })
+
+
+
+
     const txt1 = this.state.txt1;
     const txt2 = this.state.txt2;
     var sentencesArray1 = txt1.split(/(\S.+?[.!?])(?=\s+|$)/);
