@@ -43,20 +43,20 @@ const ref = React.createRef();
 
 class Dashboard extends React.Component {
 
-  signout(){
-      fire.auth().signOut().then((u)=>{
-        }).then((u)=>{
-          console.log(u);
-          this.props.history.push({
-            pathname: '/access/login'        
-          });
-        })
-        .catch((error) => {
-            console.log("Error");
-        })        
+  signout() {
+    fire.auth().signOut().then((u) => {
+    }).then((u) => {
+      console.log(u);
+      this.props.history.push({
+        pathname: '/access/login'
+      });
+    })
+      .catch((error) => {
+        console.log("Error");
+      })
   }
 
-  
+
 
 
   constructor(props) {
@@ -66,7 +66,10 @@ class Dashboard extends React.Component {
     this.onSubmit = this.onSubmit.bind(this);
     this.onChangeText1 = this.onChangeText1.bind(this);
     this.onChangeText2 = this.onChangeText2.bind(this);
+    this.onChangeSource1 = this.onChangeSource1.bind(this);
+    this.onChangeSource2 = this.onChangeSource2.bind(this);
     this.checkResult = this.checkResult.bind(this);
+    this.checkSRC = this.checkSRC.bind(this);
     this.readFile = this.readFile.bind(this);
     this.remove = this.remove.bind(this);
     this.handleTextArea = this.handleTextArea.bind(this);
@@ -74,15 +77,17 @@ class Dashboard extends React.Component {
     this.getContent = this.getContent.bind(this);
 
     this.state = {
-      file : null,
-      txt1 : '',
-      txt2 : '',
-      op:'not yet',
-      opMap :[],
-      text:'',
-      validType:'valid',
-      count:0,
-      data : '',
+      file: null,
+      txt1: '',
+      txt2: '',
+      src1: '',
+      src2: '',
+      op: 'not yet',
+      opMap: [],
+      text: '',
+      validType: 'valid',
+      count: 0,
+      outpt: ''
     }
   }
 
@@ -94,7 +99,7 @@ class Dashboard extends React.Component {
       .then(data => {
         this.setState({ data });
       });
-      console.log(this.state.data);
+    console.log(this.state.data);
   }
 
   onSubmit(e) {
@@ -104,9 +109,11 @@ class Dashboard extends React.Component {
     data1.append('file', file);
 
     const data2 = {
+
       "userId":localStorage.getItem('userId'),
       "text":this.state.text
     }; 
+
 
     axios.post("http://localhost:5000/upload", data1)
       .then((res) => {
@@ -116,7 +123,7 @@ class Dashboard extends React.Component {
         } else {
           console.log("File not Uploaded");
         }
-    })
+      })
 
     axios.post("http://localhost:5000/checkplagiarism/text", data2)
       .then((res) => {
@@ -124,20 +131,20 @@ class Dashboard extends React.Component {
           this.props.history.push({
             pathname: '/user/result',
             state: {
-              length:res.data.length,
-            }        
+              length: res.data.length,
+            }
           });
         } else {
-        
+
         }
         console.log(res);
 
-    })
+      })
 
 
   }
 
-  readFile(file,fileType) {
+  readFile(file, fileType) {
 
     const data = new FormData();
     data.append('file', file);
@@ -146,20 +153,20 @@ class Dashboard extends React.Component {
     axios.post("http://localhost:5000/readfile", data)
       .then((res) => {
         if ((res.status) == 200) {
-  
-          const Count = res.data.text === "" ? 0 :res.data.text.split(" ").length;
+
+          const Count = res.data.text === "" ? 0 : res.data.text.split(" ").length;
           this.setState({
             count: Count,
-            text:res.data.text
+            text: res.data.text
           });
           this.checkLimit();
 
         } else {
-        
+
         }
         console.log(res.data.text);
 
-    })
+      })
 
   }
   // compare two paragraphs
@@ -167,51 +174,51 @@ class Dashboard extends React.Component {
     const txt1 = this.state.txt1;
     const txt2 = this.state.txt2;
     var sentencesArray1 = txt1.split(/(\S.+?[.!?])(?=\s+|$)/);
-    var sentencesArray2 = txt2.split(/(\S.+?[.!?])(?=\s+|$)/); 
+    var sentencesArray2 = txt2.split(/(\S.+?[.!?])(?=\s+|$)/);
     var totalSimilarityPercentage = 0.00;
     var resultArray = [];
     sentencesArray2.forEach((sentence2) => {
       var sentenceSimilarityPercentage = 0.0;
       var resultSentence = [];
-      if(sentence2.trim() !== '') {
+      if (sentence2.trim() !== '') {
         sentencesArray1.forEach((sentence1) => {
           var totalWords = 0;
           var redWords = 0;
           var sentenceArray = [];
-          if(sentence1.trim() !== '') {
-            var diff = Diff.diffSentences(sentence1.trim(), sentence2.trim(),{ignoreCase : true});
+          if (sentence1.trim() !== '') {
+            var diff = Diff.diffSentences(sentence1.trim(), sentence2.trim(), { ignoreCase: true });
             console.log(sentence2);
             console.log(sentence1);
-            diff.forEach(function(part){
+            diff.forEach(function (part) {
               // green for additions, gray for deletions
               // red for common parts
               console.log(part);
-              totalWords = totalWords + 1; 
+              totalWords = totalWords + 1;
               var color = part.added ? 'green' :
                 part.removed ? 'grey' : 'red';
 
-              if(!part.removed && !part.added) {
+              if (!part.removed && !part.added) {
                 redWords = redWords + 1;
               }
-              
+
               sentenceArray.push(
-                  <span style={{ color: color ,fontSize:16,fontWeight:500}}>
-                      {part.value[color]}
-                  </span>
+                <span style={{ color: color, fontSize: 16, fontWeight: 500 }}>
+                  {part.value[color]}
+                </span>
               );
             });
-            if(sentenceSimilarityPercentage < ((redWords/totalWords)*100).toFixed(2)) {
-              sentenceSimilarityPercentage = ((redWords/totalWords)*100).toFixed(2);
+            if (sentenceSimilarityPercentage < ((redWords / totalWords) * 100).toFixed(2)) {
+              sentenceSimilarityPercentage = ((redWords / totalWords) * 100).toFixed(2);
               resultSentence = sentenceArray;
               console.log(resultSentence);
-            } else if(((redWords/totalWords)*100).toFixed(2) == 0.0 && sentenceSimilarityPercentage == 0.0) {
+            } else if (((redWords / totalWords) * 100).toFixed(2) == 0.0 && sentenceSimilarityPercentage == 0.0) {
               console.log('in');
               resultSentence = [<span>{sentence2}</span>]
             }
             console.log(sentenceArray);
             console.log(sentenceSimilarityPercentage);
-            console.log(((redWords/totalWords)));
-            console.log(((redWords/totalWords)*100).toFixed(2));
+            console.log(((redWords / totalWords)));
+            console.log(((redWords / totalWords) * 100).toFixed(2));
           }
         });
       }
@@ -238,7 +245,7 @@ class Dashboard extends React.Component {
 
     //   console.log(part.value[color]);
     //   op = op + part.value[color];
-      
+
     //   colorText.push(
     //       <span key={colorText.length} style={{ color: color ,fontSize:16,fontWeight:500}}>
     //           {part.value[color]}
@@ -247,10 +254,10 @@ class Dashboard extends React.Component {
     // });
     // var similarity = ((redSenetences / totalSentences)*100).toFixed(2);
     // console.log(colorText.length);
-    if(txt1 !== '' && txt2 !== '') {
+    if (txt1 !== '' && txt2 !== '') {
       resultArray.push(
-        <div style={{fontSize:16}}>Similarity percentage {(stringSimilarity.compareTwoStrings(txt1, txt2)*100).toFixed(2)} %</div>
-    );
+        <div style={{ fontSize: 16 }}>Similarity percentage {(stringSimilarity.compareTwoStrings(txt1, txt2) * 100).toFixed(2)} %</div>
+      );
     }
     // } else {
     //   colorText.push(
@@ -258,7 +265,7 @@ class Dashboard extends React.Component {
     //   );
     // }
 
-    
+
 
     this.setState({
       // op: op,
@@ -266,15 +273,43 @@ class Dashboard extends React.Component {
     })
   }
 
+  checkSRC() {
+    const src1 = this.state.src1;
+    const src2 = this.state.src2;
+    const srcs = {
+      "src1": src1,
+      "src2": src2
+    };
+
+    axios.post("http://localhost:5000/srcPlagiarism", srcs)
+      .then((res) => {
+        this.setState({ outpt: res.data.outpt });
+        console.log("Done");
+      })
+  }
+
   onChangeText1(e) {
     this.setState({
-      txt1:e.target.value
+      txt1: e.target.value
     })
   }
 
   onChangeText2(e) {
     this.setState({
-      txt2:e.target.value
+      txt2: e.target.value
+    })
+  }
+
+  onChangeSource1(e) {
+    this.setState({
+      src1: e.target.value
+    })
+
+  }
+
+  onChangeSource2(e) {
+    this.setState({
+      src2: e.target.value
     })
   }
 
@@ -285,48 +320,48 @@ class Dashboard extends React.Component {
   onChangeFile(e) {
     this.setState({
       file: e.target.files[0],
-      validType:'valid'
+      validType: 'valid'
     })
 
     console.log(e.target.value);
 
-    var fileType=this.getFileExtension(e.target.files[0].name);
-    if(fileType=='doc' || fileType=='docx'|| fileType=='pdf' || fileType=='txt'){
-      this.readFile(e.target.files[0],fileType);
-    }else{
-      this.setState({ validType:'Invalid Input!'})
+    var fileType = this.getFileExtension(e.target.files[0].name);
+    if (fileType == 'doc' || fileType == 'docx' || fileType == 'pdf' || fileType == 'txt') {
+      this.readFile(e.target.files[0], fileType);
+    } else {
+      this.setState({ validType: 'Invalid Input!' })
     }
 
     console.log(fileType);
   }
 
-  remove(){
+  remove() {
     this.setState({
       file: null,
-      validType:'valid',
-      text:''
+      validType: 'valid',
+      text: ''
     })
     const Count = 0;
-    this.setState({count: 0});
+    this.setState({ count: 0 });
   }
 
-  handleTextArea(e){
-      const Count = e.target.value === "" ? 0 : e.target.value.split(" ").length;
-      this.checkLimit();
-      this.setState({
-        count: Count,
-        text:e.target.value
-      });
-
-  }
-
-  checkLimit(){
+  handleTextArea(e) {
+    const Count = e.target.value === "" ? 0 : e.target.value.split(" ").length;
+    this.checkLimit();
     this.setState({
-        validType:this.state.count<1000?'valid':'Exceed Word Limit!',
-      });
+      count: Count,
+      text: e.target.value
+    });
+
   }
 
-  loadFile(){
+  checkLimit() {
+    this.setState({
+      validType: this.state.count < 1000 ? 'valid' : 'Exceed Word Limit!',
+    });
+  }
+
+  loadFile() {
     document.getElementById('file').click();
   }
 
@@ -335,236 +370,272 @@ class Dashboard extends React.Component {
   }
   render() {
 
-    const classes  ={
+    const classes = {
       textArea: {
-        width:'85%',
-        height:'20rem',
+        width: '85%',
+        height: '20rem',
         fontFamily: "Arial",
-        fontSize:'16px'
+        fontSize: '16px'
       },
-      upload:{
-        margin:'-0.5rem 0 1rem 7%', 
-        outline: 'none', 
-        color:'#45A5EE', 
+      upload: {
+        margin: '-0.5rem 0 1rem 7%',
+        outline: 'none',
+        color: '#45A5EE',
         textTransform: 'none',
-        fontSize:'20px'
+        fontSize: '20px'
       },
-      warning:{
-        fontSize:'18px', 
+      warning: {
+        fontSize: '18px',
         // margin:'0rem 0 0.5rem 0', 
-        color:'red', 
-        fontWeight:'600',
-        display:this.state.validType!='valid'?'':'none'
+        color: 'red',
+        fontWeight: '600',
+        display: this.state.validType != 'valid' ? '' : 'none'
       },
-      deleteBtn:{
-        marginTop:'-5rem',
-        color:this.state.count!=0?'red':'#D9DCDE'
+      deleteBtn: {
+        marginTop: '-5rem',
+        color: this.state.count != 0 ? 'red' : '#D9DCDE'
       }
 
-      
+
     };
 
     return (
-        <div className="content" style={{marginTop:'9rem'}}>
+      <div className="content" style={{ marginTop: '9rem' }}>
 
-          <Row>
-            <Col lg="4" md="7" sm="7">
-              <Card className="card-stats">
-                <CardBody>
-                  <Row>
-                    <Col md="3" xs="4">
-                      <div className="icon-big text-center icon-warning">
-                        <img height="35" width="35" src={require("assets/img/search.jpg")} style={{margin:'0 0 1.5rem 4.5rem'}}/>
-                      </div>
-                    </Col>
-                    <Col md="9" xs="8">                  
-                      <Typography style={{fontSize:'25px', margin:'0.2rem 0 0 2rem'}}>
-                        Deep Search
-                      </Typography>
-                    </Col>
-                  </Row>
-                </CardBody>
-                <CardFooter>
-                  <div style={{fontSize:'15px', textAlign:'center',fontFamily: "Arial", color:'#6E6D6D' }}>
-                    With contextual analysis, word placement, and our smart algorithms, checking your writing has never been easier.
-                  </div>
-                </CardFooter>
-              </Card>
-            </Col>
-
-            <Col lg="4" md="7" sm="7">
-              <Card className="card-stats">
-                <CardBody>
-                  <Row>
-                    <Col md="3" xs="4">
-                      <div className="icon-big text-center icon-warning">
-                        <img height="35" width="35" src={require("assets/img/flash.png")} style={{margin:'0 0 1.5rem 4.5rem'}}/>
-                      </div>
-                    </Col>
-                    <Col md="9" xs="8">                  
-                      <Typography style={{fontSize:'25px', margin:'0.2rem 0 0 2rem'}}>
-                        Light Speed
-                      </Typography>
-                    </Col>
-                  </Row>
-                </CardBody>
-                <CardFooter>
-                  <div style={{fontSize:'15px', textAlign:'center',fontFamily: "Arial", color:'#6E6D6D' }}>
-                    Our software pairs speed with the accuracy.Our technology uses innovative algorithms to quickly search across billions of documents.
-                  </div>
-                </CardFooter>
-              </Card>
-            </Col>
-
-            <Col lg="4" md="7" sm="7">
-              <Card className="card-stats">
+        <Row>
+          <Col lg="4" md="7" sm="7">
+            <Card className="card-stats">
               <CardBody>
-                  <Row>
-                    <Col md="3" xs="4">
-                      <div className="icon-big text-center icon-warning">
-                        <img height="40" width="40" src={require("assets/img/privacy.png")} style={{margin:'0 0 1.5rem 3rem'}}/>
-                      </div>
-                    </Col>
-                    <Col md="9" xs="8">                  
-                      <Typography style={{fontSize:'25px', margin:'0.2rem 0 0 1rem'}}>
-                        Privacy standard
+                <Row>
+                  <Col md="3" xs="4">
+                    <div className="icon-big text-center icon-warning">
+                      <img height="35" width="35" src={require("assets/img/search.jpg")} style={{ margin: '0 0 1.5rem 4.5rem' }} />
+                    </div>
+                  </Col>
+                  <Col md="9" xs="8">
+                    <Typography style={{ fontSize: '25px', margin: '0.2rem 0 0 2rem' }}>
+                      Deep Search
                       </Typography>
-                    </Col>
-                  </Row>
-                </CardBody>
-                <CardFooter>
-                  <div style={{fontSize:'15px', textAlign:'center',fontFamily: "Arial", color:'#6E6D6D' }}>
-                    We take care of your intellectual property and never do any kind of security breach regarding your content.
+                  </Col>
+                </Row>
+              </CardBody>
+              <CardFooter>
+                <div style={{ fontSize: '15px', textAlign: 'center', fontFamily: "Arial", color: '#6E6D6D' }}>
+                  With contextual analysis, word placement, and our smart algorithms, checking your writing has never been easier.
                   </div>
-                </CardFooter>
-              </Card>
-            </Col>
-          </Row>
+              </CardFooter>
+            </Card>
+          </Col>
 
-          <Row>
-            {/* --------------------Upload Files---------------------- */}
-            <Col md="12">
-              <Card>
-                <CardHeader>
-                  <CardTitle style={{textAlign:'center'}}>
-                    <Typography style={{fontSize:'30px', fontWeight:'600'}}>
-                        Plagiarism Checker
+          <Col lg="4" md="7" sm="7">
+            <Card className="card-stats">
+              <CardBody>
+                <Row>
+                  <Col md="3" xs="4">
+                    <div className="icon-big text-center icon-warning">
+                      <img height="35" width="35" src={require("assets/img/flash.png")} style={{ margin: '0 0 1.5rem 4.5rem' }} />
+                    </div>
+                  </Col>
+                  <Col md="9" xs="8">
+                    <Typography style={{ fontSize: '25px', margin: '0.2rem 0 0 2rem' }}>
+                      Light Speed
+                      </Typography>
+                  </Col>
+                </Row>
+              </CardBody>
+              <CardFooter>
+                <div style={{ fontSize: '15px', textAlign: 'center', fontFamily: "Arial", color: '#6E6D6D' }}>
+                  Our software pairs speed with the accuracy.Our technology uses innovative algorithms to quickly search across billions of documents.
+                  </div>
+              </CardFooter>
+            </Card>
+          </Col>
+
+          <Col lg="4" md="7" sm="7">
+            <Card className="card-stats">
+              <CardBody>
+                <Row>
+                  <Col md="3" xs="4">
+                    <div className="icon-big text-center icon-warning">
+                      <img height="40" width="40" src={require("assets/img/privacy.png")} style={{ margin: '0 0 1.5rem 3rem' }} />
+                    </div>
+                  </Col>
+                  <Col md="9" xs="8">
+                    <Typography style={{ fontSize: '25px', margin: '0.2rem 0 0 1rem' }}>
+                      Privacy standard
+                      </Typography>
+                  </Col>
+                </Row>
+              </CardBody>
+              <CardFooter>
+                <div style={{ fontSize: '15px', textAlign: 'center', fontFamily: "Arial", color: '#6E6D6D' }}>
+                  We take care of your intellectual property and never do any kind of security breach regarding your content.
+                  </div>
+              </CardFooter>
+            </Card>
+          </Col>
+        </Row>
+
+        <Row>
+          {/* --------------------Upload Files---------------------- */}
+          <Col md="12">
+            <Card>
+              <CardHeader>
+                <CardTitle style={{ textAlign: 'center' }}>
+                  <Typography style={{ fontSize: '30px', fontWeight: '600' }}>
+                    Plagiarism Checker
                     </Typography>
-                  </CardTitle>
-                </CardHeader>
-                <CardBody >
-                  <Typography style={{fontSize:'16px', margin:'-1rem 1rem 1.5rem 1rem'}}>
-                        To use this Plagiarism Checker, please copy and paste text in the input box below or select a file to upload, and then click on the Check Plagiarism button.
+                </CardTitle>
+              </CardHeader>
+              <CardBody >
+                <Typography style={{ fontSize: '16px', margin: '-1rem 1rem 1.5rem 1rem' }}>
+                  To use this Plagiarism Checker, please copy and paste text in the input box below or select a file to upload, and then click on the Check Plagiarism button.
                   </Typography>
 
-                  <Row style={{textAlign:'center'}} >
-                    <Col>
-                      <input id="file" name="file" type="file" onChange={this.onChangeFile} accept=".pdf,.docx,.doc,.txt" hidden />
-                      <TextareaAutosize id="result" onChange={this.handleTextArea} style={classes.textArea} rowsMax={1} rowsMin={1} value={this.state.text} aria-label="empty textarea" placeholder={"\n"+"\n"+" Enter Your Text Here"}/>
-                    </Col>
-                  </Row>
-                  <Row style={{textAlign:'right',width:'93.5%'}} >
-                    <Col>
-                      <IconButton aria-label="delete" style={classes.deleteBtn} disabled={this.state.count!=0?false:true}  onClick={() => {this.remove();}}>
-                        <DeleteIcon />
-                      </IconButton>
-                      <div className="stats"style={{textAlign:'right', marginRight:'-1rem'}} >
-                        <i className="fas fa-pen-nib" /> Word Count : {this.state.count}/1000
+                <Row style={{ textAlign: 'center' }} >
+                  <Col>
+                    <input id="file" name="file" type="file" onChange={this.onChangeFile} accept=".pdf,.docx,.doc,.txt" hidden />
+                    <TextareaAutosize id="result" onChange={this.handleTextArea} style={classes.textArea} rowsMax={1} rowsMin={1} value={this.state.text} aria-label="empty textarea" placeholder={"\n" + "\n" + " Enter Your Text Here"} />
+                  </Col>
+                </Row>
+                <Row style={{ textAlign: 'right', width: '93.5%' }} >
+                  <Col>
+                    <IconButton aria-label="delete" style={classes.deleteBtn} disabled={this.state.count != 0 ? false : true} onClick={() => { this.remove(); }}>
+                      <DeleteIcon />
+                    </IconButton>
+                    <div className="stats" style={{ textAlign: 'right', marginRight: '-1rem' }} >
+                      <i className="fas fa-pen-nib" /> Word Count : {this.state.count}/1000
                       </div>
-                    </Col>
-                  </Row>
-                  <Row style={{textAlign:'center'}} >
-                    <Col>
-                      <Typography style={classes.warning}>
-                          {this.state.validType}
-                      </Typography>
-                    </Col>
-                  </Row>
-                  <Row style={{textAlign:'left'}}>
-                    <Col>
-                      <MIButton onClick={() => {this.loadFile();}} startIcon={<CloudUploadIcon />} style={classes.upload} size="large">
-                        Upload File&nbsp; <div style={{fontSize:'16px', marginTop:'2px'}}>(doc, docx, txt, pdf) </div> 
-                      </MIButton>
-                    </Col>                 
-                  </Row>
-                  <Row style={{textAlign:'center'}} >
-                    <Col>
-                      <MIButton
+                  </Col>
+                </Row>
+                <Row style={{ textAlign: 'center' }} >
+                  <Col>
+                    <Typography style={classes.warning}>
+                      {this.state.validType}
+                    </Typography>
+                  </Col>
+                </Row>
+                <Row style={{ textAlign: 'left' }}>
+                  <Col>
+                    <MIButton onClick={() => { this.loadFile(); }} startIcon={<CloudUploadIcon />} style={classes.upload} size="large">
+                      Upload File&nbsp; <div style={{ fontSize: '16px', marginTop: '2px' }}>(doc, docx, txt, pdf) </div>
+                    </MIButton>
+                  </Col>
+                </Row>
+                <Row style={{ textAlign: 'center' }} >
+                  <Col>
+                    <MIButton
                       variant="contained"
                       color="primary"
                       size="large"
                       startIcon={<SearchIcon />}
                       // style={{backgroundColor:'#066294'}}
                       onClick={this.onSubmit}
-                      >
-                        Check Plagiarism
+                    >
+                      Check Plagiarism
                     </MIButton>
-                    </Col>
-                  </Row>                  
-                </CardBody>
-                <CardFooter style={{marginTop:'-1.2rem'}}>
-                  <br/>
-                </CardFooter>
-              </Card>
-            </Col>
+                  </Col>
+                </Row>
+              </CardBody>
+              <CardFooter style={{ marginTop: '-1.2rem' }}>
+                <br />
+              </CardFooter>
+            </Card>
+          </Col>
 
-              {/* --------------------Compare Text---------------------- */}
+          {/* --------------------Compare Text---------------------- */}
 
-            <Col md="12">
-              <Card>
-                <CardHeader>
-                    <CardTitle tag="h5">Compare Text</CardTitle>
-                </CardHeader>
-                <CardBody>
-                  <FormGroup>
-                      <label>First Text</label>
-                      <Input
-                        type="textarea"
-                        value={this.state.txt1}
-                        onChange={this.onChangeText1}
-                      />
-                    </FormGroup>
-                    <FormGroup>
-                      <label>Second Text</label>
-                      <Input
-                        type="textarea"
-                        value={this.state.txt2} 
-                        onChange={this.onChangeText2}
-                      />
-                    </FormGroup>
-                    <Button id="btnCompare" onClick={this.checkResult} color="primary">Compare</Button>
-                    <Pdf targetRef={ref} filename="result.pdf">
-                      {({ toPdf }) => <Button onClick={toPdf} color="primary">Download Result PDF</Button>}
-                    </Pdf>
-                    <div ref={ref}>
-                      <div style={{padding:20,}}>
-                        <span>{this.state.opMap.map(el => el)}</span>
-                      </div>
-                    </div>
-                </CardBody>
-              </Card>
-            </Col> 
-          </Row>
+          <Col md="12">
+            <Card>
+              <CardHeader>
+                <CardTitle tag="h5">Compare Text</CardTitle>
+              </CardHeader>
+              <CardBody>
+                <FormGroup>
+                  <label>First Text</label>
+                  <Input
+                    type="textarea"
+                    value={this.state.txt1}
+                    onChange={this.onChangeText1}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <label>Second Text</label>
+                  <Input
+                    type="textarea"
+                    value={this.state.txt2}
+                    onChange={this.onChangeText2}
+                  />
+                </FormGroup>
+                <Button id="btnCompare" onClick={this.checkResult} color="primary">Compare</Button>
+                <Pdf targetRef={ref} filename="result.pdf">
+                  {({ toPdf }) => <Button onClick={toPdf} color="primary">Download Result PDF</Button>}
+                </Pdf>
+                <div ref={ref}>
+                  <div style={{ padding: 20, }}>
+                    <span>{this.state.opMap.map(el => el)}</span>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          </Col>
 
-          {/* --------------------Using document reference---------------------- */}
+          {/* --------------------Compare Source---------------------- */}
 
-          <Row>
-            <Col md="12">
-              <Card>
-                <CardHeader>
+          <Col md="12">
+            <Card>
+              <CardHeader>
+                <CardTitle tag="h5">Compare Source Code</CardTitle>
+              </CardHeader>
+
+
+
+              <CardBody>
+                <FormGroup>
+                  <label>First Source</label>
+                  <Input
+                    type="textarea"
+                    value={this.state.src1}
+                    onChange={this.onChangeSource1}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <label>Second Source</label>
+                  <Input
+                    type="textarea"
+                    value={this.state.src2}
+                    onChange={this.onChangeSource2}
+                  />
+                </FormGroup>
+                <Button id="btnCompare" onClick={this.checkSRC} color="primary">Compare</Button>
+                <div>
+                  <p id="inpsrc">{this.state.outpt}</p>
+                </div>
+              </CardBody>
+            </Card>
+          </Col>
+
+        </Row>
+
+        {/* --------------------Using document reference---------------------- */}
+
+        <Row>
+          <Col md="12">
+            <Card>
+              <CardHeader>
                 <CardTitle tag="h5">Check Plagiarism Using Document url</CardTitle>
-                </CardHeader>
-                <CardBody>
-                  <label>
-                    Enter url here :
+              </CardHeader>
+              <CardBody>
+                <label>
+                  Enter url here :
                   </label>
-                  <Input type="text"></Input>
-                  <Button color="primary" onClick={this.getContent}>Check</Button>
-                </CardBody>
-              </Card>
-            </Col>
-          </Row>
-        </div>
+                <Input type="text"></Input>
+                <Button color="primary" onClick={this.getContent}>Check</Button>
+              </CardBody>
+            </Card>
+          </Col>
+        </Row>
+      </div>
     );
   }
 }
