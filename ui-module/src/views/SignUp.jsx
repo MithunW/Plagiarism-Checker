@@ -14,10 +14,20 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import { Formik, Form } from "formik";
+import * as yup from "yup";
 import axios from "axios";
 import fire from '../fire.js';
 
 var firebase = require('firebase');
+
+let SignUpSchema = yup.object().shape({
+  firstName: yup.string().required("Required!"),
+  lastName: yup.string().required("Required!"),
+  email: yup.string().email("Invalid email").required("Required!"),
+  password: yup.string().required("Required").min(5, 'Password is too short - should be 5 chars minimum.'),
+  confirmPassword: yup.string().required("Required").min(5, 'Password is too short - should be 5 chars minimum.').oneOf([yup.ref('password'), null], 'New Password must match'),
+});
 
 class SignUp extends React.Component {
 
@@ -25,6 +35,7 @@ class SignUp extends React.Component {
     super(props);
     this.addUser = this.addUser.bind(this);
     this.authListener = this.authListener.bind(this);
+    this.signup = this.signup.bind(this);
 
     this.state = { 
       firstName: null,
@@ -37,21 +48,19 @@ class SignUp extends React.Component {
 
   }
 
+  signup(values,next){
+    next.setState({
+      firstName:values.firstName,
+      lastName:values.lastName,
+    });
 
-  handleInputChange = e => {
-    this.setState({[e.target.name]:e.target.value});
-    this.setState({status:0});
-  }
-
-  signup(next){
-    if(this.state.password==this.state.confirmPassword){
-      fire.auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then((u)=>{
+      fire.auth().createUserWithEmailAndPassword(values.email, values.password).then((u)=>{
         }).then((u)=>{
           console.log("signup");
           fire.auth().onAuthStateChanged((user) => {
             if (user) {
               user.updateProfile({
-                displayName: this.state.firstName+" "+this.state.lastName,
+                displayName: values.firstName+" "+values.lastName,
               }).then(
                   function() {
                     next.authListener(next);
@@ -63,17 +72,11 @@ class SignUp extends React.Component {
 
             }
         });
-
-
         })
         .catch((error) => {
           this.setState({status:1});
           console.log(error);
-        }) 
-    }else{
-      this.setState({status:2});
-    }
-           
+        })        
   };
 
   signupWithGoogle(next){
@@ -203,9 +206,7 @@ class SignUp extends React.Component {
     
 
     return(
-      // <Card  style={classes.root} variant="outlined" >
-      // <CardContent>
-        <div className="main" style={classes.main}>
+      <div className="main" style={classes.main}>
         <Grid container>
           <Grid item xs={12} sm={6}>
             <a href={"javascript:void(0)"}>
@@ -225,121 +226,147 @@ class SignUp extends React.Component {
                 Sign Up
               </Typography>
 
-              <form style={classes.form}  noValidate>
+              <Formik
+                initialValues={{
+                  firstName: "",
+                  lastName: "",
+                  email:"",
+                  password:"",
+                  confirmPassword:"",
+                }}
 
-                <Grid container alignItems='center' alignContent='center' spacing={2} style={{textAlign:'center'}}>
-                  <Grid item xs={12} sm={6} >
-                    <TextField
-                      autoComplete="fname"
-                      name="firstName"
-                      variant="outlined"
-                      required
-                      fullWidth
-                      id="firstName"
-                      label="First Name"
-                      autoFocus
-                      onChange={e => {this.handleInputChange(e)}}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      variant="outlined"
-                      required
-                      fullWidth
-                      id="lastName"
-                      label="Last Name"
-                      name="lastName"
-                      onChange={e => {this.handleInputChange(e)}}
-                      // autoComplete="lname"
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      variant="outlined"
-                      required
-                      fullWidth
-                      id="email"
-                      label="Email Address"
-                      name="email"
-                      onChange={e => {this.handleInputChange(e)}}
-                      // autoComplete="email"
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      variant="outlined"
-                      required
-                      fullWidth
-                      name="password"
-                      label="Password"
-                      type="password"
-                      id="password"
-                      onChange={e => {this.handleInputChange(e)}}
-                      // autoComplete="current-password"
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      variant="outlined"
-                      required
-                      fullWidth
-                      name="confirmPassword"
-                      label="Confirm Password"
-                      type="password"
-                      id="confirmPassword"
-                      onChange={e => {this.handleInputChange(e)}}
-                      // autoComplete="current-password"
-                    />
-                  </Grid>
+                validationSchema={SignUpSchema}
 
-                  <Grid item xs={12} style={{display:this.state.status!=0?'':'none', marginTop:'-1rem'}}>
-                    <span style={{color:'red'}}>
+                onSubmit={(values) => {
+                  this.signup(values,this);
+                }}
+              >
+                {({ errors, handleChange, touched, values, onSubmit }) => (
+                  <Form>
+                    <div style={classes.form}>
 
-                      <b>{this.state.status==1?'E-mail already exit!':''}</b>
-                      <b>{this.state.status==2?'Invalid Password!':''}</b>
-                    </span>
-                  </Grid>
+                      <Grid container alignItems='center' alignContent='center' spacing={2} style={{textAlign:'center'}}>
+                        <Grid item xs={12} sm={6} >
+                          <TextField
+                            id="firstName"
+                            name="firstName"
+                            label="First Name"
+                            variant="outlined"
+                            fullWidth                           
+                            autoFocus
+                            value={values.firstName}  
+                            onChange={handleChange}
+                            error={errors.firstName && touched.firstName}
+                            helperText={errors.firstName && touched.firstName? errors.firstName: null} 
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            id="lastName"
+                            name="lastName"
+                            label="Last Name"
+                            variant="outlined"
+                            fullWidth                           
+                            value={values.lastName}  
+                            onChange={handleChange}
+                            error={errors.lastName && touched.lastName}
+                            helperText={errors.lastName && touched.lastName? errors.lastName: null} 
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <TextField
+                            id="email"
+                            name="email"
+                            label="Email"
+                            variant="outlined"
+                            fullWidth                           
+                            value={values.email}  
+                            onChange={handleChange}
+                            error={errors.email && touched.email}
+                            helperText={errors.email && touched.email? errors.email: null} 
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <TextField
+                            id="password"
+                            name="password"
+                            label="Password"
+                            variant="outlined"
+                            type="password"
+                            fullWidth                           
+                            value={values.password}  
+                            onChange={handleChange}
+                            error={errors.password && touched.password}
+                            helperText={errors.password && touched.password? errors.password: null}
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <TextField
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            label="Confirm Password"
+                            variant="outlined"
+                            type="password"
+                            fullWidth                           
+                            value={values.confirmPassword}  
+                            onChange={handleChange}
+                            error={errors.confirmPassword && touched.confirmPassword}
+                            helperText={errors.confirmPassword && touched.confirmPassword? errors.confirmPassword: null}
+                          />
+                        </Grid>
 
-                  <Grid item xs={12} sm={12} style={{textAlign:'center'}}>
-                    <Button
+                        <Grid item xs={12} style={{display:this.state.status!=0?'':'none', marginTop:'-1rem'}}>
+                          <span style={{color:'red'}}>
 
-                      variant="contained"
-                      color="primary"        
-                      style={{margin:'1.5rem 0 0.5rem 0',width:'80%' , fontSize:'20px',backgroundColor:'#066294 '}}
-                      onClick={() => {this.signup(this);}}
-                    >
-                      Sign Up
-                    </Button>
-                  </Grid>
-                  <Grid item xs={12}>
-                  
-                  <div style={classes.divider}><span style={classes.text}>OR</span></div>
+                            <b>{this.state.status==1?'E-mail already exit!':''}</b>
+                            <b>{this.state.status==2?'Invalid Password!':''}</b>
+                          </span>
+                        </Grid>
 
-                    <Button
+                        <Grid item xs={12} sm={12} style={{textAlign:'center'}}>
+                          <Button
+                            type="submit"
+                            variant="contained"
+                            color="primary"        
+                            style={{margin:'1.5rem 0 0.5rem 0',width:'80%' , fontSize:'20px',backgroundColor:'#066294 '}}
+                          >
+                            Sign Up
+                          </Button>
+                        </Grid>
+                        <Grid item xs={12}>
+                        
+                        <div style={classes.divider}><span style={classes.text}>OR</span></div>
 
-                      variant="contained"       
-                      style={{marginTop:'1.5rem',width:'80%', fontSize:'20px',textTransform: 'none', backgroundColor:'white'}}
-                      onClick={() => {this.signupWithGoogle(this);}}
-                    >
-                    <div>
-                        <img width="25px" style={{marginBottom:'4px', marginRight:'30px'}} alt="Google sign-in" 
-                            src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
-                            Sign In With Google
+                          <Button
+
+                            variant="contained"       
+                            style={{marginTop:'1.5rem',width:'80%', fontSize:'20px',textTransform: 'none', backgroundColor:'white'}}
+                            onClick={() => {this.signupWithGoogle(this);}}
+                          >
+                          <div>
+                              <img width="25px" style={{marginBottom:'4px', marginRight:'30px'}} alt="Google sign-in" 
+                                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+                                  Sign In With Google
+                          </div>
+                            
+                          </Button>
+                        </Grid>
+
+                      </Grid>
+
+                      <Grid container justify='center'>
+                        <Grid item style={{margin:'2rem 0 0 0'}}>
+                          <Link href="login" variant="body2">
+                            Already have an account? Login
+                          </Link>
+                        </Grid>
+                      </Grid>
                     </div>
-                      
-                    </Button>
-                  </Grid>
+                  </Form>
+                )}
+              </Formik>
 
-                </Grid>
-
-                <Grid container justify='center'>
-                  <Grid item style={{margin:'2rem 0 0 0'}}>
-                    <Link href="login" variant="body2">
-                      Already have an account? Login
-                    </Link>
-                  </Grid>
-                </Grid>
-              </form>
+              
             </Container>
 
           </div>

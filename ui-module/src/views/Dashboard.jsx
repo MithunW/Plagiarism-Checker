@@ -104,6 +104,12 @@ class Dashboard extends React.Component {
 
   onSubmit(e) {
 
+    const header = {
+      headers: {
+        Authorization: localStorage.getItem("token")
+      }
+    };
+
     const file = this.state.file;
     const data1 = new FormData();
     data1.append('file', file);
@@ -125,7 +131,7 @@ class Dashboard extends React.Component {
         }
       })
 
-    axios.post("http://localhost:5000/checkplagiarism/text", data2)
+    axios.post("http://localhost:5000/checkplagiarism/text", data2, header)
       .then((res) => {
         if ((res.status) == 200) {
           this.props.history.push({

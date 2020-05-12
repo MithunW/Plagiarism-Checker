@@ -129,6 +129,12 @@ class User extends React.Component {
                 localStorage.setItem("userName", displayName);
                     
             } else {
+                console.log("User not save in db");
+                this.setState({
+                    profileLog: "User not save in db",
+                    profileSubmit:true,
+                    loading: false
+                });
                 
             }
             console.log(res);
