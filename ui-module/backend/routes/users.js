@@ -1,5 +1,23 @@
 const router = require('express').Router();
 let User = require('../models/user.model');
+const admin = require("firebase-admin");
+const serviceAccount = require("../service-account-key.json");
+
+const verifyToken = (req, res, next) => {
+    const idToken = req.headers.authorization;
+    // console.log(req.headers);
+    admin.auth().verifyIdToken(idToken)
+      .then(function(decodedToken) {
+        let uid = decodedToken.uid;
+        console.log("token verified");
+        next();
+        // console.log(uid);
+        // ...
+      }).catch(function(error) {
+        res.sendStatus(401);
+        console.log(error);
+      });
+};
 
 router.route('/getUsers').get((req, res) => {
   User.find()
@@ -28,7 +46,8 @@ router.route('/add').post((req, res) => {
 
 });
 
-router.route('/update').post((req, res) => {
+router.route('/update').post(verifyToken,(req, res) => {
+  console.log(req.headers);
 
   const userId = req.body.userId;
   const username = req.body.username;

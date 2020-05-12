@@ -23,10 +23,6 @@ var total_process=0;
 var count=0;
 var userId='';
 
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-});
-
 const verifyToken = (req, res, next) => {
     const idToken = req.headers.authorization;
     // console.log(req.headers);
