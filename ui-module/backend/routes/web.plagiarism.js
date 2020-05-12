@@ -1,5 +1,7 @@
 const router = require("express").Router();
 let Result_model = require('../models/result.model');
+const admin = require("firebase-admin");
+const serviceAccount = require("../service-account-key.json");
 
 var stringSimilarity = require("string-similarity");
 WordNet = require("../node_modules/node-wordnet/lib/wordnet.js");
@@ -21,7 +23,28 @@ var total_process=0;
 var count=0;
 var userId='';
 
-router.route("/text").post((req, res) => {
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+
+const verifyToken = (req, res, next) => {
+    const idToken = req.headers.authorization;
+    // console.log(req.headers);
+    admin.auth().verifyIdToken(idToken)
+      .then(function(decodedToken) {
+        let uid = decodedToken.uid;
+        console.log("token verified");
+        next();
+        // console.log(uid);
+        // ...
+      }).catch(function(error) {
+        res.sendStatus(401);
+        console.log(error);
+      });
+};
+
+router.route("/text").post(verifyToken,(req, res) => {
+  // console.log(req.headers);
   userId = req.body.userId;
   const document = req.body.text;
 
@@ -114,15 +137,15 @@ router.route("/text").post((req, res) => {
   // console.log("matches", matches);
 
   //05. wordnet
-  // let lemma = [];
-  // wordnet.lookup("see", function (results) {
-  //   results.forEach(function (result) {
-  //     lemma.push(result.lemma.replace("_", " "));
-  //   });
+  let lemma = [];
+  wordnet.lookup("see", function (results) {
+    results.forEach(function (result) {
+      lemma.push(result.lemma.replace("_", " "));
+    });
 
-  //   var synonyms = new Set(lemma);
-  //   console.log([...synonyms]);
-  // });
+    var synonyms = new Set(lemma);
+    console.log([...synonyms]);
+  });
 
   // google search api
   //   async function runSample() {
@@ -258,8 +281,7 @@ router.route("/text").post((req, res) => {
 
 // });
 
-router.route("/result").get((req, res) => {
-
+router.route("/result").get(verifyToken, (req, res) => {
   console.log("count-  ",count/tokenize_document.length*100);
   if (results_list.length <=tokenize_document.length) {
     res.json({
@@ -269,8 +291,7 @@ router.route("/result").get((req, res) => {
   }
 });
 
-router.route("/result-save").post((req, res) => {
-  
+router.route("/result-save").post(verifyToken, (req, res) => {
   const files = results_list;
   const checkType = 'web-plagiarism';
   

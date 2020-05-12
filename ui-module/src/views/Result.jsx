@@ -129,14 +129,21 @@ class Dashboard extends React.Component {
       this.getResult();
     }
     if (this.state.result.length == this.state.length && this.state.submit) {
-      this.onSubmit();
+      // this.onSubmit();
     }
   }
 
   getResult() {
-    axios
-      .get("http://localhost:5000/checkplagiarism/result", "")
-      .then((res) => {
+    const data = {
+      "userId":localStorage.getItem('userId')
+    }; 
+    const header = {
+        Authorization: localStorage.getItem("token")
+    };
+
+    console.log(header);
+    axios({ method: "get", url: "http://localhost:5000/checkplagiarism/result", data: data, headers:header})
+    .then((res) => {
         console.log(res);
         if (res.status == 200) {
           this.setState({
@@ -167,7 +174,17 @@ class Dashboard extends React.Component {
   // }
 
   onSubmit() {
-    axios.post("http://localhost:5000/checkplagiarism/result-save", '')
+    const header = {
+      headers: {
+        Authorization: localStorage.getItem("token")
+      }
+    };
+
+    const data = {
+
+    }; 
+
+    axios.post("http://localhost:5000/checkplagiarism/result-save", data , header)
       .then((res) => {
         console.log(res);
         if ((res.status) == 200) {
