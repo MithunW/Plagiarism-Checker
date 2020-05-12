@@ -113,12 +113,18 @@ class User extends React.Component {
 
     updateUser(displayName){
 
+        const header = {
+            headers: {
+                Authorization: localStorage.getItem("token")
+            }
+        };
+
         const data = {
             "userId":localStorage.getItem('userId'),
             "username":displayName,
         };
 
-        axios.post("http://localhost:5000/users/update", data)
+        axios.post("http://localhost:5000/users/update", data, header)
         .then((res) => {
             if ((res.status) == 200) {
                 console.log("update profile");

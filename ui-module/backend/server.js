@@ -19,22 +19,9 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-// const idToken='eyJhbGciOiJSUzI1NiIsImtpZCI6Ijg4ODQ4YjVhZmYyZDUyMDEzMzFhNTQ3ZDE5MDZlNWFhZGY2NTEzYzgiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiSGVtYWthIFJhdmVlbiIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS0vQU9oMTRHaURhZWxrQUJLRUVwb3J5d1k3UEUtLUhDQW83NWxHODdLX19uWmZNZyIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9wbGFnaWFyaXNtLWNoZWNrZXItN2JlNjciLCJhdWQiOiJwbGFnaWFyaXNtLWNoZWNrZXItN2JlNjciLCJhdXRoX3RpbWUiOjE1ODg5MjY2NzIsInVzZXJfaWQiOiI1TnpZa0ZFSzZWTWpGVE1wNnZ5MmZFZWR3SmkyIiwic3ViIjoiNU56WWtGRUs2Vk1qRlRNcDZ2eTJmRWVkd0ppMiIsImlhdCI6MTU4ODkyNjY3MiwiZXhwIjoxNTg4OTMwMjcyLCJlbWFpbCI6ImhlbWFrYXJhdmVlbmhhbnNpa2FAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZ29vZ2xlLmNvbSI6WyIxMDMxMTYyMDMwMjUyNTUzOTI0NTYiXSwiZW1haWwiOlsiaGVtYWthcmF2ZWVuaGFuc2lrYUBnbWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJnb29nbGUuY29tIn19.WWCOHPT8II75wTYrebzO5xbRkHoJINCy7icCNDLLGWcA4Uf44GNC2dj4WNGcOHtH9qQTS5S60pPPV3O2j8TdNjgGt-Qcsaa8tidioIORLtgAcuLOMSYBq-TmHyQvF5rdJzhRHTfCo58yiNY-UExfq2jRikgLLCN7DHY67Wop8K2h92P-w5B4ViPBMYoUqBb6xd9hhNU5C0UWV_QBreOq1-qXEK09ayo9oTryu8R6cgHa9u78aqPeSvx5ca5IjAKWgLt1ShzofvO4216DoVGsXu3FapVZKNuj99Bc44YkKSA9M3TIvXtlo2ib8Bhrl4UFtDsG4FdAKsLtoxwWwYKNkQ';
-// admin.initializeApp({
-//     credential: admin.credential.cert(serviceAccount)
-// });
-
-// admin.auth().verifyIdToken(idToken)
-//   .then(function(decodedToken) {
-//     let uid = decodedToken.uid;
-//     console.log("token verified");
-//     console.log(uid);
-//     // ...
-// }).catch(function(error) {
-//   console.log(error);
-// });
-
-
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
 
 app.use(cors());
 app.use(express.json());
