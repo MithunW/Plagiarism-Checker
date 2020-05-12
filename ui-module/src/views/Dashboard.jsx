@@ -25,6 +25,7 @@ import {
 
 import '../assets/css/custom.css';
 
+
 import { makeStyles, createStyles } from "@material-ui/core/styles";
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -34,6 +35,8 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import SearchIcon from '@material-ui/icons/Search';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
+import Snackbar from '@material-ui/core/Snackbar';
+import Alert from '@material-ui/lab/Alert';
 import fire from '../fire.js';
 import Pdf from "react-to-pdf";
 require('colors');
@@ -75,9 +78,12 @@ class Dashboard extends React.Component {
     this.handleTextArea = this.handleTextArea.bind(this);
     this.checkLimit = this.checkLimit.bind(this);
     this.getContent = this.getContent.bind(this);
+    this.handleSnackbarOpen = this.handleSnackbarOpen.bind(this);
+    this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
 
     this.state = {
       file: null,
+      validWebText:false,
       txt1: '',
       txt2: '',
       src1: '',
@@ -103,50 +109,55 @@ class Dashboard extends React.Component {
   }
 
   onSubmit(e) {
-
-    const header = {
-      headers: {
-        Authorization: localStorage.getItem("token")
-      }
-    };
-
-    const file = this.state.file;
-    const data1 = new FormData();
-    data1.append('file', file);
-
-    const data2 = {
-
-      "userId":localStorage.getItem('userId'),
-      "text":this.state.text
-    }; 
-
-
-    axios.post("http://localhost:5000/upload", data1)
-      .then((res) => {
-        console.log(res.data);
-        if ((res.status) == 200) {
-          console.log("File Uploaded");
-        } else {
-          console.log("File not Uploaded");
+    if(this.state.text.length!=0){
+      const header = {
+        headers: {
+          Authorization: localStorage.getItem("token")
         }
-      })
+      };
 
-    axios.post("http://localhost:5000/checkplagiarism/text", data2, header)
-      .then((res) => {
-        if ((res.status) == 200) {
-          this.props.history.push({
-            pathname: '/user/result',
-            state: {
-              length: res.data.length,
-            }
-          });
-        } else {
+      const file = this.state.file;
+      const data1 = new FormData();
+      data1.append('file', file);
 
-        }
-        console.log(res);
+      const data2 = {
 
-      })
+        "userId":localStorage.getItem('userId'),
+        "text":this.state.text
+      }; 
 
+      axios.post("http://localhost:5000/upload", data1)
+        .then((res) => {
+          console.log(res.data);
+          if ((res.status) == 200) {
+            console.log("File Uploaded");
+          } else {
+            console.log("File not Uploaded");
+          }
+        })
+
+      axios.post("http://localhost:5000/checkplagiarism/text", data2, header)
+        .then((res) => {
+          if ((res.status) == 200) {
+            this.props.history.push({
+              pathname: '/user/result',
+              state: {
+                length: res.data.length,
+              }
+            });
+          } else {
+
+          }
+          console.log(res);
+
+        })
+
+    }else{
+      this.handleSnackbarOpen();
+    }
+
+
+    
 
   }
 
@@ -374,6 +385,20 @@ class Dashboard extends React.Component {
   view() {
     return this.state.opMap.map(el => el)
   }
+
+  handleSnackbarOpen() {
+    this.setState({
+      validWebText: true
+    })
+  }
+
+  handleSnackbarClose() {
+    this.setState({
+      validWebText: false
+    })
+  }
+
+
   render() {
 
     const classes = {
@@ -548,6 +573,19 @@ class Dashboard extends React.Component {
               </CardFooter>
             </Card>
           </Col>
+          <Snackbar open={this.state.validWebText} style={{marginLeft:'5rem'}} anchorOrigin={{vertical:'bottom', horizontal:'right' }} autoHideDuration={6000} onClose={this.handleSnackbarClose}>
+            <Alert variant="filled" onClose={this.handleSnackbarClose} severity="error">
+              Insert document!
+            </Alert>
+          </Snackbar>
+          {/* <Snackbar
+            // anchorOrigin={ 'top', 'center' }
+            // key={`${vertical},${horizontal}`}
+            
+            open={this.state.validWebText}
+            onClose={this.handleSnackbarClose}
+            message="I love snacks"
+          /> */}
 
           {/* --------------------Compare Text---------------------- */}
 
