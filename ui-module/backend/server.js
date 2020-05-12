@@ -41,6 +41,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(methodOverride('_method'));
 
+
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true }
 );
@@ -86,6 +87,8 @@ app.post('/upload', upload.single('file'), (req, res) => {
   res.json({ file: req.file });
   // res.redirect('/');
 });
+
+
 // const exercisesRouter = require('./routes/exercises');
 const usersRouter = require('./routes/users');
 const webPlagiarismRouter = require('./routes/web.plagiarism');
@@ -101,6 +104,11 @@ app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
 });
 
+//check source code plagiarism
+const srcplg= require('./routes/srcPlagiarism');
+app.use('/srcPlagiarism', srcplg);
+
+// var uploadTemp = multer({ dest: './temp' })
 
 const storageTemp = multer.diskStorage({
   destination: function (req, file, cb) {
