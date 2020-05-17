@@ -5,8 +5,12 @@ router.route('/').post((req, res) => {
     var src2 = req.body.src2;
 
 
-    var ot1 = preProcessing(src1)
-    res.json({ outpt: tokenization(ot1) });
+    var pr1 = preProcessing(src1);
+    var pr2 = preProcessing(src2);
+    var tk1 = tokenization(pr1);
+    var tk2 = tokenization(pr2);
+    var ot1 = plagiarismPercentage(tk1, tk2);
+    res.json({ outpt: "Plagiarised percentage : "+ot1+"%"});
 
     function preProcessing(src) {
 
@@ -142,7 +146,7 @@ router.route('/').post((req, res) => {
             "union", "void", "while", "volatile", "unsigned"];
 
         lns.forEach((line) => {
-            line=line.trim();
+            line = line.trim();
             if (line.startsWith("void")) {
                 linesAfterToken.push("<void><identifier_class>");
 
@@ -181,14 +185,86 @@ router.route('/').post((req, res) => {
                 linesAfterToken.push("<print>");
             } else if (line.startsWith("scanf")) {
                 linesAfterToken.push("<scan>");
-            }else{
+            } else if (line == '') {
+
+            } else {
                 linesAfterToken.push(line);
             }
 
 
         });
-        console.log(linesAfterToken);
+        //console.log(linesAfterToken);
         return linesAfterToken;
+    }
+
+
+    //check similarity percentage using greedy string tiling
+    function plagiarismPercentage(src1, src2) {
+        console.log(src1);
+        console.log(src2);
+        var tiles = [];
+        do {
+            var maxMatch = 1;
+            matches = [];
+            let j;
+            var cln1 = 0;
+            var cln2;
+            src1.forEach((ln1) => {
+
+                if (ln1 != null) {
+                    cln2 = 0;
+                    src2.forEach((ln2) => {
+
+                        if (ln2 != null) {
+                            j = 0;
+                           // console.log(src1[cln1 + j] + "   " + src2[cln2 + j]);
+                            while (src1[cln1 + j] == src2[cln2 + j] && src1[cln1 + j] != null && src2[cln2 + j] != null) {
+                                j++;
+                            }
+                            if (j == maxMatch) {
+                                console.log("a " + maxMatch);
+                                matches.push([cln1, cln2, j]);
+                            } else if (j > maxMatch) {
+                                matches.splice(0, matches.length);
+                                matches.push([cln1, cln2, j]);
+                                maxMatch = j;
+                                console.log("b " + maxMatch);
+                            }
+                            //console.log(maxMatch);
+                        }
+                        cln2++;
+                    });
+                    console.log(matches);
+                   
+                    //console.log(maxMatch);
+                    //console.log(src1);
+                }
+                cln1++;
+            });
+            matches.forEach((match) => {
+                var count;
+                for (count = 0; count < match[2]; count++) {
+                    src1[match[0] + count] = null;
+                    src2[match[1] + count] = null;
+                }
+                tiles.push(match);
+            });
+
+        } while (maxMatch > 1);
+
+
+        console.log(tiles);
+        var totlen = 0;
+        tiles.forEach((tile) => {
+            totlen = totlen + tile[2];
+        });
+
+        console.log(totlen);
+        console.log(src1.length + src2.length);
+        var percentage = (2 * totlen) / (src1.length + src2.length);
+        console.log(percentage * 100);
+        return (percentage * 100);
+
     }
 
 });
