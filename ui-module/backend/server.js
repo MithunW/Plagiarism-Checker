@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(methodOverride('_method'));
 
-/*
+
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true }
 );
@@ -65,7 +65,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
   res.json({ file: req.file });
   // res.redirect('/');
 });
-*/
+
 
 // const exercisesRouter = require('./routes/exercises');
 const usersRouter = require('./routes/users');

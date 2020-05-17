@@ -4,7 +4,9 @@ router.route('/').post((req, res) => {
     var src1 = req.body.src1;
     var src2 = req.body.src2;
 
-    res.json({ outpt: preProcessing(src1) });
+
+    var ot1 = preProcessing(src1)
+    res.json({ outpt: tokenization(ot1) });
 
     function preProcessing(src) {
 
@@ -67,10 +69,10 @@ router.route('/').post((req, res) => {
             var vars = false;
             var i;
 
-            
-            if(line.includes("(")){
-                
-            }else if (line.startsWith("int")) {
+
+            if (line.includes("(")) {
+
+            } else if (line.startsWith("int")) {
                 seperate("int");
             } else if (line.startsWith("char")) {
                 seperate("char");
@@ -127,37 +129,66 @@ router.route('/').post((req, res) => {
             }
 
         });
-        console.log(linesaftersplit);
+        //console.log(linesaftersplit);
 
         return linesaftersplit;
     }
 
     function tokenization(lns) {
+        var linesAfterToken = [];
         var keywords = ["auto", "break", "case", "char", "continue", "do", "default", "const", "double",
             "else", "enum", "extern", "for", "if", "goto", "float", "int", "long", "register",
             "return", "signed", "static", "sizeof", "short", "struct", "switch", "typedef",
             "union", "void", "while", "volatile", "unsigned"];
 
         lns.forEach((line) => {
-            if (line.startsWith("int") || line.startsWith("float") || line.startsWith("double") ||
+            line=line.trim();
+            if (line.startsWith("void")) {
+                linesAfterToken.push("<void><identifier_class>");
+
+            } else if (line.startsWith("int") || line.startsWith("float") || line.startsWith("double") ||
                 line.startsWith("short int") || line.startsWith("unsigned int") || line.startsWith("long int") ||
                 line.startsWith("long long int") || line.startsWith("unsigned long int") ||
                 line.startsWith("unsigned long long int") || line.startsWith("long double")) {
-                if(line.includes("(")){
-                    
-                }else if (line.includes("=")) {
-                    line = "<numeric_type><identifier>=<numeric_value>";
+
+                if (line.includes("(")) {
+                    linesAfterToken.push("<numeric_type><identifier_class>");
+
+                } else if (line.includes("=")) {
+                    linesAfterToken.push("<numeric_type><identifier_variable>=<numeric_value>");
                 } else {
-                    line = "<numeric_type><identifier>";
+                    linesAfterToken.push("<numeric_type><identifier_variable>");
                 }
+
             } else if (line.startsWith("char") || line.startsWith("signed char") || line.startsWith("unsigned char")) {
-                if (line.includes("=")) {
-                    line = "<char_type><identifier>=<char_value>";
+                if (line.includes("(")) {
+                    linesAfterToken.push("<char_type><identifier_class>");
+                }
+                else if (line.includes("=")) {
+                    linesAfterToken.push("<char_type><identifier_variable>=<char_value>");
                 } else {
-                    line = "<char_type><identifier>";
+                    linesAfterToken.push("<char_type><identifier_variable>");
                 }
             }
+
+            else if (line.startsWith("for")) {
+                linesAfterToken.push("<for>");
+            } else if (line.startsWith("if")) {
+                linesAfterToken.push("<if>");
+            } else if (line.startsWith("while")) {
+                linesAfterToken.push("<while>");
+            } else if (line.startsWith("printf")) {
+                linesAfterToken.push("<print>");
+            } else if (line.startsWith("scanf")) {
+                linesAfterToken.push("<scan>");
+            }else{
+                linesAfterToken.push(line);
+            }
+
+
         });
+        console.log(linesAfterToken);
+        return linesAfterToken;
     }
 
 });
