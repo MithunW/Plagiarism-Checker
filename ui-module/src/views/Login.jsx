@@ -11,7 +11,8 @@ import Box from '@material-ui/core/Box';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
-
+import { Formik, Form } from "formik";
+import * as yup from "yup";
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
@@ -19,6 +20,12 @@ import axios from "axios";
 import fire from '../fire.js';
 
 var firebase = require('firebase');
+
+let LoginSchema = yup.object().shape({
+  email: yup.string().email("Invalid email").required("Required!"),
+  password: yup.string().required("Required!"),
+});
+
 
 class Login extends React.Component {
 
@@ -35,15 +42,9 @@ class Login extends React.Component {
     
   }
 
-  handleInputChange = e => {
-    this.setState({[e.target.name]:e.target.value});
-    this.setState({status:'success'});
-  }
-
-  login(){
-    fire.auth().signInWithEmailAndPassword(this.state.email, this.state.password).then((u)=>{
+  login(values){
+    fire.auth().signInWithEmailAndPassword(values.email, values.password).then((u)=>{
       }).then((u)=>{
-        console.log(u);
         console.log("login");
         this.props.history.push({
           pathname: '/user/dashboard'        
@@ -221,91 +222,109 @@ class Login extends React.Component {
                 Login
               </Typography>
 
-              <form style={classes.form}  noValidate>
+              <Formik
+                initialValues={{
+                  email:"",
+                  password:""
+                }}
 
-                <Grid container spacing={2} style={{textAlign:'center'}}>
+                validationSchema={LoginSchema}
 
-                  <Grid item xs={12}>
-                    <TextField
-                      variant="outlined"
-                      required
-                      fullWidth
-                      id="email"
-                      label="Email Address"
-                      name="email"
-                      autoFocus
-                      autoComplete="email"
-                      onChange={e => {this.handleInputChange(e)}}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      variant="outlined"
-                      required
-                      fullWidth
-                      name="password"
-                      label="Password"
-                      type="password"
-                      id="password"
-                      autoComplete="current-password"
-                      onChange={e => {this.handleInputChange(e)}}
-                    />
-                  </Grid>
+                onSubmit={(values) => {
+                  this.login(values)
+                }}
+              >
+                {({ errors, handleChange, touched, values, onSubmit }) => (
+                  <Form>
+                    <div style={classes.form}>
+                      <Grid container spacing={2} style={{textAlign:'center'}}>
 
-                  <Grid item xs={12} sm={12} md={12} lg={12} style={{textAlign:'right',marginTop:'-0.5rem'}}>                                   
-                      <Link   href="reset" variant="body2">
-                        Forgot Password?
-                      </Link>
-                  </Grid>
+                        <Grid item xs={12}>
+                          <TextField
+                            id="email"
+                            name="email"
+                            label="Email"
+                            variant="outlined"
+                            fullWidth                           
+                            value={values.email}  
+                            onChange={handleChange}
+                            error={errors.email && touched.email}
+                            helperText={errors.email && touched.email? errors.email: null}
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <TextField
+                            id="password"
+                            name="password"
+                            label="Password"
+                            variant="outlined"
+                            type="password"
+                            fullWidth                           
+                            value={values.password}  
+                            onChange={handleChange}
+                            error={errors.password && touched.password}
+                            helperText={errors.password && touched.password? errors.password: null}
+                          />
+                        </Grid>
 
-                  <Grid item xs={12} style={{display:this.state.status!='success'?'':'none'}}>
-                    <span style={{color:'red'}}>
+                        <Grid item xs={12} sm={12} md={12} lg={12} style={{textAlign:'right',marginTop:'-0.5rem'}}>                                   
+                            <Link href="reset" variant="body2">
+                              Forgot Password?
+                            </Link>
+                        </Grid>
 
-                      <b>{this.state.status}</b>
-                    </span>
-                  </Grid>
+                        <Grid item xs={12} style={{display:this.state.status!='success'?'':'none'}}>
+                          <span style={{color:'red'}}>
+                            <b>{this.state.status}</b>
+                          </span>
+                        </Grid>
 
-                  <Grid item xs={12} sm={12} style={{textAlign:'center'}}>
-                    <Button
+                        <Grid item xs={12} sm={12} style={{textAlign:'center'}}>
+                          <Button
+                            type="submit"
+                            variant="contained"
+                            color="primary"        
+                            style={{margin:'1rem 0 0.5rem 0',width:'80%' , fontSize:'20px',backgroundColor:'#066294 '}}
+                          >
+                            Login
+                          </Button>
+                        </Grid>
 
-                      variant="contained"
-                      color="primary"        
-                      style={{margin:'1rem 0 0.5rem 0',width:'80%' , fontSize:'20px',backgroundColor:'#066294 '}}
-                      onClick={() => {this.login();}}
-                    >
-                      Login
-                    </Button>
-                  </Grid>
+                        <Grid item xs={12}>
+                        
+                        <div style={classes.divider}><span style={classes.text}>OR</span></div>
 
-                  <Grid item xs={12}>
-                  
-                  <div style={classes.divider}><span style={classes.text}>OR</span></div>
+                          <Button
 
-                    <Button
+                            variant="contained"       
+                            style={{marginTop:'1.5rem',width:'80%', fontSize:'20px',textTransform: 'none', backgroundColor:'white'}}
+                            onClick={() => {this.signupWithGoogle(this.props);}}
+                          >
+                          <div>
+                              <img width="25px" style={{marginBottom:'4px', marginRight:'30px'}} alt="Google sign-in" 
+                                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+                                  Sign In With Google
+                          </div>
+                            
+                          </Button>
+                        </Grid>
 
-                      variant="contained"       
-                      style={{marginTop:'1.5rem',width:'80%', fontSize:'20px',textTransform: 'none', backgroundColor:'white'}}
-                      onClick={() => {this.signupWithGoogle(this.props);}}
-                    >
-                    <div>
-                        <img width="25px" style={{marginBottom:'4px', marginRight:'30px'}} alt="Google sign-in" 
-                            src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
-                            Sign In With Google
+                      </Grid>
+
+                      <Grid container justify='center'>
+                        <Grid item style={{margin:'2rem 0 0 0'}}>
+                          <Link href="signup" variant="body2">
+                            Don't have an account? Sign Up
+                          </Link>
+                        </Grid>
+                      </Grid>
                     </div>
-                      
-                    </Button>
-                  </Grid>
 
-                </Grid>
+                  </Form>
+                )}
+              </Formik>
 
-                <Grid container justify='center'>
-                  <Grid item style={{margin:'2rem 0 0 0'}}>
-                    <Link href="signup" variant="body2">
-                      Don't have an account? Sign Up
-                    </Link>
-                  </Grid>
-                </Grid>
-              </form>
+              
             </Container>
 
           </div>

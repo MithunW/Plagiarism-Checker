@@ -11,11 +11,17 @@ const methodOverride = require('method-override');
 const fs = require('fs');
 const pdf = require('pdf-parse');
 var mammoth = require("mammoth");
+const admin = require("firebase-admin");
+const serviceAccount = require("./service-account-key.json");
 
 require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
 
 app.use(cors());
 app.use(express.json());
@@ -26,7 +32,9 @@ app.use(methodOverride('_method'));
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true }
 );
+
 // mongoose.set('useFindAndModify', false);
+
 const connection = mongoose.connection;
 connection.once('open', () => {
   console.log("MongoDB database connection established successfully");
@@ -60,6 +68,7 @@ const storage = new GridFsStorage({
     });
   }
 });
+
 const upload = multer({ storage });
 app.post('/upload', upload.single('file'), (req, res) => {
   res.json({ file: req.file });
@@ -73,20 +82,21 @@ const webPlagiarismRouter = require('./routes/web.plagiarism');
 const resultsRouter = require('./routes/result')
 
 // app.use('/exercises', exercisesRouter);
-app.use('/users', usersRouter);
+
 app.use('/checkplagiarism', webPlagiarismRouter);
+app.use('/users', usersRouter);
 app.use('/results', resultsRouter)
 
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
 });
 
-
 //check source code plagiarism
 const srcplg= require('./routes/srcPlagiarism');
 app.use('/srcPlagiarism', srcplg);
 
 // var uploadTemp = multer({ dest: './temp' })
+
 const storageTemp = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './temp')
@@ -138,3 +148,5 @@ app.post('/readfile', uploadTemp.single('file'), (req, res) => {
     }
 
 });
+
+
