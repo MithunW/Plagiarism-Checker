@@ -83,7 +83,7 @@ class Dashboard extends React.Component {
 
     this.state = {
       file: null,
-      validWebText:false,
+      validWebState:false,
       txt1: '',
       txt2: '',
       src1: '',
@@ -153,12 +153,10 @@ class Dashboard extends React.Component {
         })
 
     }else{
-      this.handleSnackbarOpen();
+      
+      this.handleSnackbarOpen('Insert document!');
     }
-
-
     
-
   }
 
   readFile(file, fileType) {
@@ -346,7 +344,7 @@ class Dashboard extends React.Component {
     if (fileType == 'doc' || fileType == 'docx' || fileType == 'pdf' || fileType == 'txt') {
       this.readFile(e.target.files[0], fileType);
     } else {
-      this.setState({ validType: 'Invalid Input!' })
+      this.handleSnackbarOpen('Invalid Input!');
     }
 
     console.log(fileType);
@@ -373,9 +371,11 @@ class Dashboard extends React.Component {
   }
 
   checkLimit() {
-    this.setState({
-      validType: this.state.count < 1000 ? 'valid' : 'Exceed Word Limit!',
-    });
+    if(this.state.count < 1000){
+      this.setState({ validType: 'valid' });
+    }else{
+      this.handleSnackbarOpen('Exceed Word Limit!');
+    }  
   }
 
   loadFile() {
@@ -386,15 +386,17 @@ class Dashboard extends React.Component {
     return this.state.opMap.map(el => el)
   }
 
-  handleSnackbarOpen() {
+  handleSnackbarOpen(message) {
     this.setState({
-      validWebText: true
+      validWebState: true,
+      validType: message
     })
   }
 
   handleSnackbarClose() {
     this.setState({
-      validWebText: false
+      validWebState: false,
+      // validType: 'valid'
     })
   }
 
@@ -539,13 +541,13 @@ class Dashboard extends React.Component {
                       </div>
                   </Col>
                 </Row>
-                <Row style={{ textAlign: 'center' }} >
+                {/* <Row style={{ textAlign: 'center' }} >
                   <Col>
                     <Typography style={classes.warning}>
                       {this.state.validType}
                     </Typography>
                   </Col>
-                </Row>
+                </Row> */}
                 <Row style={{ textAlign: 'left' }}>
                   <Col>
                     <MIButton onClick={() => { this.loadFile(); }} startIcon={<CloudUploadIcon />} style={classes.upload} size="large">
@@ -573,16 +575,16 @@ class Dashboard extends React.Component {
               </CardFooter>
             </Card>
           </Col>
-          <Snackbar open={this.state.validWebText} style={{marginLeft:'5rem'}} anchorOrigin={{vertical:'bottom', horizontal:'right' }} autoHideDuration={6000} onClose={this.handleSnackbarClose}>
+          <Snackbar open={this.state.validWebState} style={{marginLeft:'5rem'}} anchorOrigin={{vertical:'bottom', horizontal:'right' }} autoHideDuration={6000} onClose={this.handleSnackbarClose}>
             <Alert variant="filled" onClose={this.handleSnackbarClose} severity="error">
-              Insert document!
+              {this.state.validType}
             </Alert>
           </Snackbar>
           {/* <Snackbar
             // anchorOrigin={ 'top', 'center' }
             // key={`${vertical},${horizontal}`}
             
-            open={this.state.validWebText}
+            open={this.state.validWebState}
             onClose={this.handleSnackbarClose}
             message="I love snacks"
           /> */}
