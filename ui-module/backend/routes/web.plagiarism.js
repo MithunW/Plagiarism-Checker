@@ -49,9 +49,6 @@ router.route("/text").post(verifyToken, (req, res) => {
   userId = req.body.userId;
   const document = req.body.text;
   const request_url= req.body.urlList;
-  if(request_url.length>0){
-    url_list=request_url;
-  }
 
   process = 0;
   total_process = 0;
@@ -65,7 +62,6 @@ router.route("/text").post(verifyToken, (req, res) => {
   //   "https://www.space.com/56-our-solar-system-facts-formation-and-discovery.html"
   // ];
   count = 0;
-  // console.log(userId, document);
   if(request_url.length>0){
     url_list=request_url;
   }
@@ -81,57 +77,50 @@ router.route("/text").post(verifyToken, (req, res) => {
   var word_count = 0;
   var search_query = "";
 
-  tokenize_document.forEach(function (sentence, index) {
-    var keyword_sentence = "";
-    const oldString = sentence.split(" ");
-    const newString = sw.removeStopwords(oldString);
+  if(url_list.length>0){
+    //detect plagiarism by using given URL list
+    console.log(url_list);
+    scrap(url_list);
+  }else{
+    //detect plagiarism by using custom search api
+    getKeyWordText();
+  }
 
-    newString.forEach(function (keyword, index) {
-      keyword_sentence += keyword + " ";
-      word_count += 1;
-      if (word_count % 32 == 0) {
-        var i=word_count /32;
-        // console.log(search_query, i);
-        // customSearch(search_query, i).catch(console.error);
-
-
-        search_query = "";
-      } else {
-        search_query += keyword + " ";
-      }
+  function getKeyWordText() {
+    var keyword_list=[];
+    var search_query_list=[];
+    tokenize_document.forEach(function (sentence, index) {
+      var keyword_sentence = "";
+      const oldString = sentence.split(" ");
+      const newString = sw.removeStopwords(oldString);
+      newString.forEach(function (keyword, index) {
+        if(keyword!=''){
+          keyword_list.push(keyword);
+        }
+      });
     });
-    keyword_document.push(keyword_sentence + ".");
-    if(keyword_document.length==tokenize_document.length){
-      console.log("After remove keywords in the tokenize document", keyword_document.length);
-      scrap(url_list);
-    }
-  });
 
-  // console.log(keyword_document);
+    // 03. split the key word by for search query -32
+    var chunk_size = 32;
+    var groups = keyword_list.map( function(e,i){ 
+        return i%chunk_size===0 ? keyword_list.slice(i,i+chunk_size) : null; 
+    }).filter(function(e){ return e; });
 
-  // keyword_document.forEach(function (keyword_sentence, index) {
-  //   var word_count=0;
-  //   var search_query="";
-  //   console.log("key word......");
-  //   console.log(keyword_sentence);
-  //   var keyword_list = keyword_sentence.split(" ");
-  //   keyword_list.forEach(function (keyword, index) {
-  //     word_count+=1
-  //     if(word_count%32==0){
-  //       console.log(search_query);
-  //       console.log(" ");
-  //       search_query="";
-  //     }else{
-  //       search_query+=keyword+" ";
-  //     }
 
-  //   });
-  // });
+    groups.forEach(function (groups_keyword_arr, index) {
+      var search_query="";
+      groups_keyword_arr.forEach(function (groups_keyword, i) {
+        search_query+=groups_keyword+" ";
+      });
+      customSearch(search_query,groups.length, index).catch(console.error);
 
-  //03. web search API
-  // console.log("Result from search API");
+    });
+  };
 
-  async function customSearch(search_query, i) {
+
+
+  //04. web search API
+  async function customSearch(search_query, length, i) {
     const customSearch = google.customsearch("v1");
     const response = await customSearch.cse.list({
       auth: "AIzaSyDft4KwXd4xfoLk6eCrIPPgpsEJXDk57FU",
@@ -143,12 +132,18 @@ router.route("/text").post(verifyToken, (req, res) => {
     // if (response.data.items.length > 0) {
       // console.log(response);
       let results = response;
-      console.log(i);
-      console.log(search_query);
-      console.log(results.data.items[0].link);
-      console.log(" ------------------------------------- ");
+      // console.log(i);
+      // console.log(search_query);
+      console.log(i+1,results.data.items[0].link);
+      // console.log(" ------------------------------------- ");
       url_list.push(results.data.items[0].link);
-
+      // console.log(url_list,i);
+      if(url_list.length==length){
+        // console.log(url_list,i);
+        console.log('finised search');
+        console.log('url_list length - ',url_list.length);
+        scrap(url_list);
+      }
       // let results = response.data.items;
 
       // results.forEach(function (result) {
@@ -158,7 +153,7 @@ router.route("/text").post(verifyToken, (req, res) => {
     // }
   }
 
-  //05. wordnet
+  // wordnet
   // let lemma = [];
   // wordnet.lookup("see", function (results) {
   //   results.forEach(function (result) {
@@ -169,9 +164,8 @@ router.route("/text").post(verifyToken, (req, res) => {
   //   console.log([...synonyms]);
   // });
 
-  //06. extract page content - web scraping
-  
 
+  //05. extract page content - web scraping
   function scrap(url_list) {
     url_list.forEach(function (url, index) {
       puppeteer
@@ -191,7 +185,8 @@ router.route("/text").post(verifyToken, (req, res) => {
           // target_text=data;
           // compareText(data.text);
           target_list.push(data.text);
-          console.log("web scraping",target_list.length);
+          console.log(url);
+          console.log(index+1,"web scraping");
 
           if (url_list.length == target_list.length) {
             console.log("finished web scraping");
@@ -213,6 +208,7 @@ router.route("/text").post(verifyToken, (req, res) => {
     });
   }
 
+//06. compare text - string matching algorithm 
   function compareText(tokenize_target_document, target_index) {
     tokenize_document.forEach(function (sentence, index) {
       var matches = stringSimilarity.findBestMatch(
