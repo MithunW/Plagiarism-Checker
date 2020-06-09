@@ -30,6 +30,9 @@ import { makeStyles, createStyles } from "@material-ui/core/styles";
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import MIButton from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
@@ -78,6 +81,7 @@ class Dashboard extends React.Component {
     this.handleTextArea = this.handleTextArea.bind(this);
     this.checkLimit = this.checkLimit.bind(this);
     this.getContent = this.getContent.bind(this);
+    this.setURL = this.setURL.bind(this);
     this.handleSnackbarOpen = this.handleSnackbarOpen.bind(this);
     this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
 
@@ -93,7 +97,8 @@ class Dashboard extends React.Component {
       text: '',
       validType: 'valid',
       count: 0,
-      outpt: ''
+      outpt: '',
+      urlList:''
     }
   }
 
@@ -120,11 +125,15 @@ class Dashboard extends React.Component {
       const data1 = new FormData();
       data1.append('file', file);
 
-      const data2 = {
+      var list=(this.state.urlList).split("\n");
 
+
+      const data2 = {
         "userId":localStorage.getItem('userId'),
-        "text":this.state.text
+        "text":this.state.text,
+        "urlList":list
       }; 
+
 
       axios.post("http://localhost:5000/upload", data1)
         .then((res) => {
@@ -370,6 +379,12 @@ class Dashboard extends React.Component {
 
   }
 
+  setURL(e) {
+    this.setState({
+      urlList: e.target.value
+    });
+    
+  }
   checkLimit() {
     if(this.state.count < 1000){
       this.setState({ validType: 'valid' });
@@ -405,13 +420,13 @@ class Dashboard extends React.Component {
 
     const classes = {
       textArea: {
-        width: '85%',
+        width: '92%',
         height: '20rem',
         fontFamily: "Arial",
         fontSize: '16px'
       },
       upload: {
-        margin: '-0.5rem 0 1rem 7%',
+        margin: '-1rem 0 1rem 7%',
         outline: 'none',
         color: '#45A5EE',
         textTransform: 'none',
@@ -523,7 +538,7 @@ class Dashboard extends React.Component {
               <CardBody >
                 <Typography style={{ fontSize: '16px', margin: '-1rem 1rem 1.5rem 1rem' }}>
                   To use this Plagiarism Checker, please copy and paste text in the input box below or select a file to upload, and then click on the Check Plagiarism button.
-                  </Typography>
+                </Typography>
 
                 <Row style={{ textAlign: 'center' }} >
                   <Col>
@@ -536,33 +551,46 @@ class Dashboard extends React.Component {
                     <IconButton aria-label="delete" style={classes.deleteBtn} disabled={this.state.count != 0 ? false : true} onClick={() => { this.remove(); }}>
                       <DeleteIcon />
                     </IconButton>
-                    <div className="stats" style={{ textAlign: 'right', marginRight: '-1rem' }} >
-                      <i className="fas fa-pen-nib" /> Word Count : {this.state.count}/1000
-                      </div>
                   </Col>
                 </Row>
-                {/* <Row style={{ textAlign: 'center' }} >
-                  <Col>
-                    <Typography style={classes.warning}>
-                      {this.state.validType}
-                    </Typography>
-                  </Col>
-                </Row> */}
-                <Row style={{ textAlign: 'left' }}>
-                  <Col>
+
+                <Row >
+                  <Col md="6" xs="12" style={{ textAlign: 'left'}}>
                     <MIButton onClick={() => { this.loadFile(); }} startIcon={<CloudUploadIcon />} style={classes.upload} size="large">
-                      Upload File&nbsp; <div style={{ fontSize: '16px', marginTop: '2px' }}>(doc, docx, txt, pdf) </div>
+                      Upload File&nbsp; <div style={{ fontSize: '16px'}}>(doc, docx, txt, pdf) </div>
                     </MIButton>
                   </Col>
+                  <Col md="6" xs="12" style={{ textAlign: 'right'}}>
+                    <div className="stats" style={{ marginRight: '2.5rem' }} >
+                      <i className="fas fa-pen-nib" /> Word Count : {this.state.count}/1000
+                    </div>
+                  </Col>
                 </Row>
-                <Row style={{ textAlign: 'center' }} >
+                <Row >
+
+                  <Col md="6" xs="12" style={{ textAlign: 'left'}}>
+                    <div  style={{ marginLeft: '3rem' }} >
+                      <Typography style={{ fontSize: '16px', margin: '0rem 0 0.6rem 0', fontWeight:'bold', color:'#424B4C' }}>
+                        Check Plagiarism via Webpage URL (optional)
+                      </Typography>
+
+                      <TextField
+                        variant="outlined"
+                        multiline
+                        fullWidth
+                        onChange={this.setURL}
+                      />
+                    </div>
+                  </Col>
+                </Row>
+                <Row style={{ textAlign: 'center', marginTop:'2rem' }} >
                   <Col>
                     <MIButton
                       variant="contained"
                       color="primary"
                       size="large"
                       startIcon={<SearchIcon />}
-                      // style={{backgroundColor:'#066294'}}
+                      style={{backgroundColor:'#066294'}}
                       onClick={this.onSubmit}
                     >
                       Check Plagiarism

@@ -19,6 +19,7 @@ const newString = sw.removeStopwords(oldString);
 var results_list = [];
 var tokenize_document = [];
 var url_list = [];
+var target_list = [];
 var process = 0;
 var total_process = 0;
 var count = 0;
@@ -47,14 +48,27 @@ router.route("/text").post(verifyToken, (req, res) => {
   // console.log(req.headers);
   userId = req.body.userId;
   const document = req.body.text;
+  const request_url= req.body.urlList;
+  if(request_url.length>0){
+    url_list=request_url;
+  }
 
   process = 0;
   total_process = 0;
   results_list = [];
   tokenize_document = [];
+  target_list = [];
   url_list = [];
+  // url_list = [
+  //   "https://en.wikipedia.org/wiki/Java_(programming_language)",
+  //   "https://en.wikipedia.org/wiki/Science",
+  //   "https://www.space.com/56-our-solar-system-facts-formation-and-discovery.html"
+  // ];
   count = 0;
   // console.log(userId, document);
+  if(request_url.length>0){
+    url_list=request_url;
+  }
 
   // 01. tokenize the document
   var tokenizer = new natural.RegexpTokenizer({ pattern: /\./ });
@@ -78,7 +92,7 @@ router.route("/text").post(verifyToken, (req, res) => {
       if (word_count % 32 == 0) {
         var i=word_count /32;
         // console.log(search_query, i);
-        runSample(search_query, i).catch(console.error);
+        // customSearch(search_query, i).catch(console.error);
 
 
         search_query = "";
@@ -117,7 +131,7 @@ router.route("/text").post(verifyToken, (req, res) => {
   //03. web search API
   // console.log("Result from search API");
 
-  async function runSample(search_query, i) {
+  async function customSearch(search_query, i) {
     const customSearch = google.customsearch("v1");
     const response = await customSearch.cse.list({
       auth: "AIzaSyDft4KwXd4xfoLk6eCrIPPgpsEJXDk57FU",
@@ -156,14 +170,9 @@ router.route("/text").post(verifyToken, (req, res) => {
   // });
 
   //06. extract page content - web scraping
-  // var url_list = [
-  //   "https://en.wikipedia.org/wiki/Java_(programming_language)",
-  //   "https://en.wikipedia.org/wiki/Science",
-  //   "https://www.space.com/56-our-solar-system-facts-formation-and-discovery.html",
-  // ];
+  
 
   function scrap(url_list) {
-    const target_list = [];
     url_list.forEach(function (url, index) {
       puppeteer
         .launch()
@@ -178,13 +187,14 @@ router.route("/text").post(verifyToken, (req, res) => {
         .then(function (html) {
           // console.log(html);
           data = extractor(html);
-          console.log("web scraping");
           // console.log(data.text);
           // target_text=data;
           // compareText(data.text);
           target_list.push(data.text);
+          console.log("web scraping",target_list.length);
 
           if (url_list.length == target_list.length) {
+            console.log("finished web scraping");
             getTargetText();
           }
         })
@@ -197,7 +207,7 @@ router.route("/text").post(verifyToken, (req, res) => {
 
   function getTargetText() {
     target_list.forEach(function (target_text, index) {
-      // console.log("compare text - ", index, " start");
+      console.log("compare text - ", index, " start");
       var tokenize_target_document = tokenizer.tokenize(target_text);
       compareText(tokenize_target_document, index);
     });
@@ -212,52 +222,24 @@ router.route("/text").post(verifyToken, (req, res) => {
 
       if (target_index > 0) {
         if (matches.bestMatch.rating > results_list[index][1]) {
-          // console.log(index,results_list[index][1],' ',matches.bestMatch.rating,);
+          console.log(index,results_list[index][1],' ',matches.bestMatch.rating,);
           results_list[index][1] = matches.bestMatch.rating;
           results_list[index][2] = url_list[target_index];
         }
       } else {
-        results_list.push([
-          sentence,
-          matches.bestMatch.rating,
-          url_list[target_index],
-        ]);
+        results_list.push([ sentence, matches.bestMatch.rating, url_list[target_index]]);
       }
 
       if (matches.bestMatch.rating >= 0.8) {
         count += 1;
       }
 
-      console.log(
-        "matches - ",
-        index,
-        " - ",
-        results_list[index][1],
-        " - ",
-        results_list[index][2]
-      );
+      console.log( "matches - ", index, " - ", results_list[index][1], " - ", results_list[index][2] );
       // process+=1;
     });
   }
 
-  // tokenize_document.forEach(function (sentence, index) {
-  //   var similarity = stringSimilarity.compareTwoStrings(sentence, traget_text);
-  //   console.log("similarity - ",index,' - ', similarity * 100);
-  // });
 
-  // tokenize_document.forEach(function (sentence, index) {
-  //   if (index == 2) {
-  //     results_list.push([
-  //       sentence,
-  //       0.85,
-  //       "https://en.wikipedia.org/wiki/Science",
-  //     ]);
-  //   } else {
-  //     results_list.push([sentence, 0.6, "url"]);
-  //   }
-  // });
-
-  // res.json( 'Checking' );
   res.json({
     length: tokenize_document.length,
   });
