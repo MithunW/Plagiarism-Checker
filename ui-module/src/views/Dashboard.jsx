@@ -125,8 +125,10 @@ class Dashboard extends React.Component {
       const data1 = new FormData();
       data1.append('file', file);
 
-      var list=(this.state.urlList).split("\n");
-
+      var list=[];
+      if(this.state.urlList!=""){
+        list=(this.state.urlList).split("\n");
+      }
 
       const data2 = {
         "userId":localStorage.getItem('userId'),
@@ -134,7 +136,7 @@ class Dashboard extends React.Component {
         "urlList":list
       }; 
 
-
+      console.log(list);
       axios.post("http://localhost:5000/upload", data1)
         .then((res) => {
           console.log(res.data);
@@ -546,7 +548,7 @@ class Dashboard extends React.Component {
                     <TextareaAutosize id="result" onChange={this.handleTextArea} style={classes.textArea} rowsMax={1} rowsMin={1} value={this.state.text} aria-label="empty textarea" placeholder={"\n" + "\n" + " Enter Your Text Here"} />
                   </Col>
                 </Row>
-                <Row style={{ textAlign: 'right', width: '93.5%' }} >
+                <Row style={{ textAlign: 'right', width: '97.5%' }} >
                   <Col>
                     <IconButton aria-label="delete" style={classes.deleteBtn} disabled={this.state.count != 0 ? false : true} onClick={() => { this.remove(); }}>
                       <DeleteIcon />
