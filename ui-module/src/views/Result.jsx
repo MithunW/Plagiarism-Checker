@@ -16,11 +16,7 @@ import {
   Input,
 } from "reactstrap";
 // core components
-import {
-  dashboard24HoursPerformanceChart,
-  dashboardEmailStatisticsChart,
-  dashboardNASDAQChart,
-} from "variables/charts.jsx";
+
 import { Link } from "react-router-dom";
 import "../assets/css/custom.css";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
@@ -47,6 +43,8 @@ import ForwardIcon from '@material-ui/icons/Forward';
 import IconButton from '@material-ui/core/IconButton';
 import CreateIcon from '@material-ui/icons/Create';
 import GetAppIcon from '@material-ui/icons/GetApp';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Pdf from "react-to-pdf";
 const ref = React.createRef();
 
@@ -81,7 +79,7 @@ function a11yProps(index) {
   };
 }
 
-class Dashboard extends React.Component {
+class Result extends React.Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
@@ -98,6 +96,7 @@ class Dashboard extends React.Component {
       value: 0,
       submit:true,
       length: this.props.location.state.length,
+      text:this.props.location.state.text
     };
   }
 
@@ -202,10 +201,21 @@ class Dashboard extends React.Component {
     this.setState({ value: newValue });
   }
 
-  // Highlighted(text, highlight) {
-  //     // Split on highlight term and include term into parts, ignore case
+  newSearch() {
+    this.props.history.push({
+      pathname: '/user/dashboard'
+    });
+  }
 
-  // }
+  reSearch() {
+    this.props.history.push({
+      pathname: '/user/dashboard',
+      state: {
+        text: this.state.text
+      }
+    });
+  }
+
 
   render() {
     const Highlighted = ({ text = "", highlight = "" }) => {
@@ -261,7 +271,11 @@ class Dashboard extends React.Component {
     };
 
     return (
-      <div className="content" style={{ marginTop: "9rem" }}>
+      <div ref={ref} className="content" style={{ marginTop: "9rem" }}>
+        <Backdrop open={this.state.progress==0} style={{ zIndex: 5000 }}>
+          <CircularProgress color="inherit" style={{textAlign:'center'}}/>
+        </Backdrop>
+        
         <Row>
           <Col md="12">
             <Card>
@@ -598,14 +612,7 @@ class Dashboard extends React.Component {
                       {this.state.result.map((data, key) => (
                         <span
                           key={key}
-                          style={{
-                            backgroundColor:
-                              data[1] < 0.8 ? "#FDFEFE " : "#FADBD8",
-                            color: data[1] < 0.8 ? "#17202A" : "#943126",
-                            fontsize: "20px",
-                            fontWeight: data[1] < 0.8 ? 500 : 600,
-                            padding: data[1] < 0.8 ? "0" : "5px",
-                          }}
+                          style={{ backgroundColor: data[1] < 0.8 ? "#FDFEFE " : "#FADBD8", color: data[1] < 0.8 ? "#17202A" : "#943126", fontsize: "20px", fontWeight: data[1] < 0.8 ? 500 : 600, padding: data[1] < 0.8 ? "0" : "5px"}}
                         >
                           {data[0] + ". "}
                         </span>
@@ -624,7 +631,7 @@ class Dashboard extends React.Component {
                           size="large"
                           startIcon={<CreateIcon />}
                           style={{ backgroundColor: "#1D8348" }}
-                          // onClick={this.onSubmit}
+                          onClick={() => { this.reSearch() }}
                         >
                           Rewrite Content
                         </Button>
@@ -640,7 +647,7 @@ class Dashboard extends React.Component {
                             backgroundColor: "#1F618D",
                             padding: "0.5rem 3rem 0.5rem 3rem",
                           }}
-                          // onClick={this.onSubmit}
+                          onClick={() => { this.newSearch() }}
                         >
                           New Search
                         </Button>
@@ -648,20 +655,20 @@ class Dashboard extends React.Component {
 
                       <Grid item xs={4}>
                         <Pdf targetRef={ref} filename="result.pdf">
-                      {({ toPdf }) => 
-                      <Button
-                      onClick={toPdf}
-                      variant="contained"
-                      color="primary"
-                      size="large"
-                      startIcon={<GetAppIcon />}
-                      style={{backgroundColor:'#922B21'}}
-                      // onClick={this.onSubmit}
-                      >
-                        Download Report
-                    </Button> 
-                      }
-                    </Pdf>
+                          {({ toPdf }) => 
+                            <Button
+                            onClick={toPdf}
+                            variant="contained"
+                            color="primary"
+                            size="large"
+                            startIcon={<GetAppIcon />}
+                            style={{backgroundColor:'#922B21'}}
+                            // onClick={this.onSubmit}
+                            >
+                              Download Report
+                          </Button> 
+                            }
+                        </Pdf>
                       </Grid>
                     </Grid>
                   </Container>
@@ -678,4 +685,4 @@ class Dashboard extends React.Component {
   }
 }
 
-export default Dashboard;
+export default Result;

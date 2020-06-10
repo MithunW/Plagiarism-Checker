@@ -94,7 +94,7 @@ class Dashboard extends React.Component {
       src2: '',
       op: 'not yet',
       opMap: [],
-      text: '',
+      text: this.props.location.state!=undefined?(this.props.location.state.text!=undefined?this.props.location.state.text:''):'',
       validType: 'valid',
       count: 0,
       outpt: '',
@@ -154,6 +154,7 @@ class Dashboard extends React.Component {
               pathname: '/user/result',
               state: {
                 length: res.data.length,
+                text: this.state.text
               }
             });
           } else {
