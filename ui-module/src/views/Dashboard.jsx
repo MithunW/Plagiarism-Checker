@@ -2,6 +2,7 @@ import React from "react";
 // react plugin used to create charts
 import { Line, Pie } from "react-chartjs-2";
 import axios from "axios";
+import { saveAs } from 'file-saver';
 // reactstrap components
 import {
   Card,
@@ -87,6 +88,7 @@ class Dashboard extends React.Component {
     this.setURL = this.setURL.bind(this);
     this.handleSnackbarOpen = this.handleSnackbarOpen.bind(this);
     this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
+    this.createAndDownloadPdf = this.createAndDownloadPdf.bind(this);
 
     this.state = {
       file: null,
@@ -199,13 +201,22 @@ class Dashboard extends React.Component {
       })
 
   }
+  //generate PDF new way
+  createAndDownloadPdf = () => {
+    axios.post('http://localhost:5000/create-pdf', { name:"", price1:"", price2:"", receiptId:"" })
+      .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
+      .then((res) => {
+        const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+        saveAs(pdfBlob, 'newPdf.pdf');
+      })
+  }
   // compare two paragraphs
   checkResult(e) {
-
+    // this.createAndDownloadPdf();
     const data = new FormData();
     data.append('text', 'test text');
 
-    axios.post("http://localhost:5000/compare", {'text':'test text'})
+    axios.post("http://localhost:5000/compare", {'text1': this.state.txt1, 'text2': this.state.txt2})
       .then((res) => {
         if ((res.status) == 200) {
           console.log('200');

@@ -11,6 +11,7 @@ const methodOverride = require('method-override');
 const fs = require('fs');
 const pdf = require('pdf-parse');
 var mammoth = require("mammoth");
+const PDF = require('html-pdf');
 const admin = require("firebase-admin");
 const serviceAccount = require("./service-account-key.json");
 
@@ -152,3 +153,19 @@ app.post('/readfile', uploadTemp.single('file'), (req, res) => {
 });
 
 
+
+const pdfTemplate = require('./document');
+
+app.post('/create-pdf', (req, res) => {
+  console.log('creating PDF');
+  PDF.create(pdfTemplate(req.body), {}).toFile('result.pdf', (err) => {
+      if(err) {
+          res.send(Promise.reject());
+      }
+      res.send(Promise.resolve());
+  });
+});
+
+app.get('/fetch-pdf', (req, res) => {
+  res.sendFile(`${__dirname}/result.pdf`)
+})
