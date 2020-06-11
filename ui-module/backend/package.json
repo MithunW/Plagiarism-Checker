@@ -18,6 +18,7 @@
     "firebase-admin": "^8.12.0",
     "googleapis": "^48.0.0",
     "gridfs-stream": "^1.1.1",
+    "html-pdf": "^2.2.0",
     "https": "^1.0.0",
     "mammoth": "^1.4.9",
     "method-override": "^3.0.0",
@@ -31,7 +32,10 @@
     "react-to-pdf": "0.0.11",
     "stopword": "^1.0.0",
     "string-similarity": "^4.0.1",
+    "synonyms": "^1.0.1",
+    "thesaurus-com": "^1.2.3",
     "unfluff": "^3.2.0",
-    "wndb-with-exceptions": "^3.0.2"
+    "wndb-with-exceptions": "^3.0.2",
+    "wordpos": "^2.0.0"
   }
 }
