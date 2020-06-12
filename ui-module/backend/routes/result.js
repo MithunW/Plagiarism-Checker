@@ -8,11 +8,12 @@ router.route('/').get((req, res) => {
 });
 
 router.route('/add').post((req, res) => {
-  const userID = req.body.userID;
-  const file = req.body.file;
+  console.log(req.body);
+  const userId = req.body.userID;
+  const files = req.body.files;
   const checkType = req.body.checktype;
 
-  const newResult = new Result({userID,file,checkType});
+  const newResult = new Result({userId,files,checkType});
 
   newResult.save()
     .then(() => res.json('Result added!'))

@@ -4,6 +4,7 @@ sw = require("stopword");
 var synonyms = require("synonyms");
 var tcom = require('thesaurus-com');
 var natural = require("natural");
+const { turkey } = require("synonyms/dictionary");
 var WordPOS = require('wordpos'),
     wordpos = new WordPOS();
 var tokenizer = new natural.RegexpTokenizer({ pattern: /\./ });
@@ -22,11 +23,17 @@ router.route('/').post((req, res) => {
         return indexes;
     }
 
-    const aaa = async (ts) => {
-        var sentenceMap = {}
-        for (const sen of ts) {
-            await getComparableSentances(sen);
+    const compare = async (t1,t2, res) => {
+        var sentenceList = []
+        for (const sen of t1) {
+            var s = await getComparableSentances(sen, t2);
+            sentenceList.push(s);
         }
+        console.log(sentenceList);
+        res.json({
+            text: sentenceList,
+        });
+        return sentenceList;
     }
 
     const getSynonyms = async (a) => {
@@ -44,7 +51,8 @@ router.route('/').post((req, res) => {
         return synonymsMap
     }
 
-    const getComparableSentances = async (sen) => {
+    const getComparableSentances = async (sen, t2) => {
+        var sen = sen.trim();
         console.log(sen);
         var sentencesList = [];
         adjectives = await wordpos.getAdjectives(sen);
@@ -82,27 +90,44 @@ router.route('/').post((req, res) => {
             });
         }
         // console.log(sentencesList);
-        var sentences = [];
-        sentencesList.forEach((sentList) => {
-            sentences.push(sentList.join(' '));
+        var palSentence = '';
+        var isBreak = false;
+        sentencesList.some((sentList) => {
+            sentence = sentList.join(' ');
+            t2.some((s) => {
+                if(sentence.trim() == s.trim()) {
+                    palSentence = s.trim();
+                    isBreak = true;
+                    return true;
+                }
+            });
+            if(isBreak) {
+                return true;
+            }
         });
         // console.log(sentences);
-        // console.log(synonyms);
         console.log('Done log');
+        return palSentence;
+    }
+
+    const finalFunc = async (tokenize_text1, tokenize_text2) => {
+        var lst = await compare(tokenize_text1, tokenize_text2);
+        
     }
 
 
-    tokenize_text = tokenizer.tokenize('The angry bear chased the frightened little squirrel. hbhj. bj.');
-    console.log(tokenize_text);
-    aaa(tokenize_text);
-
-
-
-    const text = req.body.text1;
-    console.log(text);
-    res.json({
-        text: text,
-    });
+    // tokenize_text1 = tokenizer.tokenize('The angry bear chased the frightened little squirrel. hbhj. bj.');
+    // tokenize_text2 = tokenizer.tokenize('The furious bear chased the scared small squirrel. This is a step of testing process.');
+    tokenize_text1 = tokenizer.tokenize(req.body.text1);
+    tokenize_text2 = tokenizer.tokenize(req.body.text2);
+    console.log(tokenize_text1);
+    console.log(tokenize_text2);
+    compare(tokenize_text1, tokenize_text2,res);
+    // const text = req.body.text1;
+    // console.log(text);
+    // res.json({
+    //     text: ['j'],
+    // });
 });
 
 module.exports = router;

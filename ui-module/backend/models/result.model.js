@@ -6,13 +6,10 @@ const resultSchema = new Schema({
   userId: {
     type: String,
     required: true,
-    unique: true,
   },
-  files: { 
-    type : Array,
-    "default" : [],
-    required : true, 
-    },
+  files: [{
+    type: String
+  }],
   checkType : {
       type : String,
       required : true
@@ -21,6 +18,6 @@ const resultSchema = new Schema({
   timestamps: true,
 });
 
-const Upload = mongoose.model('Result', resultSchema);
+const Result = mongoose.model('Result', resultSchema);
 
-module.exports = Upload;
+module.exports = Result;
