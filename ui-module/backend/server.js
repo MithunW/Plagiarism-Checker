@@ -70,9 +70,27 @@ const storage = new GridFsStorage({
   }
 });
 
+// app.get('/download', (req, res) => {
+//   // Check file exist on MongoDB
+// var filename = req.query.filename;
+// console.log(filename);
+//   // gfs.exist({ _id : '5ee2810edb2af75c70cbd9c6' }, (err, file) => {
+//   //   console.log(err);
+//   //   console.log(file);
+//   //     if (err || !file) {
+//   //       res.status(404).send('File Not Found');
+//   //       return
+//   //     } 
+//   console.log(filename);
+//     var readstream = gfs.createReadStream({ filename: filename });
+//     readstream.pipe(res);            
+//   // });
+// }); 
+
 const upload = multer({ storage });
 app.post('/upload', upload.single('file'), (req, res) => {
   res.json({ file: req.file });
+  console.log(req.file);
   // res.redirect('/');
 });
 
