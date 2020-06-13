@@ -21,3 +21,5 @@ const resultSchema = new Schema({
 const Result = mongoose.model('Result', resultSchema);
 
 module.exports = Result;
+
+#checkType
