@@ -46,6 +46,7 @@ router.route('/').post((req, res) => {
             });
             var synonyms = new Set(s);
             synonymsMap[i] = [...synonyms];
+            synonymsMap[i].push(i);
         }
         console.log("Done syn");
         return synonymsMap
@@ -90,12 +91,23 @@ router.route('/').post((req, res) => {
             });
         }
         // console.log(sentencesList);
+
         var palSentence = '';
         var isBreak = false;
+        
+        t2.forEach((sent) => {
+            if(sent.trim().toLowerCase() == sen.trim().toLowerCase()) {
+                palSentence = sen.trim();
+                isBreak = true;
+            }
+        });
+        if(isBreak) {
+            return palSentence;
+        }
         sentencesList.some((sentList) => {
             sentence = sentList.join(' ');
             t2.some((s) => {
-                if(sentence.trim() == s.trim()) {
+                if(sentence.trim().toLowerCase() == s.trim().toLowerCase()) {
                     palSentence = s.trim();
                     isBreak = true;
                     return true;
