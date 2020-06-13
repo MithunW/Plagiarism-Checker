@@ -299,7 +299,6 @@ class Dashboard extends React.Component {
           '% Plagiarism </span></th><th style="border: 1px solid #dddddd"> <span style=" color: #196F3D; font-size: 30px; padding: 10px;"> '+(100 - percentage.toFixed(2)).toString()+
           '% Unique </span></th></tr></table></br>' + resultStringForPDF;
           resultStringForPDF = resultStringForPDF + "<p><br><br><p>"
-          resultStringForPDF = resultStringForPDF + "<span>" + 'plagiarized percentage : ' + (percentage.toFixed(2)).toString() + '%' + "</span>";
         }
         var file = `<p>Text 1 <br><br>${this.state.txt1}</p><p>Text 2<br><br>${this.state.txt2}</p>`;
         axios.post('http://localhost:5000/create-pdf', { body:file })
