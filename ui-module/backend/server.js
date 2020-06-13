@@ -11,6 +11,7 @@ const methodOverride = require('method-override');
 const fs = require('fs');
 const pdf = require('pdf-parse');
 var mammoth = require("mammoth");
+const PDF = require('html-pdf');
 const admin = require("firebase-admin");
 const serviceAccount = require("./service-account-key.json");
 
@@ -69,9 +70,27 @@ const storage = new GridFsStorage({
   }
 });
 
+// app.get('/download', (req, res) => {
+//   // Check file exist on MongoDB
+// var filename = req.query.filename;
+// console.log(filename);
+//   // gfs.exist({ _id : '5ee2810edb2af75c70cbd9c6' }, (err, file) => {
+//   //   console.log(err);
+//   //   console.log(file);
+//   //     if (err || !file) {
+//   //       res.status(404).send('File Not Found');
+//   //       return
+//   //     } 
+//   console.log(filename);
+//     var readstream = gfs.createReadStream({ filename: filename });
+//     readstream.pipe(res);            
+//   // });
+// }); 
+
 const upload = multer({ storage });
 app.post('/upload', upload.single('file'), (req, res) => {
   res.json({ file: req.file });
+  console.log(req.file);
   // res.redirect('/');
 });
 
@@ -79,13 +98,15 @@ app.post('/upload', upload.single('file'), (req, res) => {
 // const exercisesRouter = require('./routes/exercises');
 const usersRouter = require('./routes/users');
 const webPlagiarismRouter = require('./routes/web.plagiarism');
-const resultsRouter = require('./routes/result')
+const resultsRouter = require('./routes/result');
+const compareRouter =  require('./routes/compare.docs');
 
 // app.use('/exercises', exercisesRouter);
 
 app.use('/checkplagiarism', webPlagiarismRouter);
 app.use('/users', usersRouter);
 app.use('/results', resultsRouter)
+app.use('/compare', compareRouter);
 
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
@@ -150,3 +171,19 @@ app.post('/readfile', uploadTemp.single('file'), (req, res) => {
 });
 
 
+
+const pdfTemplate = require('./document');
+
+app.post('/create-pdf', (req, res) => {
+  console.log('creating PDF');
+  PDF.create(pdfTemplate(req.body), {}).toFile('result.pdf', (err) => {
+      if(err) {
+          res.send(Promise.reject());
+      }
+      res.send(Promise.resolve());
+  });
+});
+
+app.get('/fetch-pdf', (req, res) => {
+  res.sendFile(`${__dirname}/result.pdf`)
+})

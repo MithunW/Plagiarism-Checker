@@ -2,6 +2,7 @@ import React from "react";
 // react plugin used to create charts
 import { Line, Pie } from "react-chartjs-2";
 import axios from "axios";
+import { saveAs } from 'file-saver';
 // reactstrap components
 import {
   Card,
@@ -42,10 +43,13 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import fire from '../fire.js';
 import Pdf from "react-to-pdf";
+import { colors } from "@material-ui/core";
 require('colors');
 var Diff = require('diff');
 var stringSimilarity = require('string-similarity');
 const ref = React.createRef();
+// var WordNet = require("../../backend/node_modules/node-wordnet/lib/wordnet.js");
+// var wordnet = new WordNet();
 
 class Dashboard extends React.Component {
 
@@ -84,6 +88,7 @@ class Dashboard extends React.Component {
     this.setURL = this.setURL.bind(this);
     this.handleSnackbarOpen = this.handleSnackbarOpen.bind(this);
     this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
+    this.createAndDownloadPdf = this.createAndDownloadPdf.bind(this);
 
     this.state = {
       file: null,
@@ -134,7 +139,7 @@ class Dashboard extends React.Component {
         "userId":localStorage.getItem('userId'),
         "text":this.state.text,
         "urlList":list
-      }; 
+      };
 
       console.log(list);
       axios.post("http://localhost:5000/upload", data1)
@@ -165,10 +170,10 @@ class Dashboard extends React.Component {
         })
 
     }else{
-      
+
       this.handleSnackbarOpen('Insert document!');
     }
-    
+
   }
 
   readFile(file, fileType) {
@@ -196,108 +201,180 @@ class Dashboard extends React.Component {
       })
 
   }
+  //generate PDF new way
+  createAndDownloadPdf = () => {
+    console.log('creating');
+    axios.post('http://localhost:5000/create-pdf', { name:"", price1:"", price2:"", receiptId:"" })
+      .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
+      .then((res) => {
+        const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+        axios.post("http://localhost:5000/upload",{'file': pdfBlob}).then((res)=>{
+          console.log(res.status);
+        });
+        // saveAs(pdfBlob, 'newPdf.pdf');
+      })
+  }
   // compare two paragraphs
   checkResult(e) {
-    const txt1 = this.state.txt1;
-    const txt2 = this.state.txt2;
-    var sentencesArray1 = txt1.split(/(\S.+?[.!?])(?=\s+|$)/);
-    var sentencesArray2 = txt2.split(/(\S.+?[.!?])(?=\s+|$)/);
-    var totalSimilarityPercentage = 0.00;
-    var resultArray = [];
-    sentencesArray2.forEach((sentence2) => {
-      var sentenceSimilarityPercentage = 0.0;
-      var resultSentence = [];
-      if (sentence2.trim() !== '') {
-        sentencesArray1.forEach((sentence1) => {
-          var totalWords = 0;
-          var redWords = 0;
-          var sentenceArray = [];
-          if (sentence1.trim() !== '') {
-            var diff = Diff.diffSentences(sentence1.trim(), sentence2.trim(), { ignoreCase: true });
-            console.log(sentence2);
-            console.log(sentence1);
-            diff.forEach(function (part) {
-              // green for additions, gray for deletions
-              // red for common parts
-              console.log(part);
-              totalWords = totalWords + 1;
-              var color = part.added ? 'green' :
-                part.removed ? 'grey' : 'red';
+    // this.createAndDownloadPdf();
+    
+    // axios.post('http://localhost:5000/create-pdf', { body:`<span style="color:red;">testing</span>` })
+    //   .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
+    //   .then((res) => {
+    //     console.log('creating');
+    //     const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+    //     console.log(pdfBlob);
+    //     data.append('file', pdfBlob, 'file.pdf');
+    //     axios.post("http://localhost:5000/upload", data).then((res)=>{
+    //       console.log(res.data.file.filename);
+    //     });
+    //     saveAs(pdfBlob, 'newPdf.pdf');
+    //   })
 
-              if (!part.removed && !part.added) {
-                redWords = redWords + 1;
-              }
+    // axios.get("http://localhost:5000/download?filename=test.pdf", {responseType: 'blob'}).then(
+    //   (res) => {
+    //     console.log(res);
+    //     const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+    //     saveAs(pdfBlob, 'newPdf.pdf');
+    //   }
+    // );
 
-              sentenceArray.push(
-                <span style={{ color: color, fontSize: 16, fontWeight: 500 }}>
-                  {part.value[color]}
-                </span>
-              );
-            });
-            if (sentenceSimilarityPercentage < ((redWords / totalWords) * 100).toFixed(2)) {
-              sentenceSimilarityPercentage = ((redWords / totalWords) * 100).toFixed(2);
-              resultSentence = sentenceArray;
-              console.log(resultSentence);
-            } else if (((redWords / totalWords) * 100).toFixed(2) == 0.0 && sentenceSimilarityPercentage == 0.0) {
-              console.log('in');
-              resultSentence = [<span>{sentence2}</span>]
+    axios.post("http://localhost:5000/compare", {'text1': this.state.txt1, 'text2': this.state.txt2})
+      .then((res) => {
+        if ((res.status) == 200) {
+          console.log('200');
+        } else {
+        
+        }
+        console.log(res.data.text);
+        var similarSentances = res.data.text;
+        var resultArray = [];
+        const txt2 = this.state.txt2;
+        var sentencesArray2 = txt2.split(/\./);
+        sentencesArray2.forEach((sen) => {
+          var isSame = false;
+          if(similarSentances.includes(sen.trim())){
+            isSame = true;
+          }
+          if(sen.trim() != '') {
+            if(!isSame) {
+              resultArray.push(<span>{sen+'.'}</span>);
+            } else {
+              console.log('red');
+            resultArray.push(<span style={{backgroundColor : 'rgba(255, 5, 18, 0.2)'}}>{sen+'.'}</span>);
             }
-            console.log(sentenceArray);
-            console.log(sentenceSimilarityPercentage);
-            console.log(((redWords / totalWords)));
-            console.log(((redWords / totalWords) * 100).toFixed(2));
           }
         });
-      }
-      resultArray = resultArray.concat(resultSentence);
-      console.log(resultSentence);
-    });
-    console.log(stringSimilarity.compareTwoStrings(txt1, txt2));
+        var file = `<p>Text 1 <br><br>text 1........</p><p>Text 2<br><br>text 2........</p>`;
+        axios.post('http://localhost:5000/create-pdf', { body:file })
+        .then(() => axios.get('http://localhost:5000/fetch-pdf', {responseType: 'blob'}))
+        .then((res) => {
+          const sourceBlob = new Blob([res.data], { type: 'application/pdf' });
+          const sourceData = new FormData();
+          sourceData.append('file', sourceBlob, 'dataFile.pdf');
+          axios.post("http://localhost:5000/upload", sourceData).then((res) => {
+            var sourceFilename = res.data.file.filename;
+            console.log(res.data.file.filename);
 
-    // var diff = Diff.diffWords(txt1, txt2,{ignoreCase : true});
-    // var op = '';
-    // var colorText = []
-    // var totalSentences = 0;
-    // var redSenetences = 0;
-    // diff.forEach(function(part){
-    //   // green for additions, gray for deletions
-    //   // red for common parts
-    //   totalSentences = totalSentences + 1; 
-    //   var color = part.added ? 'green' :
-    //     part.removed ? 'grey' : 'red';
+            axios.post('http://localhost:5000/create-pdf', { body:`<span style="color:red;">testing</span>` })
+            .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
+            .then((res) => {
+              console.log('creating');
+              const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+              console.log(pdfBlob);
+              const data = new FormData();
+              data.append('file', pdfBlob, 'file.pdf');
+              axios.post("http://localhost:5000/upload", data).then((res)=>{
+                var resultFilename = res.data.file.filename;
+                console.log(res.data.file.filename);
+                axios.post('http://localhost:5000/results/add', {userID:'testID', files: [sourceFilename, resultFilename], checktype: 'compare'})
+                .then((res) => {
+                  if(res.status == 200) {
+                    console.log('db updated');
+                  } else {
+                    console.log('something went wrong');
+                  }
+                })
+              });
+              saveAs(pdfBlob, 'newPdf.pdf');
+            })
+            saveAs(sourceBlob, 'newPdf.pdf');
+          });
+        })
+        // axios.post('http://localhost:5000/create-pdf', { body:`<span style="color:red;">testing</span>` })
+        // .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
+        // .then((res) => {
+        //   console.log('creating');
+        //   const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+        //   console.log(pdfBlob);
+        //   const data = new FormData();
+        //   data.append('file', pdfBlob, 'file.pdf');
+        //   axios.post("http://localhost:5000/upload", data).then((res)=>{
+        //     console.log(res.data.file.filename);
+        //   });
+        //   // saveAs(pdfBlob, 'newPdf.pdf');
+        // })
+        console.log(resultArray[0]);
+        this.setState({
+          opMap: resultArray
+        })
 
-    //   if(!part.removed && !part.added) {
-    //     redSenetences = redSenetences + 1;
+    })
+
+
+
+
+    // const txt1 = this.state.txt1;
+    // const txt2 = this.state.txt2;
+    // var sentencesArray1 = txt1.split(/(\S.+?[.!?])(?=\s+|$)/);
+    // var sentencesArray2 = txt2.split(/(\S.+?[.!?])(?=\s+|$)/);
+    // sentencesArray1 = sentencesArray1.filter(item => item.trim() !== '');
+    // console.log(sentencesArray1);
+    // sentencesArray2 = sentencesArray2.filter(item => item !== '');
+    // var totalSimilarityPercentage = 0.00;
+    // var resultArray = [];
+    // sentencesArray2.forEach((sentence2) => {
+    //   var sentenceSimilarityPercentage = 0.0;
+    //   var resultSentence = [];
+    //   var isSame = false;
+    //   if(sentence2.trim() !== '') {
+    //     sentencesArray1.forEach((sentence1) => {
+    //       var totalWords = 0;
+    //       var redWords = 0;
+    //       var sentenceArray = [];
+    //       if(sentence1.trim() !== '') {
+    //         if(sentence1.toLowerCase() === sentence2.toLowerCase()) {
+    //           isSame = true;
+    //         }
+    //       }
+    //     });
+    //     if(!isSame) {
+    //       resultArray.push(<span>{sentence2}</span>);
+    //     } else {
+    //       console.log('red');
+    //     resultArray.push(<span style={{backgroundColor : 'rgba(255, 5, 18, 0.2)'}}>{sentence2}</span>);
+    //     }
     //   }
-
-    //   console.log(part.value[color]);
-    //   op = op + part.value[color];
-
-    //   colorText.push(
-    //       <span key={colorText.length} style={{ color: color ,fontSize:16,fontWeight:500}}>
-    //           {part.value[color]}
-    //       </span>
-    //   );
     // });
-    // var similarity = ((redSenetences / totalSentences)*100).toFixed(2);
-    // console.log(colorText.length);
-    if (txt1 !== '' && txt2 !== '') {
-      resultArray.push(
-        <div style={{ fontSize: 16 }}>Similarity percentage {(stringSimilarity.compareTwoStrings(txt1, txt2) * 100).toFixed(2)} %</div>
-      );
-    }
-    // } else {
-    //   colorText.push(
-    //     <div style={{fontSize:16}}> Enter your texts to compare</div>
+    // console.log(stringSimilarity.compareTwoStrings(txt1, txt2));
+
+    // if(txt1 !== '' && txt2 !== '') {
+    //   resultArray.push(
+    //     <div style={{ fontSize: 16 }}>Similarity percentage {(stringSimilarity.compareTwoStrings(txt1, txt2) * 100).toFixed(2)} %</div>
     //   );
     // }
+    // // } else {
+    // //   colorText.push(
+    // //     <div style={{fontSize:16}}> Enter your texts to compare</div>
+    // //   );
+    // // }
 
 
 
-    this.setState({
-      // op: op,
-      opMap: resultArray
-    })
+    // this.setState({
+    //   // op: op,
+    //   opMap: resultArray
+    // })
   }
 
   checkSRC() {
@@ -386,14 +463,14 @@ class Dashboard extends React.Component {
     this.setState({
       urlList: e.target.value
     });
-    
+
   }
   checkLimit() {
     if(this.state.count < 1000){
       this.setState({ validType: 'valid' });
     }else{
       this.handleSnackbarOpen('Exceed Word Limit!');
-    }  
+    }
   }
 
   loadFile() {
@@ -614,7 +691,7 @@ class Dashboard extends React.Component {
           {/* <Snackbar
             // anchorOrigin={ 'top', 'center' }
             // key={`${vertical},${horizontal}`}
-            
+
             open={this.state.validWebState}
             onClose={this.handleSnackbarClose}
             message="I love snacks"
