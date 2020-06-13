@@ -184,7 +184,7 @@ router.route("/text").post(verifyToken, (req, res) => {
           // console.log(data.text);
           // target_text=data;
           // compareText(data.text);
-          target_list.push(data.text);
+          target_list.push([data.text,url]);
           console.log(url);
           console.log(index+1,"web scraping");
 
@@ -201,15 +201,17 @@ router.route("/text").post(verifyToken, (req, res) => {
   
 
   function getTargetText() {
-    target_list.forEach(function (target_text, index) {
+    target_list.forEach(function (target_text_list, index) {
+      var target_text=target_text_list[0];
+      var target_url=target_text_list[1];
       console.log("compare text - ", index, " start");
       var tokenize_target_document = tokenizer.tokenize(target_text);
-      compareText(tokenize_target_document, index);
+      compareText(tokenize_target_document, target_url, index);
     });
   }
 
 //06. compare text - string matching algorithm 
-  function compareText(tokenize_target_document, target_index) {
+  function compareText(tokenize_target_document, target_url, target_index) {
     tokenize_document.forEach(function (sentence, index) {
       var matches = stringSimilarity.findBestMatch(
         sentence,
@@ -220,10 +222,10 @@ router.route("/text").post(verifyToken, (req, res) => {
         if (matches.bestMatch.rating > results_list[index][1]) {
           console.log(index,results_list[index][1],' ',matches.bestMatch.rating,);
           results_list[index][1] = matches.bestMatch.rating;
-          results_list[index][2] = url_list[target_index];
+          results_list[index][2] = target_url;
         }
       } else {
-        results_list.push([ sentence, matches.bestMatch.rating, url_list[target_index]]);
+        results_list.push([ sentence, matches.bestMatch.rating, target_url]);
       }
 
       if (matches.bestMatch.rating >= 0.8) {

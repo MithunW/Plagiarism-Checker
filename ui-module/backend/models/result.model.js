@@ -26,3 +26,4 @@ const Result = mongoose.model('Result', resultSchema);
 
 module.exports = Result;
 
+// #checkType
