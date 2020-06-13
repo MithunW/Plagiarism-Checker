@@ -46,6 +46,8 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Pdf from "react-to-pdf";
+import { saveAs } from 'file-saver';
+
 const ref = React.createRef();
 
 
@@ -79,12 +81,21 @@ function a11yProps(index) {
   };
 }
 
+var result_header="";
+var result_tab_1="";
+var result_tab_2_1="";
+var result_tab_2_2="";
+var result_tab_3="";
+var pdfBlob="";
+var result_pdf="<br><span>Report</span><br>";
+
 class Result extends React.Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
     this.getResult = this.getResult.bind(this);
     this.saveResult = this.saveResult.bind(this);
+    this.createResult = this.createResult.bind(this);
     // this.getProgress = this.getProgress.bind(this);
     // this.getHighlightedText = this.getHighlightedText.bind(this);
 
@@ -94,7 +105,7 @@ class Result extends React.Component {
       plagiarism: 0,
       unique: 0,
       value: 0,
-      submit:true,
+      save:true,
       length: this.props.location.state.length,
       text:this.props.location.state.text
     };
@@ -105,6 +116,7 @@ class Result extends React.Component {
   // }
 
   componentDidMount() {
+    console.log(this.props.location.state);
     this.timerID = setInterval(() => this.tick(), 1000);
     this.timerProcessID = setInterval(() => this.process(), 10);
   }
@@ -115,9 +127,6 @@ class Result extends React.Component {
   }
 
   process() {
-    // if (this.state.result.length < this.state.length) {
-    //   this.getProgress();
-    // }
     this.setState({
       progress: (this.state.result.length / this.state.length) * 100,
     });
@@ -125,10 +134,12 @@ class Result extends React.Component {
 
   tick() {
     if (this.state.result.length < this.state.length) {
+      console.log("getting result..");
       this.getResult();
     }
-    if (this.state.result.length == this.state.length && this.state.submit) {
-      // this.saveResult();
+    if (this.state.result.length == this.state.length && this.state.save) {
+      this.setState({ save: false});
+      this.createResult();
     }
   }
 
@@ -143,7 +154,7 @@ class Result extends React.Component {
     console.log(header);
     axios({ method: "get", url: "http://localhost:5000/checkplagiarism/result", data: data, headers:header})
     .then((res) => {
-        console.log(res);
+        // console.log(res);
         if (res.status == 200) {
           this.setState({
             result: res.data.result,
@@ -156,49 +167,231 @@ class Result extends React.Component {
     console.log(this.state.result.length, " ", this.state.length);
   }
 
-  // getProgress() {
-  //   axios
-  //     .get("http://localhost:5000/checkplagiarism/result-progress", "")
-  //     .then((res) => {
-  //       console.log(res);
-  //       // if (res.status == 200) {
-  //       //   this.setState({
-  //       //     result: res.data.result,
-  //       //     plagiarism: res.data.plagiarism,
-  //       //     unique: 100 - res.data.plagiarism,
-  //       //   });
-  //       // }
-  //     })
-  //     .catch((err) => console.log("Error: " + err));
-  // }
+  createResult() {
+    result_header=(
+      <Grid container style={{ margin: "3rem" }}>
+        <Grid item xs={12} sm={4} style={{ margin: "0.8rem 0 0.8rem 0" }} >
+          <Grid container>
+            <Grid item xs={3} sm={1}>
+              <div style={{ width: "5.5rem" }}>
+                <CircularProgressbar
+                  value={this.state.progress}
+                  text={`${this.state.progress}%`}
+                  styles={buildStyles({
+                  rotation: 0,
+                  strokeLinecap: "butt",
+                  textSize: "20px",
+                  pathTransitionDuration: 0.5,
+                  pathColor: `rgba(62, 152, 199, ${
+                    this.state.progress / 100
+                    })`,
+                    textColor: "#0281EE ",
+                    trailColor: "#d6d6d6",
+                    backgroundColor: "#3e98c7",
+                  })}
+                />
+              </div>
+            </Grid>
+
+            <Grid item xs={9} sm={8}>
+              <Typography
+                style={{
+                  fontSize: "23px",
+                  fontWeight: "600",
+                  margin: "1.8rem 0 0 0",
+                }}
+              >
+                {this.state.progress}% Checked
+              </Typography>
+            </Grid>
+          </Grid>
+        </Grid>
+
+          <Grid item xs={12} sm={4} style={{ margin: "0.8rem 0 0.8rem 0" }} >
+            <Grid container>
+              <Grid item xs={3} sm={1}>
+                <div style={{ width: "5.5rem" }}>
+                  <CircularProgressbar
+                    value={this.state.plagiarism}
+                    text={`${this.state.plagiarism}%`}
+                    styles={buildStyles({
+                    rotation: 0,
+                    strokeLinecap: "butt",
+                    textSize: "20px",
+                    pathTransitionDuration: 0.5,
+                    pathColor: `#D30B1D `,
+                    textColor: "#D30B1D",
+                    trailColor: "#d6d6d6",
+                    backgroundColor: "#3e98c7",
+                    })}
+                  />
+                </div>
+              </Grid>
+              <Grid item xs={9} sm={8}>
+                <Typography
+                  style={{
+                    fontSize: "23px",
+                    fontWeight: "600",
+                    margin: "1.8rem 0 0 0",
+                  }}
+                >
+                  {this.state.plagiarism}% Plagiarism
+                </Typography>
+              </Grid>
+            </Grid>
+          </Grid>
+
+          <Grid item xs={12} sm={4} style={{ margin: "0.8rem 0 0.8rem 0" }} >
+            <Grid container>
+              <Grid item xs={3} sm={1}>
+                <div style={{ width: "5.5rem" }}>
+                  <CircularProgressbar
+                    value={this.state.unique}
+                    text={`${this.state.unique}%`}
+                    styles={buildStyles({
+                      rotation: 0,
+                      strokeLinecap: "butt",
+                      textSize: "20px",
+                      pathTransitionDuration: 0.5,
+                      pathColor: `#027439`,
+                      textColor: "#027439",
+                      trailColor: "#d6d6d6",
+                      backgroundColor: "#3e98c7",
+                    })}
+                  />
+                </div>
+              </Grid>
+            <Grid item xs={9} sm={7}>
+              <Typography
+                style={{
+                  fontSize: "23px",
+                  fontWeight: "600",
+                  margin: "1.8rem 0 0 0",
+                }}
+              >
+                {this.state.unique}% Unique
+              </Typography>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    );
+
+    result_tab_1=(
+      this.state.result.map((data, key) => (
+        <div key={key}>
+          <Grid container>  
+
+            <Grid item xs={3} sm={2} style={{ margin: "0.3rem 0 0.3rem 0" }}>
+              <Typography style={{ backgroundColor:data[1] < 0.8 ? "#D5F5E3" : "#FADBD8", color: data[1] < 0.8 ? "#1D8348" : "#943126", fontsize: "20px", fontWeight: 600, textAlign: "center", padding: "0.9rem 0 0.9rem 0" }} >
+                  {data[1] < 0.8 ? "UNIQUE" : "PLAGIARIZED"}
+              </Typography>
+            </Grid>
+
+            <Grid item xs={7} sm={9} style={{ margin: "0.3rem 0 0.3rem 0" }} >
+              <Typography style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", backgroundColor: "#F4F6F6", fontsize: "18px", padding: "0.9rem 3rem 0.9rem 1rem"}}>
+                {data[0]}
+              </Typography>
+            </Grid>
+
+            <Grid item xs={2} sm={1} style={{ margin: "0.3rem 0 0.3rem -3rem" }} >
+              <a href={data[2]} target="_blank">
+                <Button style={{ color: "#943126", display: data[1] < 0.8 ? "none" : ""}} startIcon={ <ForwardIcon style={{ fontSize: "40px" }} />}>
+                  compare
+                </Button>
+              </a>
+            </Grid>
+          </Grid>
+        </div>
+      ))
+    );
+
+    result_tab_2_1=(
+      <Grid container>
+        <Grid item xs={8} sm={8} style={{ margin: "0.3rem 0 0.3rem 0", textAlign: "left" }}>
+          <Typography style={{ backgroundColor: "#AED6F1", textAlign: "left", color: "#154360", fontSize: "22px", fontWeight: 600, textAlign: "center", padding: "0.9rem 0 0.9rem 0"}} >
+            Source
+          </Typography>
+        </Grid>
+        <Grid item xs={4} sm={4} style={{ margin: "0.3rem 0 0.3rem 0" }} >
+          <Typography style={{ backgroundColor: "#AED6F1", color: "#154360", fontSize: "22px", fontWeight: 600, padding: "0.9rem 3rem 0.9rem 1rem"}}>
+            Similarity
+          </Typography>
+        </Grid>
+      </Grid>
+      );
+
+      result_tab_2_2= (
+        this.state.result.map((data, key) => (
+          <div key={key}>
+            <Grid container style={{ display: data[1] < 0.8 ? "none" : "" }} >
+              <Grid item xs={8} sm={8} style={{ margin: "0.3rem 0 0.3rem 0", textAlign: "left"}}>
+                <Typography style={{ backgroundColor: "#F2F3F4", color: "#154360", fontSize: "20px", textAlign: "center", fontWeight: 600, padding: "0.9rem 0 0.9rem 0"}}>
+                  <a style={{ color: "#2C3E50" }} href={data[2]} target="_blank" >
+                    {data[2]}
+                  </a>
+                </Typography>
+              </Grid>
+              <Grid item xs={4} sm={4} style={{ margin: "0.3rem 0 0.3rem 0"}}>
+                <Typography style={{ backgroundColor: "#F2F3F4", color: "#B03A2E", fontSize: "20px", fontWeight: 600, padding: "0.9rem 3rem 0.9rem 1rem"}}>
+                  {data[1] * 100}%
+                </Typography>
+              </Grid>
+            </Grid>
+          </div>
+        ))
+      );
+    
+      result_tab_3=(
+        this.state.result.map((data, key) => (
+          <span key={key} style={{ backgroundColor: data[1] < 0.8 ? "#FDFEFE " : "#FADBD8", color: data[1] < 0.8 ? "#17202A" : "#943126", fontsize: "20px", fontWeight: data[1] < 0.8 ? 500 : 600, padding: data[1] < 0.8 ? "0" : "5px"}} >
+            {data[0] + ". "}
+          </span>
+        ))
 
 
+      );
 
-  
+    this.state.result.forEach((data) => {
+      
+      if(data[1] < 0.8){
+        result_pdf+=`<span style="background-color: #FDFEFE; color: #17202A; font-size: 20px; font-weight: 500; padding: 0px;" >` + data[0] + '.' + `</span>`;
+      }else{
+        result_pdf+=`<span style="background-color: #FADBD8; color: #943126; font-size: 20px; font-weight: 600; padding: 5px"; >` + data[0] + '.' + `</span>`;
+      }
+    });
+
+    this.saveResult();
+  } 
 
   saveResult() {
-    axios.post('http://localhost:5000/create-pdf', { body:`<span style="color:red;">testing</span>` })
-    .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
-      .then((res) => {
-        console.log('creating');
-        const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
-        console.log(pdfBlob);
-        // const data = new FormData();
-        // data.append('file', pdfBlob, 'file.pdf');
-        // axios.post("http://localhost:5000/upload", data).then((res)=>{
-        //   var resultFilename = res.data.file.filename;
-        //   console.log(res.data.file.filename);
-        //   axios.post('http://localhost:5000/results/add', {userID:'testID', files: [sourceFilename, resultFilename], checktype: 'compare'})
-        //     .then((res) => {
-        //       if(res.status == 200) {
-        //         console.log('db updated');
-        //       } else {
-        //         console.log('something went wrong');
-        //       }
-        //     })
-        //   });
-        //   saveAs(pdfBlob, 'newPdf.pdf');
-      });
+    var sourceFilename = this.props.location.state.sourceFilename;
+    axios.post('http://localhost:5000/create-pdf', { body:result_pdf})
+      .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
+        .then((res) => {
+          console.log('create result pdf');
+          pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+          console.log(pdfBlob);
+          const data = new FormData();
+          data.append('file', pdfBlob, 'file.pdf');
+          axios.post("http://localhost:5000/upload", data).then((res)=>{
+            var resultFilename = res.data.file.filename;
+            console.log(res.data.file.filename);
+            axios.post('http://localhost:5000/results/add', {userID:localStorage.getItem('userId'), files: [sourceFilename, resultFilename], checktype: 'web.plagiarism'})
+              .then((res) => {
+                if(res.status == 200) {
+                  console.log('db updated');
+                }else {
+                  console.log('something went wrong');
+                }
+              })
+            });
+            // saveAs(pdfBlob, 'newPdf.pdf');
+        });
+  }
+
+  downloadResult() {
+    saveAs(pdfBlob, 'newPdf.pdf');
   }
 
   handleChange(event, newValue) {
@@ -292,127 +485,7 @@ class Result extends React.Component {
               </CardHeader>
               <CardBody>
                 <Row style={{ textAlign: "right" }}>
-                  <Grid container style={{ margin: "3rem" }}>
-                    <Grid
-                      item
-                      xs={12}
-                      sm={4}
-                      style={{ margin: "0.8rem 0 0.8rem 0" }}
-                    >
-                      <Grid container>
-                        <Grid item xs={3} sm={1}>
-                          <div style={{ width: "5.5rem" }}>
-                            <CircularProgressbar
-                              value={this.state.progress}
-                              text={`${this.state.progress}%`}
-                              styles={buildStyles({
-                                rotation: 0,
-                                strokeLinecap: "butt",
-                                textSize: "20px",
-                                pathTransitionDuration: 0.5,
-                                pathColor: `rgba(62, 152, 199, ${
-                                  this.state.progress / 100
-                                })`,
-                                textColor: "#0281EE ",
-                                trailColor: "#d6d6d6",
-                                backgroundColor: "#3e98c7",
-                              })}
-                            />
-                          </div>
-                        </Grid>
-
-                        <Grid item xs={9} sm={8}>
-                          <Typography
-                            style={{
-                              fontSize: "23px",
-                              fontWeight: "600",
-                              margin: "1.8rem 0 0 0",
-                            }}
-                          >
-                            {this.state.progress}% Checked
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-
-                    <Grid
-                      item
-                      xs={12}
-                      sm={4}
-                      style={{ margin: "0.8rem 0 0.8rem 0" }}
-                    >
-                      <Grid container>
-                        <Grid item xs={3} sm={1}>
-                          <div style={{ width: "5.5rem" }}>
-                            <CircularProgressbar
-                              value={this.state.plagiarism}
-                              text={`${this.state.plagiarism}%`}
-                              styles={buildStyles({
-                                rotation: 0,
-                                strokeLinecap: "butt",
-                                textSize: "20px",
-                                pathTransitionDuration: 0.5,
-                                pathColor: `#D30B1D `,
-                                textColor: "#D30B1D",
-                                trailColor: "#d6d6d6",
-                                backgroundColor: "#3e98c7",
-                              })}
-                            />
-                          </div>
-                        </Grid>
-                        <Grid item xs={9} sm={8}>
-                          <Typography
-                            style={{
-                              fontSize: "23px",
-                              fontWeight: "600",
-                              margin: "1.8rem 0 0 0",
-                            }}
-                          >
-                            {this.state.plagiarism}% Plagiarism
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-
-                    <Grid
-                      item
-                      xs={12}
-                      sm={4}
-                      style={{ margin: "0.8rem 0 0.8rem 0" }}
-                    >
-                      <Grid container>
-                        <Grid item xs={3} sm={1}>
-                          <div style={{ width: "5.5rem" }}>
-                            <CircularProgressbar
-                              value={this.state.unique}
-                              text={`${this.state.unique}%`}
-                              styles={buildStyles({
-                                rotation: 0,
-                                strokeLinecap: "butt",
-                                textSize: "20px",
-                                pathTransitionDuration: 0.5,
-                                pathColor: `#027439`,
-                                textColor: "#027439",
-                                trailColor: "#d6d6d6",
-                                backgroundColor: "#3e98c7",
-                              })}
-                            />
-                          </div>
-                        </Grid>
-                        <Grid item xs={9} sm={7}>
-                          <Typography
-                            style={{
-                              fontSize: "23px",
-                              fontWeight: "600",
-                              margin: "1.8rem 0 0 0",
-                            }}
-                          >
-                            {this.state.unique}% Unique
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </Grid>
+                  {result_header}
                 </Row>
 
                 <Row style={{ width: "100%", marginBottom: "2rem" }}>
@@ -446,181 +519,14 @@ class Result extends React.Component {
                       </Tabs>
                     </AppBar>
                     <TabPanel value={this.state.value} index={0}>
-                      {this.state.result.map((data, key) => (
-                        <div key={key}>
-                          <Grid container>
-                            <Grid
-                              item
-                              xs={3}
-                              sm={2}
-                              style={{ margin: "0.3rem 0 0.3rem 0" }}
-                            >
-                              <Typography
-                                style={{
-                                  backgroundColor:
-                                    data[1] < 0.8 ? "#D5F5E3" : "#FADBD8",
-                                  color: data[1] < 0.8 ? "#1D8348" : "#943126",
-                                  fontsize: "20px",
-                                  fontWeight: 600,
-                                  textAlign: "center",
-                                  padding: "0.9rem 0 0.9rem 0",
-                                }}
-                              >
-                                {data[1] < 0.8 ? "UNIQUE" : "PLAGIARIZED"}
-                              </Typography>
-                            </Grid>
-                            <Grid
-                              item
-                              xs={7}
-                              sm={9}
-                              style={{ margin: "0.3rem 0 0.3rem 0" }}
-                            >
-                              <Typography
-                                style={{
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  backgroundColor: "#F4F6F6",
-                                  fontsize: "18px",
-                                  padding: "0.9rem 3rem 0.9rem 1rem",
-                                }}
-                              >
-                                {data[0]}
-                              </Typography>
-                            </Grid>
-                            <Grid
-                              item
-                              xs={2}
-                              sm={1}
-                              style={{ margin: "0.3rem 0 0.3rem -3rem" }}
-                            >
-                              <a href={data[2]} target="_blank">
-                                <Button
-                                  style={{
-                                    color: "#943126",
-                                    display: data[1] < 0.8 ? "none" : "",
-                                  }}
-                                  startIcon={
-                                    <ForwardIcon style={{ fontSize: "40px" }} />
-                                  }
-                                >
-                                  compare
-                                </Button>
-                              </a>
-                            </Grid>
-                          </Grid>
-                        </div>
-                      ))}
+                      {result_tab_1}
                     </TabPanel>
                     <TabPanel value={this.state.value} index={1}>
-                      <Grid container>
-                        <Grid
-                          item
-                          xs={8}
-                          sm={8}
-                          style={{
-                            margin: "0.3rem 0 0.3rem 0",
-                            textAlign: "left",
-                          }}
-                        >
-                          <Typography
-                            style={{
-                              backgroundColor: "#AED6F1",
-                              textAlign: "left",
-                              color: "#154360",
-                              fontSize: "22px",
-                              fontWeight: 600,
-                              textAlign: "center",
-                              padding: "0.9rem 0 0.9rem 0",
-                            }}
-                          >
-                            Source
-                          </Typography>
-                        </Grid>
-                        <Grid
-                          item
-                          xs={4}
-                          sm={4}
-                          style={{ margin: "0.3rem 0 0.3rem 0" }}
-                        >
-                          <Typography
-                            style={{
-                              backgroundColor: "#AED6F1",
-                              color: "#154360",
-                              fontSize: "22px",
-                              fontWeight: 600,
-                              padding: "0.9rem 3rem 0.9rem 1rem",
-                            }}
-                          >
-                            Similarity
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                      {this.state.result.map((data, key) => (
-                        <div key={key}>
-                          <Grid
-                            container
-                            style={{ display: data[1] < 0.8 ? "none" : "" }}
-                          >
-                            <Grid
-                              item
-                              xs={8}
-                              sm={8}
-                              style={{
-                                margin: "0.3rem 0 0.3rem 0",
-                                textAlign: "left",
-                              }}
-                            >
-                              <Typography
-                                style={{
-                                  backgroundColor: "#F2F3F4",
-                                  textAlign: "left",
-                                  fontSize: "20px",
-                                  fontWeight: 600,
-                                  textAlign: "center",
-                                  padding: "0.9rem 0 0.9rem 0",
-                                }}
-                              >
-                                <a
-                                  style={{ color: "#2C3E50" }}
-                                  href={data[2]}
-                                  target="_blank"
-                                >
-                                  {data[2]}
-                                </a>
-                              </Typography>
-                            </Grid>
-                            <Grid
-                              item
-                              xs={4}
-                              sm={4}
-                              style={{ margin: "0.3rem 0 0.3rem 0" }}
-                            >
-                              <Typography
-                                style={{
-                                  backgroundColor: "#F2F3F4",
-                                  color: "#B03A2E",
-                                  fontSize: "20px",
-                                  fontWeight: 600,
-                                  padding: "0.9rem 3rem 0.9rem 1rem",
-                                }}
-                              >
-                                {data[1] * 100}%
-                              </Typography>
-                            </Grid>
-                          </Grid>
-                        </div>
-                      ))}
+                      {result_tab_2_1}
+                      {result_tab_2_2}
                     </TabPanel>
                     <TabPanel value={this.state.value} index={2}>
-                      {this.state.result.map((data, key) => (
-                        <span
-                          key={key}
-                          style={{ backgroundColor: data[1] < 0.8 ? "#FDFEFE " : "#FADBD8", color: data[1] < 0.8 ? "#17202A" : "#943126", fontsize: "20px", fontWeight: data[1] < 0.8 ? 500 : 600, padding: data[1] < 0.8 ? "0" : "5px"}}
-                        >
-                          {data[0] + ". "}
-                        </span>
-                      ))}
+                      {result_tab_3}
                     </TabPanel>
                   </Col>
                 </Row>
@@ -667,7 +573,7 @@ class Result extends React.Component {
                             size="large"
                             startIcon={<GetAppIcon />}
                             style={{backgroundColor:'#922B21'}}
-                            // onClick={this.saveResult}
+                            onClick={this.downloadResult}
                             >
                               Download Report
                           </Button> 

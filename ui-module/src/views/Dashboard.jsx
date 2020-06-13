@@ -128,6 +128,7 @@ class Dashboard extends React.Component {
 
       const file = this.state.file;
       const data1 = new FormData();
+      var sourceFilename='';
       data1.append('file', file);
 
       var list=[];
@@ -146,28 +147,33 @@ class Dashboard extends React.Component {
         .then((res) => {
           console.log(res.data);
           if ((res.status) == 200) {
+            sourceFilename = res.data.file.filename;
             console.log("File Uploaded");
+
+            axios.post("http://localhost:5000/checkplagiarism/text", data2, header)
+            .then((res) => {
+              if ((res.status) == 200) {
+                this.props.history.push({
+                  pathname: '/user/result',
+                  state: {
+                    length: res.data.length,
+                    text: this.state.text,
+                    sourceFilename:sourceFilename
+                  }
+                });
+              } else {
+
+              }
+              console.log(res);
+
+            })
+            
           } else {
             console.log("File not Uploaded");
           }
         })
 
-      axios.post("http://localhost:5000/checkplagiarism/text", data2, header)
-        .then((res) => {
-          if ((res.status) == 200) {
-            this.props.history.push({
-              pathname: '/user/result',
-              state: {
-                length: res.data.length,
-                text: this.state.text
-              }
-            });
-          } else {
-
-          }
-          console.log(res);
-
-        })
+      
 
     }else{
 
