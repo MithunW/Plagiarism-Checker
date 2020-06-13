@@ -40,9 +40,7 @@ class History extends React.Component {
     .then((res)=>{
       console.log(res);
 
-      const listItmes=res.map(()=>{
-        
-      });
+      
 
       // axios.get("http://localhost:5000/download?filename=test.pdf", {responseType: 'blob'}).then(
     //   (res) => {
