@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 
 // reactstrap components
 import {
@@ -11,7 +12,51 @@ import {
   Col
 } from "reactstrap";
 
+
+
 class History extends React.Component {
+  constructor(props) {
+    super(props);
+    
+    // this.getProgress = this.getProgress.bind(this);
+    // this.getHighlightedText = this.getHighlightedText.bind(this);
+
+    this.state = {
+      user:localStorage.getItem('userId'),
+      files:[]
+    };
+  }
+
+  componentDidMount() {
+    this.timerID = setTimeout(() => this.getHistory(), 1000);
+  }
+
+  getHistory(){
+    const data = {
+      "userId":this.state.user
+    }; 
+
+    axios({ method: "get", url: "http://localhost:5000/history", data: data})
+    .then((res)=>{
+      console.log(res);
+
+      const listItmes=res.map(()=>{
+        
+      });
+
+      // axios.get("http://localhost:5000/download?filename=test.pdf", {responseType: 'blob'}).then(
+    //   (res) => {
+    //     console.log(res);
+    //     const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+    //     saveAs(pdfBlob, 'newPdf.pdf');
+    //   }
+    // );
+
+    })
+    .catch();
+  }
+
+
   render() {
     return (
       <>

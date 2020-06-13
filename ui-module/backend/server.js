@@ -100,6 +100,7 @@ const usersRouter = require('./routes/users');
 const webPlagiarismRouter = require('./routes/web.plagiarism');
 const resultsRouter = require('./routes/result');
 const compareRouter =  require('./routes/compare.docs');
+const historyRouter = require('./routes/history');
 
 // app.use('/exercises', exercisesRouter);
 
@@ -107,6 +108,7 @@ app.use('/checkplagiarism', webPlagiarismRouter);
 app.use('/users', usersRouter);
 app.use('/results', resultsRouter)
 app.use('/compare', compareRouter);
+app.use('/history', historyRouter);
 
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
