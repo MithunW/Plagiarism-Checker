@@ -363,10 +363,11 @@ class Result extends React.Component {
       result_tab_3=(
         this.state.result.map((data, key) => (
           <span key={key} style={{ backgroundColor: data[1] < 0.8 ? "#FDFEFE " : "#FADBD8", color: data[1] < 0.8 ? "#17202A" : "#943126", fontsize: "20px", fontWeight: data[1] < 0.8 ? 500 : 600, padding: data[1] < 0.8 ? "0" : "5px"}} >
-            {data[0] + ". "}
+            <a style={{ color: "#2C3E50" }} href={ data[1] < 0.8 ? null : data[2] } target="_blank" >
+              {data[0] + ". "}
+            </a>
           </span>
         ))
-
 
       );
       
