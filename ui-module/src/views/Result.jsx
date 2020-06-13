@@ -84,7 +84,7 @@ class Result extends React.Component {
     super(props);
     this.handleChange = this.handleChange.bind(this);
     this.getResult = this.getResult.bind(this);
-    this.onSubmit = this.onSubmit.bind(this);
+    this.saveResult = this.saveResult.bind(this);
     // this.getProgress = this.getProgress.bind(this);
     // this.getHighlightedText = this.getHighlightedText.bind(this);
 
@@ -128,7 +128,7 @@ class Result extends React.Component {
       this.getResult();
     }
     if (this.state.result.length == this.state.length && this.state.submit) {
-      // this.onSubmit();
+      // this.saveResult();
     }
   }
 
@@ -172,52 +172,33 @@ class Result extends React.Component {
   //     .catch((err) => console.log("Error: " + err));
   // }
 
-  // axios.post('http://localhost:5000/create-pdf', { body:`<span style="color:red;">testing</span>` })
-  //           .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
-  //           .then((res) => {
-  //             console.log('creating');
-  //             const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
-  //             console.log(pdfBlob);
-  //             const data = new FormData();
-  //             data.append('file', pdfBlob, 'file.pdf');
-  //             axios.post("http://localhost:5000/upload", data).then((res)=>{
-  //               var resultFilename = res.data.file.filename;
-  //               console.log(res.data.file.filename);
-  //               axios.post('http://localhost:5000/results/add', {userID:'testID', files: [sourceFilename, resultFilename], checktype: 'compare'})
-  //               .then((res) => {
-  //                 if(res.status == 200) {
-  //                   console.log('db updated');
-  //                 } else {
-  //                   console.log('something went wrong');
-  //                 }
-  //               })
-  //             });
-  //             saveAs(pdfBlob, 'newPdf.pdf');
-  //           })
 
-  onSubmit() {
-    const header = {
-      headers: {
-        Authorization: localStorage.getItem("token")
-      }
-    };
 
-    const data = {
+  
 
-    }; 
-
-    axios.post("http://localhost:5000/checkplagiarism/result-save", data , header)
+  saveResult() {
+    axios.post('http://localhost:5000/create-pdf', { body:`<span style="color:red;">testing</span>` })
+    .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
       .then((res) => {
-        console.log(res);
-        if ((res.status) == 200) {
-          console.log("Result Saved");
-          this.setState({
-            submit: false
-          });
-        } else {
-          console.log("Result not saved");
-        }
-    })
+        console.log('creating');
+        const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+        console.log(pdfBlob);
+        // const data = new FormData();
+        // data.append('file', pdfBlob, 'file.pdf');
+        // axios.post("http://localhost:5000/upload", data).then((res)=>{
+        //   var resultFilename = res.data.file.filename;
+        //   console.log(res.data.file.filename);
+        //   axios.post('http://localhost:5000/results/add', {userID:'testID', files: [sourceFilename, resultFilename], checktype: 'compare'})
+        //     .then((res) => {
+        //       if(res.status == 200) {
+        //         console.log('db updated');
+        //       } else {
+        //         console.log('something went wrong');
+        //       }
+        //     })
+        //   });
+        //   saveAs(pdfBlob, 'newPdf.pdf');
+      });
   }
 
   handleChange(event, newValue) {
@@ -686,7 +667,7 @@ class Result extends React.Component {
                             size="large"
                             startIcon={<GetAppIcon />}
                             style={{backgroundColor:'#922B21'}}
-                            // onClick={this.onSubmit}
+                            // onClick={this.saveResult}
                             >
                               Download Report
                           </Button> 
