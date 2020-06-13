@@ -255,7 +255,8 @@ router.route("/text").post(verifyToken, (req, res) => {
 // });
 
 router.route("/result").get(verifyToken, (req, res) => {
-  console.log("count-  ", (count / tokenize_document.length) * 100);
+  // console.log("count-  ", (count / tokenize_document.length) * 100);
+  console.log("processing..");
   if (results_list.length <= tokenize_document.length) {
     res.json({
       result: results_list,

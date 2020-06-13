@@ -12,8 +12,9 @@ router.route('/add').post((req, res) => {
   const userId = req.body.userID;
   const files = req.body.files;
   const checkType = req.body.checktype;
+  const similarity = req.body.similarity;
 
-  const newResult = new Result({userId,files,checkType});
+  const newResult = new Result({userId,files,checkType,similarity});
 
   newResult.save()
     .then(() => res.json('Result added!'))

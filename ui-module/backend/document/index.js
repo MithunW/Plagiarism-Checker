@@ -11,8 +11,9 @@ module.exports = ({body}) => {
       }
       </style>
       </head>
-      <body style="padding: 70px; border: 1px solid #808080;">
-         <div>
+      <body style="padding: 50px;">
+      <a href="https://imgbb.com/"><img src="https://i.ibb.co/M2x8PFR/logo.jpg" alt="logo" border="0"></a>
+         <div style="font-size: 20px;">
             ${body}
          </div>
       </body>
