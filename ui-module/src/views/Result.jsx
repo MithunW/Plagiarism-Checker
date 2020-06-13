@@ -87,7 +87,7 @@ var result_tab_2_1="";
 var result_tab_2_2="";
 var result_tab_3="";
 var pdfBlob="";
-var result_pdf="<br><span>Report</span><br>";
+var result_pdf=`<br><span style="color: #2A2B2B; font-size: 40px; font-weight: 500;">Report</span><br><br>`;
 
 class Result extends React.Component {
   constructor(props) {
@@ -138,8 +138,8 @@ class Result extends React.Component {
       this.getResult();
     }
     if (this.state.result.length == this.state.length && this.state.save) {
-      this.setState({ save: false});
       this.createResult();
+      this.setState({ save: false});
     }
   }
 
@@ -151,7 +151,6 @@ class Result extends React.Component {
         Authorization: localStorage.getItem("token")
     };
 
-    console.log(header);
     axios({ method: "get", url: "http://localhost:5000/checkplagiarism/result", data: data, headers:header})
     .then((res) => {
         // console.log(res);
@@ -168,6 +167,14 @@ class Result extends React.Component {
   }
 
   createResult() {
+
+    var today = new Date().toLocaleString();
+    // var dd = String(today.getDate()).padStart(2, '0');
+    // var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    // var yyyy = today.getFullYear();
+
+    // today = mm + '-' + dd + '-' + yyyy;
+
     result_header=(
       <Grid container style={{ margin: "3rem" }}>
         <Grid item xs={12} sm={4} style={{ margin: "0.8rem 0 0.8rem 0" }} >
@@ -308,12 +315,17 @@ class Result extends React.Component {
 
     result_tab_2_1=(
       <Grid container>
-        <Grid item xs={8} sm={8} style={{ margin: "0.3rem 0 0.3rem 0", textAlign: "left" }}>
+        <Grid item xs={6} sm={6} style={{ margin: "0.3rem 0 0.3rem 0", textAlign: "left" }}>
+          <Typography style={{ backgroundColor: "#AED6F1", textAlign: "left", color: "#154360", fontSize: "22px", fontWeight: 600, textAlign: "center", padding: "0.9rem 0 0.9rem 0"}} >
+            Sentence
+          </Typography>
+        </Grid>
+        <Grid item xs={4} sm={4} style={{ margin: "0.3rem 0 0.3rem 0", textAlign: "left" }}>
           <Typography style={{ backgroundColor: "#AED6F1", textAlign: "left", color: "#154360", fontSize: "22px", fontWeight: 600, textAlign: "center", padding: "0.9rem 0 0.9rem 0"}} >
             Source
           </Typography>
         </Grid>
-        <Grid item xs={4} sm={4} style={{ margin: "0.3rem 0 0.3rem 0" }} >
+        <Grid item xs={2} sm={2} style={{ margin: "0.3rem 0 0.3rem 0" }} >
           <Typography style={{ backgroundColor: "#AED6F1", color: "#154360", fontSize: "22px", fontWeight: 600, padding: "0.9rem 3rem 0.9rem 1rem"}}>
             Similarity
           </Typography>
@@ -325,16 +337,22 @@ class Result extends React.Component {
         this.state.result.map((data, key) => (
           <div key={key}>
             <Grid container style={{ display: data[1] < 0.8 ? "none" : "" }} >
-              <Grid item xs={8} sm={8} style={{ margin: "0.3rem 0 0.3rem 0", textAlign: "left"}}>
-                <Typography style={{ backgroundColor: "#F2F3F4", color: "#154360", fontSize: "20px", textAlign: "center", fontWeight: 600, padding: "0.9rem 0 0.9rem 0"}}>
+              <Grid item xs={6} sm={6} style={{ margin: "0.3rem 0 0.3rem 0", textAlign: "left"}}>
+                <Typography style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", backgroundColor: "#F4F6F6", fontsize: "18px", padding: "1.5rem 3rem 1.5rem 1rem"}}>
+                {data[0]}
+              </Typography>
+              </Grid>
+
+              <Grid item xs={4} sm={4} style={{ margin: "0.3rem 0 0.3rem 0", textAlign: "left"}}>
+                <Typography style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", backgroundColor: "#F2F3F4", color: "#154360", fontSize: "15px", textAlign: "center", fontWeight: 600, padding: "1.5rem 3rem 1.5rem 1rem"}}>
                   <a style={{ color: "#2C3E50" }} href={data[2]} target="_blank" >
                     {data[2]}
                   </a>
                 </Typography>
               </Grid>
-              <Grid item xs={4} sm={4} style={{ margin: "0.3rem 0 0.3rem 0"}}>
-                <Typography style={{ backgroundColor: "#F2F3F4", color: "#B03A2E", fontSize: "20px", fontWeight: 600, padding: "0.9rem 3rem 0.9rem 1rem"}}>
-                  {data[1] * 100}%
+              <Grid item xs={2} sm={2} style={{ margin: "0.3rem 0 0.2rem 0"}}>
+                <Typography style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", backgroundColor: "#F2F3F4", color: "#B03A2E", fontSize: "15px", fontWeight: 600, padding: "1.5rem 3rem 1.5rem 1rem"}}>
+                  {(data[1] * 100).toFixed(0)}%
                 </Typography>
               </Grid>
             </Grid>
@@ -351,15 +369,46 @@ class Result extends React.Component {
 
 
       );
+      
+
+    result_pdf+=`<span style=" color: #17202A; font-size: 23px; font-weight: 500; padding: 5px;" >` + today + `</span><br><br>`;
+    result_pdf+=`<table>
+                  <tr>
+                    <th style="border: 1px solid #dddddd"> <span style=" color: #922B21 ; font-size: 30px; padding: 10px;"> `+ this.state.plagiarism +`% Plagiarism </span></th>
+                    <th style="border: 1px solid #dddddd"> <span style=" color: #196F3D; font-size: 30px; padding: 10px;"> `+this.state.unique+`% Unique </span></th>
+                    <th style="border: 1px solid #dddddd"> <span style=" color: #1F618D; font-size: 30px; padding: 10px;"> `+this.props.location.state.count+` Words </span></th>
+                  </tr>
+                </table><br><br>`;
+    
+    result_pdf+=`<table style="width: 1000px;">
+                  <tr>
+                    <th width="430" style=" display:inline-block; border: 1px solid #dddddd"> <span style="backgroundColor: #AED6F1; textAlign: left; color: #154360; fontSize: 26px; fontWeight: 600; textAlign:center; padding: 8px;">  Sentence </span></th>
+                    <th width="320" style=" display:inline-block; border: 1px solid #dddddd"> <span style="backgroundColor: #AED6F1; textAlign: left; color: #154360; fontSize: 26px; fontWeight: 600; textAlign:center; padding: 8px;">  Source </span></th>
+                    <th width="120" style=" display:inline-block; border: 1px solid #dddddd"> <span style="backgroundColor: #AED6F1; textAlign: left; color: #154360; fontSize: 26px; fontWeight: 600; textAlign:center; padding: 8px;">  Similarity </span></th>
+                  </tr>`;
+
+    this.state.result.forEach((data) => {
+      
+      if(data[1] >= 0.8){
+        result_pdf+=`<tr>
+                      <td width="430" style=" display:inline-block; border: 1px solid #dddddd;"><div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; textAlign: left; color: #154360; fontSize: 16px; fontWeight: 600;">`+ data[0] +` </div></td>
+                      <td width="320" style=" display:inline-block; border: 1px solid #dddddd;"><div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; textAlign: left; color: #154360; fontSize: 16px; fontWeight: 600;"><a style=" color:#7B241C" target="_blank" href="`+data[2]+`" >` + data[2] + `</a> </div></td>
+                      <td width="120" style=" display:inline-block; border: 1px solid #dddddd;"><div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; textAlign: left; color: #154360; fontSize: 14px; fontWeight: 600;">`+ (data[1] * 100).toFixed(0)+`% </div></td>
+                    </tr>`;
+      }
+    });
+    result_pdf+='</table><br><br>';
 
     this.state.result.forEach((data) => {
       
       if(data[1] < 0.8){
         result_pdf+=`<span style="background-color: #FDFEFE; color: #17202A; font-size: 20px; font-weight: 500; padding: 0px;" >` + data[0] + '.' + `</span>`;
       }else{
-        result_pdf+=`<span style="background-color: #FADBD8; color: #943126; font-size: 20px; font-weight: 600; padding: 5px"; >` + data[0] + '.' + `</span>`;
+        result_pdf+=`<span style="background-color: #FADBD8; color: #943126; font-size: 20px; font-weight: 600; padding: 5px"; ><a style=" color:#7B241C" target="_blank" href="`+data[2]+`" >` + data[0] + '.' + `</a></span>`;
       }
     });
+
+     
 
     this.saveResult();
   } 
@@ -377,7 +426,7 @@ class Result extends React.Component {
           axios.post("http://localhost:5000/upload", data).then((res)=>{
             var resultFilename = res.data.file.filename;
             console.log(res.data.file.filename);
-            axios.post('http://localhost:5000/results/add', {userID:localStorage.getItem('userId'), files: [sourceFilename, resultFilename], checktype: 'web.plagiarism'})
+            axios.post('http://localhost:5000/results/add', {userID:localStorage.getItem('userId'), files: [sourceFilename, resultFilename], checktype: 'web.plagiarism',similarity:this.state.plagiarism})
               .then((res) => {
                 if(res.status == 200) {
                   console.log('db updated');
@@ -469,7 +518,7 @@ class Result extends React.Component {
 
     return (
       <div ref={ref} className="content" style={{ marginTop: "9rem" }}>
-        <Backdrop open={this.state.progress==0} style={{ zIndex: 5000 }}>
+        <Backdrop open={this.state.save} style={{ zIndex: 5000 }}>
           <CircularProgress color="inherit" style={{textAlign:'center'}}/>
         </Backdrop>
         
