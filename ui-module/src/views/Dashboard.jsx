@@ -313,7 +313,7 @@ class Dashboard extends React.Component {
               axios.post("http://localhost:5000/upload", data).then((res)=>{
                 var resultFilename = res.data.file.filename;
                 console.log(res.data.file.filename);
-                axios.post('http://localhost:5000/results/add', {userID: localStorage.getItem('userId'), files: [sourceFilename, resultFilename], checktype: 'compare'})
+                axios.post('http://localhost:5000/results/add', {userID: localStorage.getItem('userId'), files: [sourceFilename, resultFilename], checktype: 'compare', similarity: percentage.toFixed(2)})
                 .then((res) => {
                   if(res.status == 200) {
                     console.log('db updated');
