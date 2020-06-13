@@ -244,6 +244,10 @@ class Dashboard extends React.Component {
     //     saveAs(pdfBlob, 'newPdf.pdf');
     //   }
     // );
+    if ((this.state.txt1.trim() == "") && (this.state.txt2.trim() == "")) {
+      console.log('retuned');
+      return
+    }
 
     axios.post("http://localhost:5000/compare", {'text1': this.state.txt1, 'text2': this.state.txt2})
       .then((res) => {
@@ -252,26 +256,48 @@ class Dashboard extends React.Component {
         } else {
         
         }
-        console.log(res.data.text);
+        var total = 0;
+        var copy = 0;
         var similarSentances = res.data.text;
         var resultArray = [];
+        var resultStringForPDF = "<br><span>Report</span><br>";
         const txt2 = this.state.txt2;
         var sentencesArray2 = txt2.split(/\./);
+        var similarSentances0 = []
+        similarSentances.forEach((sen) => {
+          similarSentances0.push(sen.toLowerCase());
+        })
+        similarSentances = similarSentances0;
+        console.log(similarSentances);
         sentencesArray2.forEach((sen) => {
           var isSame = false;
-          if(similarSentances.includes(sen.trim())){
+          console.log(sen);
+          if(similarSentances.includes(sen.trim().toLowerCase())){
             isSame = true;
           }
           if(sen.trim() != '') {
+            total = total + 1;
             if(!isSame) {
               resultArray.push(<span>{sen+'.'}</span>);
+              resultStringForPDF = resultStringForPDF + "<span>" + sen + '.' + "</span>";
             } else {
+              copy = copy + 1;
               console.log('red');
-            resultArray.push(<span style={{backgroundColor : 'rgba(255, 5, 18, 0.2)'}}>{sen+'.'}</span>);
+              resultArray.push(<span style={{backgroundColor : 'rgba(255, 5, 18, 0.2)'}}>{sen+'.'}</span>);
+              resultStringForPDF = resultStringForPDF + '<span style="background-color:rgba(255,5,18,0.2)">' + sen + '.' + "</span>";
             }
           }
         });
-        var file = `<p>Text 1 <br><br>text 1........</p><p>Text 2<br><br>text 2........</p>`;
+        if(total != 0) {
+          var percentage = (copy/total) * 100;
+          resultArray.push(<br></br>);
+          resultArray.push(<span>{'plagiarized percentage : '}</span>);
+          resultArray.push(<span>{percentage.toFixed(2)}</span>);
+        resultArray.push(<span>{"%"}</span>);
+          resultStringForPDF = resultStringForPDF + "<p><br><br><p>"
+          resultStringForPDF = resultStringForPDF + "<span>" + 'plagiarized percentage : ' + (percentage.toFixed(2)).toString() + '%' + "</span>";
+        }
+        var file = `<p>Text 1 <br><br>${this.state.txt1}</p><p>Text 2<br><br>${this.state.txt2}</p>`;
         axios.post('http://localhost:5000/create-pdf', { body:file })
         .then(() => axios.get('http://localhost:5000/fetch-pdf', {responseType: 'blob'}))
         .then((res) => {
@@ -281,8 +307,8 @@ class Dashboard extends React.Component {
           axios.post("http://localhost:5000/upload", sourceData).then((res) => {
             var sourceFilename = res.data.file.filename;
             console.log(res.data.file.filename);
-
-            axios.post('http://localhost:5000/create-pdf', { body:`<span style="color:red;">testing</span>` })
+          
+            axios.post('http://localhost:5000/create-pdf', { body:`${resultStringForPDF}` })
             .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
             .then((res) => {
               console.log('creating');
@@ -293,7 +319,7 @@ class Dashboard extends React.Component {
               axios.post("http://localhost:5000/upload", data).then((res)=>{
                 var resultFilename = res.data.file.filename;
                 console.log(res.data.file.filename);
-                axios.post('http://localhost:5000/results/add', {userID:'testID', files: [sourceFilename, resultFilename], checktype: 'compare'})
+                axios.post('http://localhost:5000/results/add', {userID: localStorage.getItem('userId'), files: [sourceFilename, resultFilename], checktype: 'compare', similarity: percentage.toFixed(2)})
                 .then((res) => {
                   if(res.status == 200) {
                     console.log('db updated');
@@ -302,9 +328,9 @@ class Dashboard extends React.Component {
                   }
                 })
               });
-              saveAs(pdfBlob, 'newPdf.pdf');
+              saveAs(pdfBlob, 'result.pdf');
             })
-            saveAs(sourceBlob, 'newPdf.pdf');
+            saveAs(sourceBlob, 'source.pdf');
           });
         })
         // axios.post('http://localhost:5000/create-pdf', { body:`<span style="color:red;">testing</span>` })
@@ -711,26 +737,51 @@ class Dashboard extends React.Component {
                 <CardTitle tag="h5">Compare Text</CardTitle>
               </CardHeader>
               <CardBody>
-                <FormGroup>
-                  <label>First Text</label>
-                  <Input
+                <label>First Text</label>
+                <Row style={{ textAlign: 'center' }}>
+                    <Col>
+                    <TextareaAutosize id="txt1" onChange={this.onChangeText1} style={classes.textArea} 
+                  rowsMax={1} rowsMin={1} value={this.state.txt1} aria-label="empty textarea" 
+                  placeholder={"\n" + "\n" + " Enter First Text Here"} />
+                    </Col>
+                  </Row>
+                  {/* <Input
                     type="textarea"
                     value={this.state.txt1}
                     onChange={this.onChangeText1}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <label>Second Text</label>
-                  <Input
+                  /> */}
+              
+                <label>Second Text</label>
+                  <Row style={{ textAlign: 'center' }}>
+                    <Col>
+                    <TextareaAutosize id="txt2" onChange={this.onChangeText2} style={classes.textArea} 
+                  rowsMax={1} rowsMin={1} value={this.state.txt2} aria-label="empty textarea" 
+                  placeholder={"\n" + "\n" + " Enter Second Text Here"} />
+                    </Col>
+                  </Row>
+                  
+                  {/* <Input
                     type="textarea"
                     value={this.state.txt2}
                     onChange={this.onChangeText2}
-                  />
-                </FormGroup>
-                <Button id="btnCompare" onClick={this.checkResult} color="primary">Compare</Button>
-                <Pdf targetRef={ref} filename="result.pdf">
+                  /> */}
+                    <Row style={{ textAlign: 'center', marginTop:'2rem' }} >
+                      <Col>
+                      <MIButton
+                      variant="contained"
+                      color="primary"
+                      size="large"
+                      style={{backgroundColor:'#066294'}}
+                      onClick={this.checkResult}
+                    >
+                      Compare and Download Result PDFs
+                    </MIButton>
+                      </Col>
+                    </Row>
+                {/* <Button id="btnCompare" onClick={this.checkResult} color="primary">Compare and Download Result PDFs</Button> */}
+                {/* <Pdf targetRef={ref} filename="result.pdf">
                   {({ toPdf }) => <Button onClick={toPdf} color="primary">Download Result PDF</Button>}
-                </Pdf>
+                </Pdf> */}
                 <div ref={ref}>
                   <div style={{ padding: 20, }}>
                     <span>{this.state.opMap.map(el => el)}</span>

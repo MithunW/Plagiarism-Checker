@@ -13,7 +13,11 @@ const resultSchema = new Schema({
   checkType : {
       type : String,
       required : true
-  } 
+  },
+  similarity : {
+    type : Number,
+    required : true
+  }
 }, {
   timestamps: true,
 });
@@ -21,3 +25,5 @@ const resultSchema = new Schema({
 const Result = mongoose.model('Result', resultSchema);
 
 module.exports = Result;
+
+#checkType
