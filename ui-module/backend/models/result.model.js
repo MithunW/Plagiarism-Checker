@@ -13,7 +13,11 @@ const resultSchema = new Schema({
   checkType : {
       type : String,
       required : true
-  } 
+  },
+  similarity : {
+    type : Number,
+    required : true
+  }
 }, {
   timestamps: true,
 });
