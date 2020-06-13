@@ -261,7 +261,7 @@ class Dashboard extends React.Component {
         var copy = 0;
         var similarSentances = res.data.text;
         var resultArray = [];
-        var resultStringForPDF = "<br><span>Report</span><br>";
+        var resultStringForPDF = "";
         const txt2 = this.state.txt2;
         var sentencesArray2 = txt2.split(/\./);
         var similarSentances0 = []
@@ -294,7 +294,10 @@ class Dashboard extends React.Component {
           resultArray.push(<br></br>);
           resultArray.push(<span>{'plagiarized percentage : '}</span>);
           resultArray.push(<span>{percentage.toFixed(2)}</span>);
-        resultArray.push(<span>{"%"}</span>);
+          resultArray.push(<span>{"%"}</span>);
+          resultStringForPDF = '<br><span>Report</span><br><table><tr><th style="border: 1px solid #dddddd"> <span style=" color: #922B21 ; font-size: 30px; padding: 10px;"> '+ percentage.toFixed(2).toString() +
+          '% Plagiarism </span></th><th style="border: 1px solid #dddddd"> <span style=" color: #196F3D; font-size: 30px; padding: 10px;"> '+(100 - percentage.toFixed(2)).toString()+
+          '% Unique </span></th></tr></table></br>' + resultStringForPDF;
           resultStringForPDF = resultStringForPDF + "<p><br><br><p>"
           resultStringForPDF = resultStringForPDF + "<span>" + 'plagiarized percentage : ' + (percentage.toFixed(2)).toString() + '%' + "</span>";
         }
