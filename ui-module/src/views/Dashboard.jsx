@@ -99,7 +99,7 @@ class Dashboard extends React.Component {
       src2: '',
       op: 'not yet',
       opMap: [],
-      text: this.props.location.state!=undefined?(this.props.location.state.text!=undefined?this.props.location.state.text:''):'',
+      text: this.props.location!=undefined?(this.props.location.state!=undefined?(this.props.location.state.text!=undefined?this.props.location.state.text:''):''):'',
       validType: 'valid',
       count: 0,
       outpt: '',
@@ -158,6 +158,7 @@ class Dashboard extends React.Component {
                   state: {
                     length: res.data.length,
                     text: this.state.text,
+                    count: this.state.count,
                     sourceFilename:sourceFilename
                   }
                 });
