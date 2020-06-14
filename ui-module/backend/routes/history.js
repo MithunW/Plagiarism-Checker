@@ -6,18 +6,21 @@ var MongoClient = require('mongodb').MongoClient;
 
 
 router.route('/').get((req, res) => {
-    Result.find({ userId: req.body.userId }).then((docs) => {
+    Result.find().then((docs) => {
         console.log(req.body.userId);
         var files = []
         docs.forEach(doc => {
+            console.log(doc);
             const uploadFile = '';
             const resultFile = '';
 
 
 
             var rp = {
-                upload: doc.Files[0],
-                result: doc.Files[1]
+                upload: doc.files[0],
+                result: doc.files[1],
+                similarity:doc.similarity,
+                date:doc.uploadDate
             }
             files.push(rp);
         });
