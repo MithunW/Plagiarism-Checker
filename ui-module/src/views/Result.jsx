@@ -117,6 +117,14 @@ class Result extends React.Component {
 
   componentDidMount() {
     console.log(this.props.location.state);
+    result_header="";
+    result_tab_1="";
+    result_tab_2_1="";
+    result_tab_2_2="";
+    result_tab_3="";
+    pdfBlob="";
+    result_pdf=`<br><span style="color: #2A2B2B; font-size: 40px; font-weight: 500;">Report</span><br><br>`;
+
     this.timerID = setInterval(() => this.tick(), 1000);
     this.timerProcessID = setInterval(() => this.process(), 10);
   }
@@ -157,8 +165,8 @@ class Result extends React.Component {
         if (res.status == 200) {
           this.setState({
             result: res.data.result,
-            plagiarism: res.data.plagiarism.toFixed(0),
-            unique: 100 - res.data.plagiarism.toFixed(0),
+            plagiarism: res.data.plagiarism.toFixed(0)<100?res.data.plagiarism.toFixed(0):100,
+            unique: 100 - (res.data.plagiarism.toFixed(0)<100?res.data.plagiarism.toFixed(0):100),
           });
         }
       })
@@ -430,6 +438,7 @@ class Result extends React.Component {
             axios.post('http://localhost:5000/results/add', {userID:localStorage.getItem('userId'), files: [sourceFilename, resultFilename], checktype: 'web.plagiarism',similarity:this.state.plagiarism})
               .then((res) => {
                 if(res.status == 200) {
+                  console.log(res);
                   console.log('db updated');
                 }else {
                   console.log('something went wrong');
