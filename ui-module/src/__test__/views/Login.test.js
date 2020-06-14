@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Login from './Login';
+import Login from '../../views/Login';
 
 it("Login view render correctly", () => {
     const div = document.createElement("div");
