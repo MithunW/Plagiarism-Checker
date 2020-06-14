@@ -39,10 +39,12 @@ class History extends React.Component {
 
   getHistory() {
     const data = {
-      "userId": localStorage.getItem('userId')
+      "userId":localStorage.getItem('userId')
     };
 
-    axios({ method: "get", url: "http://localhost:5000/history", data: data })
+    console.log(data.userId);
+
+    axios.post("http://localhost:5000/history", data)
       .then((res) => {
         console.log(res);
         var resID = 0;
@@ -53,19 +55,19 @@ class History extends React.Component {
           resID = resID + 1;
           return (<tr key={resID}>
             <td>{resID}</td>
-            <td>{}</td>
+            
             <td><MIButton
-              variant="contained"
+              variant="text"
               color="primary"
-              size="large"
-              style={{ backgroundColor: '#066294' }}
+              size="medium"
+              style={{ backgroundColor: '#FFFFFF' }}
               onClick={function () {
                 var url = "http://localhost:5000/download?filename=" + files.upload;
                 axios.get(url, { responseType: 'blob' }).then(
                   (res) => {
                     console.log(res);
                     const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
-                    saveAs(pdfBlob, 'newPdf.pdf');
+                    saveAs(pdfBlob, 'UploadedFile.pdf');
                   }
                 )
               }
@@ -74,17 +76,17 @@ class History extends React.Component {
               Source File
                     </MIButton></td>
             <td><MIButton
-              variant="contained"
+              variant="text"
               color="primary"
               size="large"
-              style={{ backgroundColor: '#066294' }}
+              style={{ backgroundColor: '#FFFFFF' }}
               onClick={function () {
                 var url = "http://localhost:5000/download?filename=" + files.result;
                 axios.get(url, { responseType: 'blob' }).then(
                   (res) => {
                     console.log(res);
                     const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
-                    saveAs(pdfBlob, 'newPdf.pdf');
+                    saveAs(pdfBlob, 'ResultFile.pdf');
                   }
                 )
               }
@@ -128,7 +130,6 @@ class History extends React.Component {
                     <thead className="text-primary">
                       <tr>
                         <th>Result ID</th>
-                        <th>Date</th>
                         <th>Document(s)</th>
                         <th>Result File</th>
                         <th className="text-right">Similarity Percentage %</th>
@@ -136,67 +137,7 @@ class History extends React.Component {
                     </thead>
                     <tbody>{this.state.listItems}</tbody>
 
-                    <MIButton
-                      variant="contained"
-                      color="primary"
-                      size="large"
-                      style={{ backgroundColor: '#066294' }}
-                      onClick={function () {
-                        var p="fbb346b85b0702bc172f74eb787454fe.pdf";
-                        var url = "http://localhost:5000/download?filename" + p;
-                        axios.get(url, { responseType: 'blob' }).then(
-                          (res) => {
-                            console.log(res);
-                            const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
-                            saveAs(pdfBlob, 'newPdf.pdf');
-                          }
-                        )
-                      }
-                      }
-                    >
-                      Source File1
-                    </MIButton>
-
-
-                    <MIButton
-                      variant="contained"
-                      color="primary"
-                      size="large"
-                      style={{ backgroundColor: '#066294' }}
-                      onClick={function () {
-                        var url = "http://localhost:5000/download?filename=fbb346b85b0702bc172f74eb787454fe.pdf";
-                        axios.get(url, { responseType: 'blob' }).then(
-                          (res) => {
-                            console.log(res);
-                            const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
-                            saveAs(pdfBlob, 'newPdf.pdf');
-                          }
-                        )
-                      }
-                      }
-                    >
-                      Source File2
-                    </MIButton>
-
-                    <MIButton
-                      variant="contained"
-                      color="primary"
-                      size="large"
-                      style={{ backgroundColor: '#066294' }}
-                      onClick={function () {
-                        
-                        axios.get("http://localhost:5000/download?filename=fbb346b85b0702bc172f74eb787454fe.pdf", { responseType: 'blob' }).then(
-                          (res) => {
-                            console.log(res);
-                            const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
-                            saveAs(pdfBlob, 'newPdf.pdf');
-                          }
-                        )
-                      }
-                      }
-                    >
-                      Source File3
-                    </MIButton>
+                    
 
 
                   </Table>

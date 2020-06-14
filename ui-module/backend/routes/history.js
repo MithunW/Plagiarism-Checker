@@ -5,9 +5,10 @@ var MongoClient = require('mongodb').MongoClient;
 // Connect to the db
 
 
-router.route('/').get((req, res) => {
-    Result.find().then((docs) => {
-        console.log(req.body.userId);
+router.route('/').post((req, res) => {
+    console.log(req.body.userId);
+    Result.find({userId:req.body.userId}).then((docs) => {
+        
         var files = []
         docs.forEach(doc => {
             console.log(doc);
