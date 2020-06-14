@@ -16,13 +16,20 @@ router.route('/').post((req, res) => {
             const resultFile = '';
 
 
+            var dates = doc.createdAt;
+
+            var date2=dates.toISOString();
+            var date1=date2.split("T");
 
             var rp = {
+                
                 upload: doc.files[0],
                 result: doc.files[1],
                 similarity:doc.similarity,
-                date:doc.uploadDate
+                date:date1[0]
+                
             }
+            console.log(rp);
             files.push(rp);
         });
         res.send(files);
