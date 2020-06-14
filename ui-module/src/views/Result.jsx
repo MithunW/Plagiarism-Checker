@@ -116,7 +116,7 @@ class Result extends React.Component {
   // }
 
   componentDidMount() {
-    console.log(this.props.location.state);
+    // console.log(this.props.location.state);
     result_header="";
     result_tab_1="";
     result_tab_2_1="";
