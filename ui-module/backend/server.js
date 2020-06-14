@@ -21,7 +21,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount)
 });
 
 app.use(cors());
@@ -70,22 +70,23 @@ const storage = new GridFsStorage({
   }
 });
 
-// app.get('/download', (req, res) => {
-//   // Check file exist on MongoDB
-// var filename = req.query.filename;
-// console.log(filename);
-//   // gfs.exist({ _id : '5ee2810edb2af75c70cbd9c6' }, (err, file) => {
-//   //   console.log(err);
-//   //   console.log(file);
-//   //     if (err || !file) {
-//   //       res.status(404).send('File Not Found');
-//   //       return
-//   //     } 
-//   console.log(filename);
-//     var readstream = gfs.createReadStream({ filename: filename });
-//     readstream.pipe(res);            
-//   // });
-// }); 
+app.get('/download', (req, res) => {
+  //Check file exist on MongoDB
+  var filename = req.query.filename;
+  console.log(filename);
+  /*gfs.exist({ filename:filename }, (err, file) => {
+    console.log(err);
+    console.log(file);
+    if (err || !file) {
+      console.log("File not found");
+      res.status(404).send('File Not Found');
+      return
+    }*/
+    console.log(filename);
+    var readstream = gfs.createReadStream({ filename: filename });
+    readstream.pipe(res);
+ // });
+});
 
 const upload = multer({ storage });
 app.post('/upload', upload.single('file'), (req, res) => {
@@ -99,7 +100,8 @@ app.post('/upload', upload.single('file'), (req, res) => {
 const usersRouter = require('./routes/users');
 const webPlagiarismRouter = require('./routes/web.plagiarism');
 const resultsRouter = require('./routes/result');
-const compareRouter =  require('./routes/compare.docs');
+const compareRouter = require('./routes/compare.docs');
+const historyRouter = require('./routes/history');
 
 // app.use('/exercises', exercisesRouter);
 
@@ -107,13 +109,14 @@ app.use('/checkplagiarism', webPlagiarismRouter);
 app.use('/users', usersRouter);
 app.use('/results', resultsRouter)
 app.use('/compare', compareRouter);
+app.use('/history', historyRouter);
 
 app.listen(port, () => {
-    console.log(`Server is running on port: ${port}`);
+  console.log(`Server is running on port: ${port}`);
 });
 
 //check source code plagiarism
-const srcplg= require('./routes/srcPlagiarism');
+const srcplg = require('./routes/srcPlagiarism');
 app.use('/srcPlagiarism', srcplg);
 
 // var uploadTemp = multer({ dest: './temp' })
@@ -127,46 +130,46 @@ const storageTemp = multer.diskStorage({
   }
 })
 
-const uploadTemp = multer({storage: storageTemp})
+const uploadTemp = multer({ storage: storageTemp })
 app.post('/readfile', uploadTemp.single('file'), (req, res) => {
 
-  let location='./temp/'+req.file.originalname;
-  let dataBuffer="empty"; 
+  let location = './temp/' + req.file.originalname;
+  let dataBuffer = "empty";
   switch (req.body.filetype) {
-      case 'docx':
-        mammoth.extractRawText({path:location})
-        .then(function(result){
-            dataBuffer = result.value;
-            var messages = result.messages;
-            res.json({ text: dataBuffer });
+    case 'docx':
+      mammoth.extractRawText({ path: location })
+        .then(function (result) {
+          dataBuffer = result.value;
+          var messages = result.messages;
+          res.json({ text: dataBuffer });
 
         })
-        .done();    
-        break;
+        .done();
+      break;
 
-      case 'doc':
-        mammoth.extractRawText({path:location})
-        .then(function(result){
-            dataBuffer = result.value; 
-            var messages = result.messages;
-            res.json({ text: dataBuffer });
+    case 'doc':
+      mammoth.extractRawText({ path: location })
+        .then(function (result) {
+          dataBuffer = result.value;
+          var messages = result.messages;
+          res.json({ text: dataBuffer });
         })
-        .done();    
-        break;
+        .done();
+      break;
 
-      case 'txt':
-        dataBuffer = fs.readFileSync(location,'utf8');
-        res.json({ text: dataBuffer });   
-        break;
+    case 'txt':
+      dataBuffer = fs.readFileSync(location, 'utf8');
+      res.json({ text: dataBuffer });
+      break;
 
-      case 'pdf':
-        buffer = fs.readFileSync(location);
-        pdf(buffer).then(function(data) {
-          res.json({ text: data.text });             
-        });    
-        break;
+    case 'pdf':
+      buffer = fs.readFileSync(location);
+      pdf(buffer).then(function (data) {
+        res.json({ text: data.text });
+      });
+      break;
 
-    }
+  }
 
 });
 
@@ -177,10 +180,10 @@ const pdfTemplate = require('./document');
 app.post('/create-pdf', (req, res) => {
   console.log('creating PDF');
   PDF.create(pdfTemplate(req.body), {}).toFile('result.pdf', (err) => {
-      if(err) {
-          res.send(Promise.reject());
-      }
-      res.send(Promise.resolve());
+    if (err) {
+      res.send(Promise.reject());
+    }
+    res.send(Promise.resolve());
   });
 });
 
