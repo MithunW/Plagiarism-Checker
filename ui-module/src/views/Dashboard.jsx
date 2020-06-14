@@ -39,6 +39,8 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import SearchIcon from '@material-ui/icons/Search';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import fire from '../fire.js';
@@ -101,9 +103,10 @@ class Dashboard extends React.Component {
       opMap: [],
       text: this.props.location!=undefined?(this.props.location.state!=undefined?(this.props.location.state.text!=undefined?this.props.location.state.text:''):''):'',
       validType: 'valid',
-      count: 0,
+      count: this.props.location!=undefined?(this.props.location.state!=undefined?(this.props.location.state.text!=undefined?this.props.location.state.text.split(" ").length:0):0):0,
       outpt: '',
-      urlList:''
+      urlList:'',
+      loading:false
     }
   }
 
@@ -119,17 +122,22 @@ class Dashboard extends React.Component {
   }
 
   onSubmit(e) {
+    
+
     if(this.state.text.length!=0){
+      const word_count = this.state.text === "" ? 0 : this.state.text.split(" ").length;
+      this.checkLimit();
+      this.setState({
+        count: word_count
+      });
+
+      this.setState({loading: true});
+
       const header = {
         headers: {
           Authorization: localStorage.getItem("token")
         }
       };
-
-      const file = this.state.file;
-      const data1 = new FormData();
-      var sourceFilename='';
-      data1.append('file', file);
 
       var list=[];
       if(this.state.urlList!=""){
@@ -142,42 +150,93 @@ class Dashboard extends React.Component {
         "urlList":list
       };
 
-      console.log(list);
-      axios.post("http://localhost:5000/upload", data1)
+      var input_file = `<p>${this.state.text}</p>`;
+      var input_pdfBlob='';
+
+      axios.post('http://localhost:5000/create-pdf', { body: input_file})
+      .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
         .then((res) => {
-          console.log(res.data);
-          if ((res.status) == 200) {
-            sourceFilename = res.data.file.filename;
-            console.log("File Uploaded");
-
-            axios.post("http://localhost:5000/checkplagiarism/text", data2, header)
-            .then((res) => {
-              if ((res.status) == 200) {
-                this.props.history.push({
-                  pathname: '/user/result',
-                  state: {
-                    length: res.data.length,
-                    text: this.state.text,
-                    count: this.state.count,
-                    sourceFilename:sourceFilename
-                  }
-                });
-              } else {
-
-              }
-              console.log(res);
-
-            })
+          console.log('create input pdf');
+          input_pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+          // console.log(input_pdfBlob);
+          const file_data = new FormData();
+          file_data.append('file', input_pdfBlob, 'input_file.pdf');
+          axios.post("http://localhost:5000/upload", file_data).then((res)=>{
             
-          } else {
-            console.log("File not Uploaded");
-          }
-        })
+            if ((res.status) == 200) {
+              this.setState({loading: false});
+              var sourceFilename = res.data.file.filename;
+              console.log(sourceFilename);
+
+              axios.post("http://localhost:5000/checkplagiarism/text", data2, header)
+              .then((res) => {
+                if ((res.status) == 200) {
+                  this.props.history.push({
+                    pathname: '/user/result',
+                    state: {
+                      length: res.data.length,
+                      text: this.state.text,
+                      count: this.state.count,
+                      sourceFilename:sourceFilename
+                    }
+                  });
+                } else {
+
+                }
+                console.log(res);
+
+              })
+              
+            } else {
+              console.log("File not Uploaded");
+            }
+
+          });
+
+        });
+
+      const file = this.state.file;
+      const data1 = new FormData();
+      var sourceFilename='';
+      data1.append('file', file);
+
+      
+
+      // console.log(list);
+      // axios.post("http://localhost:5000/upload", data1)
+      //   .then((res) => {
+      //     console.log(res.data);
+      //     if ((res.status) == 200) {
+      //       sourceFilename = res.data.file.filename;
+      //       console.log("File Uploaded");
+
+      //       axios.post("http://localhost:5000/checkplagiarism/text", data2, header)
+      //       .then((res) => {
+      //         if ((res.status) == 200) {
+      //           this.props.history.push({
+      //             pathname: '/user/result',
+      //             state: {
+      //               length: res.data.length,
+      //               text: this.state.text,
+      //               count: this.state.count,
+      //               sourceFilename:sourceFilename
+      //             }
+      //           });
+      //         } else {
+
+      //         }
+      //         console.log(res);
+
+      //       })
+            
+      //     } else {
+      //       console.log("File not Uploaded");
+      //     }
+      //   })
 
       
 
     }else{
-
       this.handleSnackbarOpen('Insert document!');
     }
 
@@ -486,11 +545,11 @@ class Dashboard extends React.Component {
 
   handleTextArea(e) {
     const Count = e.target.value === "" ? 0 : e.target.value.split(" ").length;
-    this.checkLimit();
     this.setState({
       count: Count,
       text: e.target.value
     });
+    this.checkLimit();
 
   }
 
@@ -559,11 +618,14 @@ class Dashboard extends React.Component {
         color: this.state.count != 0 ? 'red' : '#D9DCDE'
       }
 
-
     };
 
     return (
       <div className="content" style={{ marginTop: '9rem' }}>
+
+        <Backdrop open={this.state.loading} style={{ zIndex: 5000 }}>
+          <CircularProgress color="inherit" style={{textAlign:'center'}}/>
+        </Backdrop>
 
         <Row>
           <Col lg="4" md="7" sm="7">
