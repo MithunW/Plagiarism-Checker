@@ -190,3 +190,6 @@ app.post('/create-pdf', (req, res) => {
 app.get('/fetch-pdf', (req, res) => {
   res.sendFile(`${__dirname}/result.pdf`)
 })
+
+
+module.exports = app;
