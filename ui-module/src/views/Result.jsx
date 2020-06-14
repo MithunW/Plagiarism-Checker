@@ -106,8 +106,8 @@ class Result extends React.Component {
       unique: 0,
       value: 0,
       save:true,
-      length: this.props.location.state.length,
-      text:this.props.location.state.text
+      length: this.props.location == undefined ? 0 : this.props.location.state.length,
+      text: this.props.location == undefined ? '' : this.props.location.state.text
     };
   }
 
@@ -116,7 +116,7 @@ class Result extends React.Component {
   // }
 
   componentDidMount() {
-    console.log(this.props.location.state);
+    // console.log(this.props.location.state);
     this.timerID = setInterval(() => this.tick(), 1000);
     this.timerProcessID = setInterval(() => this.process(), 10);
   }
