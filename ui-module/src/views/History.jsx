@@ -55,7 +55,7 @@ class History extends React.Component {
           resID = resID + 1;
           return (<tr key={resID}>
             <td>{resID}</td>
-            
+          <td>{files.date}</td>
             <td><MIButton
               variant="text"
               color="primary"
@@ -130,6 +130,7 @@ class History extends React.Component {
                     <thead className="text-primary">
                       <tr>
                         <th>Result ID</th>
+                        <th>Date</th>
                         <th>Document(s)</th>
                         <th>Result File</th>
                         <th className="text-right">Similarity Percentage %</th>
