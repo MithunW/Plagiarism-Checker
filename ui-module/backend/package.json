@@ -9,7 +9,9 @@
   },
   "scripts": {
     "test": "mocha --timeout 10000",
-    "start": "node server.js"
+    "start": "node server.js",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "keywords": [],
   "author": "",
@@ -43,6 +45,8 @@
     "thesaurus-com": "^1.2.3",
     "unfluff": "^3.2.0",
     "wndb-with-exceptions": "^3.0.2",
-    "wordpos": "^2.0.0"
-  }
+    "wordpos": "^2.0.0",
+    "snyk": "^1.349.0"
+  },
+  "snyk": true
 }
