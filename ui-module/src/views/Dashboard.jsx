@@ -96,19 +96,19 @@ class Dashboard extends React.Component {
     this.state = {
       pdfString : '',
       file: null,
-      validWebState:false,
+      validWebState: false,
       txt1: '',
       txt2: '',
       src1: '',
       src2: '',
       op: 'not yet',
       opMap: [],
-      text: this.props.location!=undefined?(this.props.location.state!=undefined?(this.props.location.state.text!=undefined?this.props.location.state.text:''):''):'',
+      text: this.props.location != undefined ? (this.props.location.state != undefined ? (this.props.location.state.text != undefined ? this.props.location.state.text : '') : '') : '',
       validType: 'valid',
-      count: this.props.location!=undefined?(this.props.location.state!=undefined?(this.props.location.state.text!=undefined?this.props.location.state.text.split(" ").length:0):0):0,
+      count: this.props.location != undefined ? (this.props.location.state != undefined ? (this.props.location.state.text != undefined ? this.props.location.state.text.split(" ").length : 0) : 0) : 0,
       outpt: '',
-      urlList:'',
-      loading:false
+      urlList: '',
+      loading: false
     }
   }
 
@@ -124,16 +124,16 @@ class Dashboard extends React.Component {
   }
 
   onSubmit(e) {
-    
 
-    if(this.state.text.length!=0){
+
+    if (this.state.text.length != 0) {
       const word_count = this.state.text === "" ? 0 : this.state.text.split(" ").length;
       this.checkLimit();
       this.setState({
         count: word_count
       });
 
-      this.setState({loading: true});
+      this.setState({ loading: true });
 
       const header = {
         headers: {
@@ -141,54 +141,54 @@ class Dashboard extends React.Component {
         }
       };
 
-      var list=[];
-      if(this.state.urlList!=""){
-        list=(this.state.urlList).split("\n");
+      var list = [];
+      if (this.state.urlList != "") {
+        list = (this.state.urlList).split("\n");
       }
 
       const data2 = {
-        "userId":localStorage.getItem('userId'),
-        "text":this.state.text,
-        "urlList":list
+        "userId": localStorage.getItem('userId'),
+        "text": this.state.text,
+        "urlList": list
       };
 
       var input_file = `<p>${this.state.text}</p>`;
-      var input_pdfBlob='';
+      var input_pdfBlob = '';
 
-      axios.post('http://localhost:5000/create-pdf', { body: input_file})
-      .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
+      axios.post('http://localhost:5000/create-pdf', { body: input_file })
+        .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
         .then((res) => {
           console.log('create input pdf');
           input_pdfBlob = new Blob([res.data], { type: 'application/pdf' });
           // console.log(input_pdfBlob);
           const file_data = new FormData();
           file_data.append('file', input_pdfBlob, 'input_file.pdf');
-          axios.post("http://localhost:5000/upload", file_data).then((res)=>{
-            
+          axios.post("http://localhost:5000/upload", file_data).then((res) => {
+
             if ((res.status) == 200) {
-              this.setState({loading: false});
+              this.setState({ loading: false });
               var sourceFilename = res.data.file.filename;
               console.log(sourceFilename);
 
               axios.post("http://localhost:5000/checkplagiarism/text", data2, header)
-              .then((res) => {
-                if ((res.status) == 200) {
-                  this.props.history.push({
-                    pathname: '/user/result',
-                    state: {
-                      length: res.data.length,
-                      text: this.state.text,
-                      count: this.state.count,
-                      sourceFilename:sourceFilename
-                    }
-                  });
-                } else {
+                .then((res) => {
+                  if ((res.status) == 200) {
+                    this.props.history.push({
+                      pathname: '/user/result',
+                      state: {
+                        length: res.data.length,
+                        text: this.state.text,
+                        count: this.state.count,
+                        sourceFilename: sourceFilename
+                      }
+                    });
+                  } else {
 
-                }
-                console.log(res);
+                  }
+                  console.log(res);
 
-              })
-              
+                })
+
             } else {
               console.log("File not Uploaded");
             }
@@ -199,10 +199,10 @@ class Dashboard extends React.Component {
 
       const file = this.state.file;
       const data1 = new FormData();
-      var sourceFilename='';
+      var sourceFilename = '';
       data1.append('file', file);
 
-      
+
 
       // console.log(list);
       // axios.post("http://localhost:5000/upload", data1)
@@ -230,15 +230,15 @@ class Dashboard extends React.Component {
       //         console.log(res);
 
       //       })
-            
+
       //     } else {
       //       console.log("File not Uploaded");
       //     }
       //   })
 
-      
 
-    }else{
+
+    } else {
       this.handleSnackbarOpen('Insert document!');
     }
 
@@ -272,11 +272,11 @@ class Dashboard extends React.Component {
   //generate PDF new way
   createAndDownloadPdf = () => {
     console.log('creating');
-    axios.post('http://localhost:5000/create-pdf', { name:"", price1:"", price2:"", receiptId:"" })
+    axios.post('http://localhost:5000/create-pdf', { name: "", price1: "", price2: "", receiptId: "" })
       .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
       .then((res) => {
         const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
-        axios.post("http://localhost:5000/upload",{'file': pdfBlob}).then((res)=>{
+        axios.post("http://localhost:5000/upload", { 'file': pdfBlob }).then((res) => {
           console.log(res.status);
         });
         // saveAs(pdfBlob, 'newPdf.pdf');
@@ -306,7 +306,7 @@ class Dashboard extends React.Component {
   }
   checkResult(e) {
     // this.createAndDownloadPdf();
-    
+
     // axios.post('http://localhost:5000/create-pdf', { body:`<span style="color:red;">testing</span>` })
     //   .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
     //   .then((res) => {
@@ -332,12 +332,12 @@ class Dashboard extends React.Component {
       return
     }
 
-    axios.post("http://localhost:5000/compare", {'text1': this.state.txt1, 'text2': this.state.txt2})
+    axios.post("http://localhost:5000/compare", { 'text1': this.state.txt1, 'text2': this.state.txt2 })
       .then((res) => {
         if ((res.status) == 200) {
           console.log('200');
         } else {
-        
+
         }
         var total = 0;
         var copy = 0;
@@ -355,69 +355,76 @@ class Dashboard extends React.Component {
         sentencesArray2.forEach((sen) => {
           var isSame = false;
           console.log(sen);
-          if(similarSentances.includes(sen.trim().toLowerCase())){
+          if (similarSentances.includes(sen.trim().toLowerCase())) {
             isSame = true;
           }
-          if(sen.trim() != '') {
+          if (sen.trim() != '') {
             total = total + 1;
-            if(!isSame) {
-              resultArray.push(<span>{sen+'.'}</span>);
+            if (!isSame) {
+              resultArray.push(<span>{sen + '.'}</span>);
               resultStringForPDF = resultStringForPDF + "<span>" + sen + '.' + "</span>";
             } else {
               copy = copy + 1;
               console.log('red');
-              resultArray.push(<span style={{backgroundColor : 'rgba(255, 5, 18, 0.2)'}}>{sen+'.'}</span>);
+              resultArray.push(<span style={{ backgroundColor: 'rgba(255, 5, 18, 0.2)' }}>{sen + '.'}</span>);
               resultStringForPDF = resultStringForPDF + '<span style="background-color:rgba(255,5,18,0.2)">' + sen + '.' + "</span>";
             }
           }
         });
-        if(total != 0) {
-          var percentage = (copy/total) * 100;
+        if (total != 0) {
+          var percentage = (copy / total) * 100;
           resultArray.push(<br></br>);
           resultArray.push(<span>{'plagiarized percentage : '}</span>);
           resultArray.push(<span>{percentage.toFixed(2)}</span>);
           resultArray.push(<span>{"%"}</span>);
+
           resultStringForPDF = '<br><span>Report</span><br><table><tr><th style="border: 1px solid #dddddd"> <span style=" color: #922B21 ; font-size: 30px; padding: 10px;"> '+ percentage.toFixed(2).toString() +
           '% Plagiarism </span></th><th style="border: 1px solid #dddddd"> <span style=" color: #196F3D; font-size: 30px; padding: 10px;"> '+(100 - percentage.toFixed(2)).toFixed(2).toString()+
           '% Unique </span></th></tr></table></br>' + resultStringForPDF;
+
           resultStringForPDF = resultStringForPDF + "<p><br><br><p>"
         }
         var file = `<p>Text 1 <br><br>${this.state.txt1}</p><p>Text 2<br><br>${this.state.txt2}</p>`;
-        axios.post('http://localhost:5000/create-pdf', { body:file })
-        .then(() => axios.get('http://localhost:5000/fetch-pdf', {responseType: 'blob'}))
-        .then((res) => {
-          const sourceBlob = new Blob([res.data], { type: 'application/pdf' });
-          const sourceData = new FormData();
-          sourceData.append('file', sourceBlob, 'dataFile.pdf');
-          axios.post("http://localhost:5000/upload", sourceData).then((res) => {
-            var sourceFilename = res.data.file.filename;
-            console.log(res.data.file.filename);
-          
-            axios.post('http://localhost:5000/create-pdf', { body:`${resultStringForPDF}` })
-            .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
-            .then((res) => {
-              console.log('creating');
-              const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
-              console.log(pdfBlob);
-              const data = new FormData();
-              data.append('file', pdfBlob, 'file.pdf');
-              axios.post("http://localhost:5000/upload", data).then((res)=>{
-                var resultFilename = res.data.file.filename;
-                console.log(res.data.file.filename);
-                axios.post('http://localhost:5000/results/add', {userID: localStorage.getItem('userId'), files: [sourceFilename, resultFilename], checktype: 'compare', similarity: percentage.toFixed(2)})
+        axios.post('http://localhost:5000/create-pdf', { body: file })
+          .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
+          .then((res) => {
+            const sourceBlob = new Blob([res.data], { type: 'application/pdf' });
+            const sourceData = new FormData();
+            sourceData.append('file', sourceBlob, 'dataFile.pdf');
+            axios.post("http://localhost:5000/upload", sourceData).then((res) => {
+              var sourceFilename = res.data.file.filename;
+              console.log(res.data.file.filename);
+
+              axios.post('http://localhost:5000/create-pdf', { body: `${resultStringForPDF}` })
+                .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
                 .then((res) => {
-                  if(res.status == 200) {
-                    console.log('db updated');
-                  } else {
-                    console.log('something went wrong');
-                  }
+                  console.log('creating');
+                  const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+                  console.log(pdfBlob);
+                  const data = new FormData();
+                  data.append('file', pdfBlob, 'file.pdf');
+                  axios.post("http://localhost:5000/upload", data).then((res) => {
+                    var resultFilename = res.data.file.filename;
+                    console.log(res.data.file.filename);
+                    axios.post('http://localhost:5000/results/add', { userID: localStorage.getItem('userId'), files: [sourceFilename, resultFilename], checktype: 'compare', similarity: percentage.toFixed(2) })
+                      .then((res) => {
+                        if (res.status == 200) {
+                          console.log('db updated');
+                        } else {
+                          console.log('something went wrong');
+                        }
+                      })
+                  });
+                  saveAs(pdfBlob, 'result.pdf');
                 })
+
               });
               // saveAs(pdfBlob, 'result.pdf');
             })
             // saveAs(sourceBlob, 'source.pdf');
           });
         })
+
         // axios.post('http://localhost:5000/create-pdf', { body:`<span style="color:red;">testing</span>` })
         // .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
         // .then((res) => {
@@ -437,7 +444,7 @@ class Dashboard extends React.Component {
           pdfString:resultStringForPDF
         })
 
-    })
+      })
 
 
 
@@ -496,6 +503,16 @@ class Dashboard extends React.Component {
   }
 
   checkSRC() {
+    var total = 0;
+    var copy = 0;
+    var resultArray = [];
+    var resultStringForPDF = "";
+
+    var linedSrc1 = [];
+    var linedSrc2 = [];
+    var src1Lines = [];
+    var src2Lines = [];
+
     const src1 = this.state.src1;
     const src2 = this.state.src2;
     const srcs = {
@@ -506,8 +523,107 @@ class Dashboard extends React.Component {
     axios.post("http://localhost:5000/srcPlagiarism", srcs)
       .then((res) => {
         this.setState({ outpt: res.data.outpt });
-        console.log("Done");
-      })
+        linedSrc1 = res.data.source1;
+        linedSrc2 = res.data.source2;
+        src1Lines = res.data.line1;
+        src2Lines = res.data.line2;
+
+        var count = 0;
+
+
+        linedSrc2.forEach((sen) => {
+          console.log("Entered to loop");
+          var isSame = false;
+          console.log(sen);
+          if (src2Lines.includes(count)) {
+            isSame = true;
+          }
+          if (sen != '') {
+            total = total + 1;
+            if (!isSame) {
+              resultArray.push(<span>{sen + "<br>"}</span>);
+              resultStringForPDF = resultStringForPDF + "<span>" + sen + "<br></span>";
+            } else {
+              copy = copy + 1;
+              console.log('red');
+              resultArray.push(<span style={{ backgroundColor: 'rgba(255, 5, 18, 0.2)' }}>{sen + "<br>"}</span>);
+              resultStringForPDF = resultStringForPDF + '<span style="background-color:rgba(255,5,18,0.2)">' + sen + "<br></span>";
+            }
+          }
+          count = count + 1;
+        });
+        if (total != 0) {
+          var percentage = (copy / total) * 100;
+          console.log(percentage);
+          resultArray.push(<br></br>);
+          resultArray.push(<span>{'plagiarized percentage : '}</span>);
+          resultArray.push(<span>{percentage.toFixed(2)}</span>);
+          resultArray.push(<span>{"%"}</span>);
+          resultStringForPDF = '<br><span>Report</span><br><table><tr><th style="border: 1px solid #dddddd"> <span style=" color: #922B21 ; font-size: 30px; padding: 10px;"> ' + percentage.toFixed(2).toString() +
+            '% Plagiarism </span></th><th style="border: 1px solid #dddddd"> <span style=" color: #196F3D; font-size: 30px; padding: 10px;"> ' + (100 - percentage.toFixed(2)).toString() +
+            '% Unique </span></th></tr></table></br>' + resultStringForPDF;
+          resultStringForPDF = resultStringForPDF + "<p><br><br><p>"
+        }
+        var lineofSrc1=src1.split("\n");
+        var lineofSrc2=src2.split("\n");
+
+        var src1Array=[];
+        var src2Array=[];
+        var src1ArrayforPDF=[];
+        var src2ArrayforPDF=[];
+
+        lineofSrc1.forEach((line1)=>{
+          //console.log(line1);
+          src1Array.push(<span>{line1+"<br>"}</span>);
+          src1ArrayforPDF=src1ArrayforPDF+"<span>"+line1+"<br></span>";
+        });
+        lineofSrc2.forEach((line2)=>{
+          src2Array.push(<span>{line2+"<br>"}</span>);
+          src2ArrayforPDF=src2ArrayforPDF+"<span>"+line2+"<br></span>";
+        });
+
+        var file = `<p><u>Source 1</u> <br><br>${src1ArrayforPDF}</p><p><u>Source 2</u><br><br>${src2ArrayforPDF}</p>`;
+        axios.post('http://localhost:5000/create-pdf', { body: file })
+          .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
+          .then((res) => {
+            const sourceBlob = new Blob([res.data], { type: 'application/pdf' });
+            const sourceData = new FormData();
+            sourceData.append('file', sourceBlob, 'dataFile.pdf');
+            axios.post("http://localhost:5000/upload", sourceData).then((res) => {
+              var sourceFilename = res.data.file.filename;
+              console.log(res.data.file.filename);
+
+              axios.post('http://localhost:5000/create-pdf', { body: `${resultStringForPDF}` })
+                .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
+                .then((res) => {
+                  console.log('creating');
+                  const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+                  console.log(pdfBlob);
+                  const data = new FormData();
+                  data.append('file', pdfBlob, 'file.pdf');
+                  axios.post("http://localhost:5000/upload", data).then((res) => {
+                    var resultFilename = res.data.file.filename;
+                    console.log(res.data.file.filename);
+                    axios.post('http://localhost:5000/results/add', { userID: localStorage.getItem('userId'), files: [sourceFilename, resultFilename], checktype: 'compare', similarity: percentage.toFixed(2) })
+                      .then((res) => {
+                        if (res.status == 200) {
+                          console.log('db updated');
+                        } else {
+                          console.log('something went wrong');
+                        }
+                      })
+                  });
+                  saveAs(pdfBlob, 'result.pdf');
+                })
+              saveAs(sourceBlob, 'source.pdf');
+            });
+          })
+
+        //console.log("Done");
+      });
+
+
+
   }
 
   onChangeText1(e) {
@@ -584,9 +700,9 @@ class Dashboard extends React.Component {
 
   }
   checkLimit() {
-    if(this.state.count < 1000){
+    if (this.state.count < 1000) {
       this.setState({ validType: 'valid' });
-    }else{
+    } else {
       this.handleSnackbarOpen('Exceed Word Limit!');
     }
   }
@@ -648,7 +764,7 @@ class Dashboard extends React.Component {
       <div className="content" style={{ marginTop: '9rem' }}>
 
         <Backdrop open={this.state.loading} style={{ zIndex: 5000 }}>
-          <CircularProgress color="inherit" style={{textAlign:'center'}}/>
+          <CircularProgress color="inherit" style={{ textAlign: 'center' }} />
         </Backdrop>
 
         <Row>
@@ -756,12 +872,12 @@ class Dashboard extends React.Component {
                 </Row>
 
                 <Row >
-                  <Col md="6" xs="12" style={{ textAlign: 'left'}}>
+                  <Col md="6" xs="12" style={{ textAlign: 'left' }}>
                     <MIButton onClick={() => { this.loadFile(); }} startIcon={<CloudUploadIcon />} style={classes.upload} size="large">
-                      Upload File&nbsp; <div style={{ fontSize: '16px'}}>(doc, docx, txt, pdf) </div>
+                      Upload File&nbsp; <div style={{ fontSize: '16px' }}>(doc, docx, txt, pdf) </div>
                     </MIButton>
                   </Col>
-                  <Col md="6" xs="12" style={{ textAlign: 'right'}}>
+                  <Col md="6" xs="12" style={{ textAlign: 'right' }}>
                     <div className="stats" style={{ marginRight: '2.5rem' }} >
                       <i className="fas fa-pen-nib" /> Word Count : {this.state.count}/1000
                     </div>
@@ -769,9 +885,9 @@ class Dashboard extends React.Component {
                 </Row>
                 <Row >
 
-                  <Col md="6" xs="12" style={{ textAlign: 'left'}}>
-                    <div  style={{ marginLeft: '3rem' }} >
-                      <Typography style={{ fontSize: '16px', margin: '0rem 0 0.6rem 0', fontWeight:'bold', color:'#424B4C' }}>
+                  <Col md="6" xs="12" style={{ textAlign: 'left' }}>
+                    <div style={{ marginLeft: '3rem' }} >
+                      <Typography style={{ fontSize: '16px', margin: '0rem 0 0.6rem 0', fontWeight: 'bold', color: '#424B4C' }}>
                         Check Plagiarism via Webpage URL (optional)
                       </Typography>
 
@@ -784,14 +900,14 @@ class Dashboard extends React.Component {
                     </div>
                   </Col>
                 </Row>
-                <Row style={{ textAlign: 'center', marginTop:'2rem' }} >
+                <Row style={{ textAlign: 'center', marginTop: '2rem' }} >
                   <Col>
                     <MIButton
                       variant="contained"
                       color="primary"
                       size="large"
                       startIcon={<SearchIcon />}
-                      style={{backgroundColor:'#066294'}}
+                      style={{ backgroundColor: '#066294' }}
                       onClick={this.onSubmit}
                     >
                       Check Plagiarism
@@ -804,7 +920,7 @@ class Dashboard extends React.Component {
               </CardFooter>
             </Card>
           </Col>
-          <Snackbar open={this.state.validWebState} style={{marginLeft:'5rem'}} anchorOrigin={{vertical:'bottom', horizontal:'right' }} autoHideDuration={6000} onClose={this.handleSnackbarClose}>
+          <Snackbar open={this.state.validWebState} style={{ marginLeft: '5rem' }} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} autoHideDuration={6000} onClose={this.handleSnackbarClose}>
             <Alert variant="filled" onClose={this.handleSnackbarClose} severity="error">
               {this.state.validType}
             </Alert>
@@ -828,39 +944,39 @@ class Dashboard extends React.Component {
               <CardBody>
                 <label>First Text</label>
                 <Row style={{ textAlign: 'center' }}>
-                    <Col>
-                    <TextareaAutosize id="txt1" onChange={this.onChangeText1} style={classes.textArea} 
-                  rowsMax={1} rowsMin={1} value={this.state.txt1} aria-label="empty textarea" 
-                  placeholder={"\n" + "\n" + " Enter First Text Here"} />
-                    </Col>
-                  </Row>
-                  {/* <Input
+                  <Col>
+                    <TextareaAutosize id="txt1" onChange={this.onChangeText1} style={classes.textArea}
+                      rowsMax={1} rowsMin={1} value={this.state.txt1} aria-label="empty textarea"
+                      placeholder={"\n" + "\n" + " Enter First Text Here"} />
+                  </Col>
+                </Row>
+                {/* <Input
                     type="textarea"
                     value={this.state.txt1}
                     onChange={this.onChangeText1}
                   /> */}
-              
+
                 <label>Second Text</label>
-                  <Row style={{ textAlign: 'center' }}>
-                    <Col>
-                    <TextareaAutosize id="txt2" onChange={this.onChangeText2} style={classes.textArea} 
-                  rowsMax={1} rowsMin={1} value={this.state.txt2} aria-label="empty textarea" 
-                  placeholder={"\n" + "\n" + " Enter Second Text Here"} />
-                    </Col>
-                  </Row>
-                  
-                  {/* <Input
+                <Row style={{ textAlign: 'center' }}>
+                  <Col>
+                    <TextareaAutosize id="txt2" onChange={this.onChangeText2} style={classes.textArea}
+                      rowsMax={1} rowsMin={1} value={this.state.txt2} aria-label="empty textarea"
+                      placeholder={"\n" + "\n" + " Enter Second Text Here"} />
+                  </Col>
+                </Row>
+
+                {/* <Input
                     type="textarea"
                     value={this.state.txt2}
                     onChange={this.onChangeText2}
                   /> */}
-                    <Row style={{ textAlign: 'center', marginTop:'2rem' }} >
-                      <Col>
-                      <MIButton
+                <Row style={{ textAlign: 'center', marginTop: '2rem' }} >
+                  <Col>
+                    <MIButton
                       variant="contained"
                       color="primary"
                       size="large"
-                      style={{backgroundColor:'#066294'}}
+                      style={{ backgroundColor: '#066294' }}
                       onClick={this.checkResult}
                     >
                       Compare
@@ -878,8 +994,8 @@ class Dashboard extends React.Component {
                     >
                       Download Result
                     </MIButton>
-                      </Col>
-                    </Row>
+                  </Col>
+                </Row>
                 {/* <Button id="btnCompare" onClick={this.checkResult} color="primary">Compare and Download Result PDFs</Button> */}
                 {/* <Pdf targetRef={ref} filename="result.pdf">
                   {({ toPdf }) => <Button onClick={toPdf} color="primary">Download Result PDF</Button>}
@@ -904,23 +1020,52 @@ class Dashboard extends React.Component {
 
 
               <CardBody>
-                <FormGroup>
-                  <label>First Source</label>
-                  <Input
+
+                <label>First Source</label>
+                {/*<Input
                     type="textarea"
                     value={this.state.src1}
                     onChange={this.onChangeSource1}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <label>Second Source</label>
-                  <Input
+                  />*/}
+                <Row style={{ textAlign: 'center' }}>
+                  <Col>
+                    <TextareaAutosize id="src1" onChange={this.onChangeSource1} style={classes.textArea}
+                      rowsMax={1} rowsMin={1} value={this.state.src1} aria-label="empty textarea"
+                      placeholder={"\n" + "\n" + " Enter First Source Here"} />
+                  </Col>
+                </Row>
+
+
+
+                <label>Second Source</label>
+                {/*<Input
                     type="textarea"
                     value={this.state.src2}
                     onChange={this.onChangeSource2}
-                  />
-                </FormGroup>
-                <Button id="btnCompare" onClick={this.checkSRC} color="primary">Compare</Button>
+                  />*/}
+                <Row style={{ textAlign: 'center' }}>
+                  <Col>
+                    <TextareaAutosize id="src2" onChange={this.onChangeSource2} style={classes.textArea}
+                      rowsMax={1} rowsMin={1} value={this.state.src2} aria-label="empty textarea"
+                      placeholder={"\n" + "\n" + " Enter Second Source Here"} />
+                  </Col>
+                </Row>
+
+                {/*<Button id="btnCompare" onClick={this.checkSRC} color="primary">Compare</Button>*/}
+                <Row style={{ textAlign: 'center', marginTop: '2rem' }} >
+                  <Col>
+                    <MIButton
+                      variant="contained"
+                      color="primary"
+                      size="large"
+                      style={{ backgroundColor: '#066294' }}
+                      onClick={this.checkSRC}
+                    >
+                      Compare and Download Result PDFs
+                    </MIButton>
+                  </Col>
+                </Row>
+
                 <div>
                   <p id="inpsrc">{this.state.outpt}</p>
                 </div>
