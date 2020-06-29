@@ -91,8 +91,10 @@ class Dashboard extends React.Component {
     this.handleSnackbarOpen = this.handleSnackbarOpen.bind(this);
     this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
     this.createAndDownloadPdf = this.createAndDownloadPdf.bind(this);
+    this.downloadResult = this.downloadResult.bind(this);
 
     this.state = {
+      pdfString : '',
       file: null,
       validWebState: false,
       txt1: '',
@@ -281,6 +283,27 @@ class Dashboard extends React.Component {
       })
   }
   // compare two paragraphs
+
+  downloadResult = () => {
+    if (this.state.pdfString == "") {
+      console.log('empty');
+    }
+
+    axios.post('http://localhost:5000/create-pdf', { body:this.state.pdfString })
+      .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
+      .then((res) => {
+        console.log('creating');
+        const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+        console.log(pdfBlob);
+        const data = new FormData();
+        data.append('file', pdfBlob, 'file.pdf');
+        axios.post("http://localhost:5000/upload", data).then((res)=>{
+          console.log(res.data.file.filename);
+        });
+        saveAs(pdfBlob, 'result.pdf');
+      })
+
+  }
   checkResult(e) {
     // this.createAndDownloadPdf();
 
@@ -354,9 +377,11 @@ class Dashboard extends React.Component {
           resultArray.push(<span>{'plagiarized percentage : '}</span>);
           resultArray.push(<span>{percentage.toFixed(2)}</span>);
           resultArray.push(<span>{"%"}</span>);
-          resultStringForPDF = '<br><span>Report</span><br><table><tr><th style="border: 1px solid #dddddd"> <span style=" color: #922B21 ; font-size: 30px; padding: 10px;"> ' + percentage.toFixed(2).toString() +
-            '% Plagiarism </span></th><th style="border: 1px solid #dddddd"> <span style=" color: #196F3D; font-size: 30px; padding: 10px;"> ' + (100 - percentage.toFixed(2)).toString() +
-            '% Unique </span></th></tr></table></br>' + resultStringForPDF;
+
+          resultStringForPDF = '<br><span>Report</span><br><table><tr><th style="border: 1px solid #dddddd"> <span style=" color: #922B21 ; font-size: 30px; padding: 10px;"> '+ percentage.toFixed(2).toString() +
+          '% Plagiarism </span></th><th style="border: 1px solid #dddddd"> <span style=" color: #196F3D; font-size: 30px; padding: 10px;"> '+(100 - percentage.toFixed(2)).toFixed(2).toString()+
+          '% Unique </span></th></tr></table></br>' + resultStringForPDF;
+
           resultStringForPDF = resultStringForPDF + "<p><br><br><p>"
         }
         var file = `<p>Text 1 <br><br>${this.state.txt1}</p><p>Text 2<br><br>${this.state.txt2}</p>`;
@@ -392,9 +417,14 @@ class Dashboard extends React.Component {
                   });
                   saveAs(pdfBlob, 'result.pdf');
                 })
-              saveAs(sourceBlob, 'source.pdf');
-            });
-          })
+
+              });
+              // saveAs(pdfBlob, 'result.pdf');
+            })
+            // saveAs(sourceBlob, 'source.pdf');
+          });
+        })
+
         // axios.post('http://localhost:5000/create-pdf', { body:`<span style="color:red;">testing</span>` })
         // .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
         // .then((res) => {
@@ -410,7 +440,8 @@ class Dashboard extends React.Component {
         // })
         console.log(resultArray[0]);
         this.setState({
-          opMap: resultArray
+          opMap: resultArray,
+          pdfString:resultStringForPDF
         })
 
       })
@@ -948,7 +979,20 @@ class Dashboard extends React.Component {
                       style={{ backgroundColor: '#066294' }}
                       onClick={this.checkResult}
                     >
-                      Compare and Download Result PDFs
+                      Compare
+                    </MIButton>
+                      </Col>
+                    </Row>
+                    <Row style={{ textAlign: 'center', marginTop:'2rem' }} >
+                      <Col>
+                      <MIButton
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      style={{backgroundColor:'#066294'}}
+                      onClick={this.downloadResult}
+                    >
+                      Download Result
                     </MIButton>
                   </Col>
                 </Row>

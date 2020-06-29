@@ -49,6 +49,7 @@ router.route('/').post((req, res) => {
             synonymsMap[i].push(i);
         }
         console.log("Done syn");
+        console.log(synonymsMap);
         return synonymsMap
     }
 
@@ -131,8 +132,8 @@ router.route('/').post((req, res) => {
     
     tokenize_text1 = tokenizer.tokenize(req.body.text1);
     tokenize_text2 = tokenizer.tokenize(req.body.text2);
-    console.log(tokenize_text1);
-    console.log(tokenize_text2);
+    // console.log(tokenize_text1);
+    // console.log(tokenize_text2);
     compare(tokenize_text1, tokenize_text2,res);
     // const text = req.body.text1;
     // console.log(text);
