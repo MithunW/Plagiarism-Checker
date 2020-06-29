@@ -472,6 +472,16 @@ class Dashboard extends React.Component {
   }
 
   checkSRC() {
+    var total = 0;
+    var copy = 0;
+    var resultArray = [];
+    var resultStringForPDF = "";
+
+    var linedSrc1 = [];
+    var linedSrc2 = [];
+    var src1Lines = [];
+    var src2Lines = [];
+
     const src1 = this.state.src1;
     const src2 = this.state.src2;
     const srcs = {
@@ -482,8 +492,107 @@ class Dashboard extends React.Component {
     axios.post("http://localhost:5000/srcPlagiarism", srcs)
       .then((res) => {
         this.setState({ outpt: res.data.outpt });
-        console.log("Done");
-      })
+        linedSrc1 = res.data.source1;
+        linedSrc2 = res.data.source2;
+        src1Lines = res.data.line1;
+        src2Lines = res.data.line2;
+
+        var count = 0;
+
+
+        linedSrc2.forEach((sen) => {
+          console.log("Entered to loop");
+          var isSame = false;
+          console.log(sen);
+          if (src2Lines.includes(count)) {
+            isSame = true;
+          }
+          if (sen != '') {
+            total = total + 1;
+            if (!isSame) {
+              resultArray.push(<span>{sen + "<br>"}</span>);
+              resultStringForPDF = resultStringForPDF + "<span>" + sen + "<br></span>";
+            } else {
+              copy = copy + 1;
+              console.log('red');
+              resultArray.push(<span style={{ backgroundColor: 'rgba(255, 5, 18, 0.2)' }}>{sen + "<br>"}</span>);
+              resultStringForPDF = resultStringForPDF + '<span style="background-color:rgba(255,5,18,0.2)">' + sen + "<br></span>";
+            }
+          }
+          count = count + 1;
+        });
+        if (total != 0) {
+          var percentage = (copy / total) * 100;
+          console.log(percentage);
+          resultArray.push(<br></br>);
+          resultArray.push(<span>{'plagiarized percentage : '}</span>);
+          resultArray.push(<span>{percentage.toFixed(2)}</span>);
+          resultArray.push(<span>{"%"}</span>);
+          resultStringForPDF = '<br><span>Report</span><br><table><tr><th style="border: 1px solid #dddddd"> <span style=" color: #922B21 ; font-size: 30px; padding: 10px;"> ' + percentage.toFixed(2).toString() +
+            '% Plagiarism </span></th><th style="border: 1px solid #dddddd"> <span style=" color: #196F3D; font-size: 30px; padding: 10px;"> ' + (100 - percentage.toFixed(2)).toString() +
+            '% Unique </span></th></tr></table></br>' + resultStringForPDF;
+          resultStringForPDF = resultStringForPDF + "<p><br><br><p>"
+        }
+        var lineofSrc1=src1.split("\n");
+        var lineofSrc2=src2.split("\n");
+
+        var src1Array=[];
+        var src2Array=[];
+        var src1ArrayforPDF=[];
+        var src2ArrayforPDF=[];
+
+        lineofSrc1.forEach((line1)=>{
+          //console.log(line1);
+          src1Array.push(<span>{line1+"<br>"}</span>);
+          src1ArrayforPDF=src1ArrayforPDF+"<span>"+line1+"<br></span>";
+        });
+        lineofSrc2.forEach((line2)=>{
+          src2Array.push(<span>{line2+"<br>"}</span>);
+          src2ArrayforPDF=src2ArrayforPDF+"<span>"+line2+"<br></span>";
+        });
+
+        var file = `<p><u>Source 1</u> <br><br>${src1ArrayforPDF}</p><p><u>Source 2</u><br><br>${src2ArrayforPDF}</p>`;
+        axios.post('http://localhost:5000/create-pdf', { body: file })
+          .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
+          .then((res) => {
+            const sourceBlob = new Blob([res.data], { type: 'application/pdf' });
+            const sourceData = new FormData();
+            sourceData.append('file', sourceBlob, 'dataFile.pdf');
+            axios.post("http://localhost:5000/upload", sourceData).then((res) => {
+              var sourceFilename = res.data.file.filename;
+              console.log(res.data.file.filename);
+
+              axios.post('http://localhost:5000/create-pdf', { body: `${resultStringForPDF}` })
+                .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
+                .then((res) => {
+                  console.log('creating');
+                  const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+                  console.log(pdfBlob);
+                  const data = new FormData();
+                  data.append('file', pdfBlob, 'file.pdf');
+                  axios.post("http://localhost:5000/upload", data).then((res) => {
+                    var resultFilename = res.data.file.filename;
+                    console.log(res.data.file.filename);
+                    axios.post('http://localhost:5000/results/add', { userID: localStorage.getItem('userId'), files: [sourceFilename, resultFilename], checktype: 'compare', similarity: percentage.toFixed(2) })
+                      .then((res) => {
+                        if (res.status == 200) {
+                          console.log('db updated');
+                        } else {
+                          console.log('something went wrong');
+                        }
+                      })
+                  });
+                  saveAs(pdfBlob, 'result.pdf');
+                })
+              saveAs(sourceBlob, 'source.pdf');
+            });
+          })
+
+        //console.log("Done");
+      });
+
+
+
   }
 
   onChangeText1(e) {
@@ -867,14 +976,14 @@ class Dashboard extends React.Component {
 
 
               <CardBody>
-                
-                  <label>First Source</label>
-                  {/*<Input
+
+                <label>First Source</label>
+                {/*<Input
                     type="textarea"
                     value={this.state.src1}
                     onChange={this.onChangeSource1}
                   />*/}
-                  <Row style={{ textAlign: 'center' }}>
+                <Row style={{ textAlign: 'center' }}>
                   <Col>
                     <TextareaAutosize id="src1" onChange={this.onChangeSource1} style={classes.textArea}
                       rowsMax={1} rowsMin={1} value={this.state.src1} aria-label="empty textarea"
@@ -882,22 +991,22 @@ class Dashboard extends React.Component {
                   </Col>
                 </Row>
 
-                
-                
-                  <label>Second Source</label>
-                  {/*<Input
+
+
+                <label>Second Source</label>
+                {/*<Input
                     type="textarea"
                     value={this.state.src2}
                     onChange={this.onChangeSource2}
                   />*/}
-                  <Row style={{ textAlign: 'center' }}>
+                <Row style={{ textAlign: 'center' }}>
                   <Col>
                     <TextareaAutosize id="src2" onChange={this.onChangeSource2} style={classes.textArea}
                       rowsMax={1} rowsMin={1} value={this.state.src2} aria-label="empty textarea"
                       placeholder={"\n" + "\n" + " Enter Second Source Here"} />
                   </Col>
                 </Row>
-                
+
                 {/*<Button id="btnCompare" onClick={this.checkSRC} color="primary">Compare</Button>*/}
                 <Row style={{ textAlign: 'center', marginTop: '2rem' }} >
                   <Col>
