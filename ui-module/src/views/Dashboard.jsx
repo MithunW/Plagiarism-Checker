@@ -417,13 +417,9 @@ class Dashboard extends React.Component {
                   });
                   saveAs(pdfBlob, 'result.pdf');
                 })
-
-              });
-              // saveAs(pdfBlob, 'result.pdf');
-            })
-            // saveAs(sourceBlob, 'source.pdf');
-          });
-        })
+              //saveAs(sourceBlob, 'source.pdf');
+            });
+          })
 
         // axios.post('http://localhost:5000/create-pdf', { body:`<span style="color:red;">testing</span>` })
         // .then(() => axios.get('http://localhost:5000/fetch-pdf', { responseType: 'blob' }))
