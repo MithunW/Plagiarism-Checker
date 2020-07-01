@@ -123,7 +123,7 @@ router.route("/text").post(verifyToken, (req, res) => {
   async function customSearch(search_query, length, i) {
     const customSearch = google.customsearch("v1");
     const response = await customSearch.cse.list({
-      auth: "AIzaSyDft4KwXd4xfoLk6eCrIPPgpsEJXDk57FU",
+      auth: "AIzaSyDPb-J1vCcQnuTiUm8Qw2jFclK2ieqGUeo",
       cx: "002062490322378734881:fqfodg8bief",
       q: search_query,
       num: 1,
@@ -220,19 +220,23 @@ router.route("/text").post(verifyToken, (req, res) => {
 
       if (target_index > 0) {
         if (matches.bestMatch.rating > results_list[index][1]) {
-          console.log(index,results_list[index][1],' ',matches.bestMatch.rating,);
+          // console.log(index,results_list[index][1],' ',matches.bestMatch.rating,);
           results_list[index][1] = matches.bestMatch.rating;
           results_list[index][2] = target_url;
+          // console.log( "sentence update - ", index, " - ", (results_list[index][1]*100), "% - ", results_list[index][2] );
+
         }
       } else {
         results_list.push([ sentence, matches.bestMatch.rating, target_url]);
+        // console.log( "sentence - ", index, " - ", (results_list[index][1]*100), "% - ", results_list[index][2] );
+
       }
 
       if (matches.bestMatch.rating >= 0.8) {
         count += 1;
       }
 
-      console.log( "matches - ", index, " - ", results_list[index][1], " - ", results_list[index][2] );
+      console.log( "sentence - ", index, " - ", (results_list[index][1]*100), "% - ", results_list[index][2] );
       // process+=1;
     });
   }

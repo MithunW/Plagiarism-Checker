@@ -46,9 +46,10 @@ class Login extends React.Component {
     fire.auth().signInWithEmailAndPassword(values.email, values.password).then((u)=>{
       }).then((u)=>{
         console.log("login");
-        this.props.history.push({
-          pathname: '/user/dashboard'        
-        });
+        this.authListener(this);
+        // this.props.history.push({
+        //   pathname: '/user/dashboard'        
+        // });
       })
       .catch((error) => {
           this.setState({status:error.message});
@@ -67,9 +68,10 @@ class Login extends React.Component {
       var token = result.credential.accessToken;
       // The signed-in user info.
       var user = result.user;
-      props.history.push({
-        pathname: '/user/dashboard'         
-      });
+      this.authListener(this);
+      // props.history.push({
+      //   pathname: '/user/dashboard'         
+      // });
 
   
       console.log("google sign succefully");
@@ -98,6 +100,7 @@ class Login extends React.Component {
         localStorage.setItem('userName', user.displayName);
         localStorage.setItem('photoURL', user.photoURL);
         localStorage.setItem('email', user.email);
+        localStorage.setItem('emailVerified', user.emailVerified);
 
         var displayName = user.displayName;
         var email = user.email;
@@ -108,6 +111,9 @@ class Login extends React.Component {
         var providerData = user.providerData;
         var lastSignInTime = user.metadata.lastSignInTime;
         var creationTime = user.metadata.creationTime;
+
+        console.log(user);    
+
         user.getIdToken().then(function(accessToken) {
           if(lastSignInTime==creationTime){
             next.addUser(uid,displayName,email);
