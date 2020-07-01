@@ -117,6 +117,7 @@ class SignUp extends React.Component {
         localStorage.setItem('userName', user.displayName);
         localStorage.setItem('photoURL', user.photoURL);
         localStorage.setItem('email', user.email);
+        localStorage.setItem('emailVerified', user.emailVerified);
 
         var displayName = user.displayName;
         var email = user.email;
@@ -125,6 +126,7 @@ class SignUp extends React.Component {
         var uid = user.uid;
         var phoneNumber = user.phoneNumber;
         var providerData = user.providerData;
+        console.log(user);    
 
         user.getIdToken().then(function(accessToken) {
           next.addUser(uid,displayName,email);

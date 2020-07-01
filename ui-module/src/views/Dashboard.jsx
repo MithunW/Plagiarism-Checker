@@ -856,7 +856,7 @@ class Dashboard extends React.Component {
                 <Row style={{ textAlign: 'center' }} >
                   <Col>
                     <input id="file" name="file" type="file" onChange={this.onChangeFile} accept=".pdf,.docx,.doc,.txt" hidden />
-                    <TextareaAutosize id="result" onChange={this.handleTextArea} style={classes.textArea} rowsMax={1} rowsMin={1} value={this.state.text} aria-label="empty textarea" placeholder={"\n" + "\n" + " Enter Your Text Here"} />
+                    <TextareaAutosize id="result" className="textArea" onChange={this.handleTextArea} style={classes.textArea} rowsMax={1} rowsMin={1} value={this.state.text} aria-label="empty textarea" placeholder={"\n" + "\n" + " Enter Your Text Here"} />
                   </Col>
                 </Row>
                 <Row style={{ textAlign: 'right', width: '97.5%' }} >
@@ -889,6 +889,7 @@ class Dashboard extends React.Component {
 
                       <TextField
                         variant="outlined"
+                        placeholder={"www.example-1.com" + "\n" + "www.example-2.com"}
                         multiline
                         fullWidth
                         onChange={this.setURL}
@@ -1073,7 +1074,7 @@ class Dashboard extends React.Component {
 
         {/* --------------------Using document reference---------------------- */}
 
-        <Row>
+        {/* <Row>
           <Col md="12">
             <Card>
               <CardHeader>
@@ -1088,7 +1089,7 @@ class Dashboard extends React.Component {
               </CardBody>
             </Card>
           </Col>
-        </Row>
+        </Row> */}
       </div>
     );
   }
