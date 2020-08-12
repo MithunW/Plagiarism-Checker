@@ -27,7 +27,7 @@
     "react-notification-alert": "0.0.12",
     "react-router": "5.0.0",
     "react-router-dom": "5.0.0",
-    "react-scripts": "^3.0.1",
+    "react-scripts": "^3.4.2",
     "react-to-pdf": "0.0.11",
     "reactstrap": "8.0.0",
     "string-similarity": "^4.0.1",
