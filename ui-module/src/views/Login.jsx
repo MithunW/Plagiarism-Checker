@@ -287,6 +287,7 @@ class Login extends React.Component {
 
                         <Grid item xs={12} sm={12} style={{textAlign:'center'}}>
                           <Button
+                            id="login_btn"
                             type="submit"
                             variant="contained"
                             color="primary"        
