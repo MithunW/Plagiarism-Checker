@@ -168,9 +168,7 @@ router.route("/text").post(verifyToken, (req, res) => {
   //05. extract page content - web scraping
   function scrap(url_list) {
     url_list.forEach(function (url, index) {
-      puppeteer
-        .launch()
-        .then(function (browser) {
+      puppeteer.launch().then(function (browser) {
           return browser.newPage();
         })
         .then(function (page) {
@@ -178,13 +176,27 @@ router.route("/text").post(verifyToken, (req, res) => {
             return page.content();
           });
         })
+        .catch(function (err) {
+          // console.log("Scraping error - ", err);
+          console.log("Scraping error - ",  index," ", url);
+          target_list.push(["abc",url]);
+
+          if (url_list.length == target_list.length) {
+            console.log("finished web scraping - err");
+            getTargetText();
+          }
+        })
         .then(function (html) {
           // console.log(html);
           data = extractor(html);
           // console.log(data.text);
           // target_text=data;
           // compareText(data.text);
-          target_list.push([data.text,url]);
+          if(data.text==''){
+            target_list.push(["abc",url]);
+          }else{
+            target_list.push([data.text,url]);
+          }
           console.log(url);
           console.log(index+1,"web scraping");
 
@@ -195,8 +207,23 @@ router.route("/text").post(verifyToken, (req, res) => {
         })
         .catch(function (err) {
           // console.log("Scraping error - ", err);
+          console.log("Scraping error - ",  index," ", url);
+          target_list.push(["abc",url]);
+
+          if (url_list.length == target_list.length) {
+            console.log("finished web scraping - err");
+            getTargetText();
+          }
         });
+      if (url_list.length == target_list.length) {
+        console.log("finished web scraping - ");
+        getTargetText();
+      }
     });
+    if (url_list.length == target_list.length) {
+      console.log("finished web scraping -- done");
+      getTargetText();
+    }
   }
   
 
@@ -204,6 +231,7 @@ router.route("/text").post(verifyToken, (req, res) => {
     target_list.forEach(function (target_text_list, index) {
       var target_text=target_text_list[0];
       var target_url=target_text_list[1];
+      // console.log("target_text_list - ", target_text_list);
       console.log("compare text - ", index, " start");
       var tokenize_target_document = tokenizer.tokenize(target_text);
       compareText(tokenize_target_document, target_url, index);
