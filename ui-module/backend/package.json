@@ -9,7 +9,9 @@
   },
   "scripts": {
     "test": "mocha --timeout 10000",
-    "start": "node server.js"
+    "start": "node server.js",
+    "prepare": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
   },
   "keywords": [],
   "author": "",
@@ -21,28 +23,30 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "firebase-admin": "^8.12.0",
-    "googleapis": "^48.0.0",
+    "firebase-admin": "^10.0.2",
+    "googleapis": "^49.0.0",
     "gridfs-stream": "^1.1.1",
-    "html-pdf": "^2.2.0",
+    "html-pdf": "^3.0.0",
     "https": "^1.0.0",
-    "mammoth": "^1.4.9",
+    "mammoth": "^1.4.18",
     "method-override": "^3.0.0",
-    "mocha": "^8.0.1",
-    "mongoose": "^5.9.7",
+    "mocha": "^8.1.0",
+    "mongoose": "^5.13.15",
     "multer": "^1.4.2",
     "multer-gridfs-storage": "^4.0.3",
-    "natural": "^0.6.3",
+    "natural": "^5.1.11",
     "node-wordnet": "^0.1.12",
     "pdf-parse": "^1.1.1",
     "puppeteer": "^3.0.0",
-    "react-to-pdf": "0.0.11",
+    "react-to-pdf": "0.0.14",
     "stopword": "^1.0.0",
     "string-similarity": "^4.0.1",
     "synonyms": "^1.0.1",
     "thesaurus-com": "^1.2.3",
     "unfluff": "^3.2.0",
     "wndb-with-exceptions": "^3.0.2",
-    "wordpos": "^2.0.0"
-  }
+    "wordpos": "^2.0.0",
+    "@snyk/protect": "latest"
+  },
+  "snyk": true
 }
